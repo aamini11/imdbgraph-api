@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "omdb.apikey",
+      "type": "java.lang.String",
+      "description": "Api key for OMDB"
+    }
+  ]
+}

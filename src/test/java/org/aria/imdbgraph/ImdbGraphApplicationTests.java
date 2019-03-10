@@ -1,7 +1,7 @@
 package org.aria.imdbgraph;
 
-import org.aria.imdbgraph.omdb.OmdbTemplate;
-import org.aria.imdbgraph.omdb.Season;
+import org.aria.imdbgraph.omdb.OmdbService;
+import org.aria.imdbgraph.omdb.ShowRatings;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,22 +11,23 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.List;
-
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes = ImdbGraphApplication.class)
 public class ImdbGraphApplicationTests {
 
+    private static final String simpsonsId = "tt0096697";
+    private static final String avatarId = "tt0417299";
+
     @Autowired
-    private OmdbTemplate omdbTemplate;
+    private OmdbService omdbService;
 
     @Value("${omdb.apikey}")
     private String apikey;
 
     @Test
-    public void testSeasonGet() {
-        List<Season> response = omdbTemplate.getAllSeasons("tt0096697");
-        Assert.assertEquals(30, response.size());
+    public void testAvatarSeasonSize() {
+        ShowRatings avatarRatings = omdbService.getShowRating(avatarId);
+        Assert.assertEquals(3, avatarRatings.getAllSeaons().size());
     }
 }
