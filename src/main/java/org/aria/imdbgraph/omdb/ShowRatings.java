@@ -6,48 +6,56 @@ import java.util.List;
 
 public class ShowRatings {
 
-    private final List<SeasonInfo> allSeasons;
+    private final List<SeasonRating> allRatings;
 
-    ShowRatings(@JsonProperty("allSeasons") List<SeasonInfo> allSeasons) {
-        this.allSeasons = allSeasons;
-    }
-
-    public List<SeasonInfo> getAllSeaons() {
-        return allSeasons;
+    ShowRatings(List<SeasonRating> allRatings) {
+        this.allRatings = allRatings;
     }
 
     public String getEpisodeRating(int season, int episode) {
-        SeasonInfo seasonInfo = getAllSeaons().get(season-1);
-        EpisodeInfo epsiodeInfo = seasonInfo.getAllEpisodes().get(episode-1);
-        return epsiodeInfo.getImdbRating();
+        SeasonRating seasonRating = allRatings.get(season-1);
+        EpisodeRating episodeRating = seasonRating.getAllEpisodeRatings().get(episode-1);
+        return episodeRating.getImdbRating();
     }
 
-    public static final class SeasonInfo {
-        private final int season;
-        private final List<EpisodeInfo> allEpisodes;
+    public List<SeasonRating> getAllSeasonRatings() {
+        return allRatings;
+    }
 
-        public SeasonInfo(@JsonProperty("season") int season, @JsonProperty("episodes") List<EpisodeInfo> allEpisodes) {
-            this.season = season;
-            this.allEpisodes = allEpisodes;
+    static final class SeasonRating {
+
+        @JsonProperty("season")
+        private final int seasonNumber;
+
+        @JsonProperty("episodes")
+        private final List<EpisodeRating> allEpisodeRatings;
+
+        public SeasonRating(int seasonNumber, List<EpisodeRating> allEpisodeRatings) {
+            this.seasonNumber = seasonNumber;
+            this.allEpisodeRatings = allEpisodeRatings;
         }
 
-        public int getSeason() {
-            return season;
+        int getSeasonNumber() {
+            return seasonNumber;
         }
 
-        List<EpisodeInfo> getAllEpisodes() {
-            return allEpisodes;
+        List<EpisodeRating> getAllEpisodeRatings() {
+            return allEpisodeRatings;
         }
     }
 
-    private final static class EpisodeInfo {
+    static final class EpisodeRating {
+
+        @JsonProperty("title")
         private final String title;
+
+        @JsonProperty("episode")
         private final int episode;
+
+        @JsonProperty("imdbRating")
         private final String imdbRating;
 
-        public EpisodeInfo(@JsonProperty("title") String title,
-                           @JsonProperty("episode") int episode,
-                           @JsonProperty("imdbRating") String imdbRating) {
+        public EpisodeRating(String title, int episode, String imdbRating) {
             this.title = title;
             this.episode = episode;
             this.imdbRating = imdbRating;

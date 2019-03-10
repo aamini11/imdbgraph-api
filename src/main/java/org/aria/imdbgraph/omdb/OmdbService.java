@@ -31,15 +31,15 @@ public class OmdbService {
         this.restTemplate = restTemplate;
     }
 
-    private final static class OmdbResponse {
-        private final int numSeaons;
+    private static final class OmdbResponse {
+        private final int numSeasons;
 
         public OmdbResponse(@JsonProperty("totalSeasons") int numSeaons) {
-            this.numSeaons = numSeaons;
+            this.numSeasons = numSeaons;
         }
 
         int getNumSeasons() {
-            return numSeaons;
+            return numSeasons;
         }
     }
 
@@ -54,19 +54,19 @@ public class OmdbService {
         return response.getNumSeasons();
     }
 
-    private SeasonInfo getSeason(String showId, int season) {
+    private SeasonRating getSeason(String showId, int season) {
         String uri = UriComponentsBuilder
                 .fromUriString(BASE_URL)
                 .queryParam("apikey", apiKey)
                 .queryParam("i", showId)
                 .queryParam("Season", season)
                 .toUriString();
-        return restTemplate.getForObject(uri, SeasonInfo.class);
+        return restTemplate.getForObject(uri, SeasonRating.class);
     }
 
     public ShowRatings getShowRating(String showId) {
         int numSeasons = getNumSeasons(showId);
-        List<SeasonInfo> allSeasons = new ArrayList<>();
+        List<SeasonRating> allSeasons = new ArrayList<>();
         for (int season = 1; season <= numSeasons; season++) {
             allSeasons.add(getSeason(showId, season));
         }

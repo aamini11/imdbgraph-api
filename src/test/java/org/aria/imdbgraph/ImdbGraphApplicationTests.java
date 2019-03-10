@@ -28,6 +28,11 @@ public class ImdbGraphApplicationTests {
     @Test
     public void testAvatarSeasonSize() {
         ShowRatings avatarRatings = omdbService.getShowRating(avatarId);
-        Assert.assertEquals(3, avatarRatings.getAllSeaons().size());
+        Assert.assertEquals(3, avatarRatings.getAllSeasonRatings().size());
+    }
+
+    @Test
+    public void testRatingsGet() {
+        //return omdbService.getE
     }
 }
