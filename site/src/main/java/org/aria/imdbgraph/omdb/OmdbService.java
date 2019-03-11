@@ -1,4 +1,4 @@
-package org.aria.imdbgraph.omdb;
+package main.java.org.aria.imdbgraph.omdb;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static org.aria.imdbgraph.omdb.ShowRatings.*;
+import static main.java.org.aria.imdbgraph.omdb.ShowRatings.*;
 
 /*
  Class that supports basic OMDB operations such as getting the total number of seasons a TV series has.

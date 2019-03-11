@@ -1,4 +1,4 @@
-package org.aria.imdbgraph.omdb;
+package main.java.org.aria.imdbgraph.omdb;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

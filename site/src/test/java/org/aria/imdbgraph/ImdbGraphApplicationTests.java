@@ -1,7 +1,8 @@
-package org.aria.imdbgraph;
+package test.java.org.aria.imdbgraph;
 
-import org.aria.imdbgraph.omdb.OmdbService;
-import org.aria.imdbgraph.omdb.ShowRatings;
+import main.java.org.aria.imdbgraph.ImdbGraphApplication;
+import main.java.org.aria.imdbgraph.omdb.OmdbService;
+import main.java.org.aria.imdbgraph.omdb.ShowRatings;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
