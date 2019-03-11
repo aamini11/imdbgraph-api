@@ -1,4 +1,4 @@
-package main.java.org.aria.imdbgraph.omdb;
+package org.aria.imdbgraph.omdb;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static main.java.org.aria.imdbgraph.omdb.ShowRatings.*;
+import static org.aria.imdbgraph.omdb.ShowRatings.SeasonRating;
 
 /*
  Class that supports basic OMDB operations such as getting the total number of seasons a TV series has.
@@ -25,16 +25,16 @@ public class OmdbService {
     private final RestTemplate restTemplate;
 
     @Autowired
-    public OmdbService(@Value("${omdb.apikey}") String apiKey,
-                       RestTemplate restTemplate) {
+    public OmdbService(@Value("${omdb.apikey}") String apiKey, RestTemplate restTemplate) {
         this.apiKey = apiKey;
         this.restTemplate = restTemplate;
     }
 
     private static final class OmdbResponse {
+        @JsonProperty("totalSeasons")
         private final int numSeasons;
 
-        public OmdbResponse(@JsonProperty("totalSeasons") int numSeaons) {
+        public OmdbResponse(int numSeaons) {
             this.numSeasons = numSeaons;
         }
 

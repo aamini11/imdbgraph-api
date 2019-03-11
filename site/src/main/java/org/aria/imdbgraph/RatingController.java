@@ -1,7 +1,7 @@
-package main.java.org.aria.imdbgraph;
+package org.aria.imdbgraph;
 
-import main.java.org.aria.imdbgraph.omdb.OmdbService;
-import main.java.org.aria.imdbgraph.omdb.ShowRatings;
+import org.aria.imdbgraph.omdb.OmdbService;
+import org.aria.imdbgraph.omdb.ShowRatings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;

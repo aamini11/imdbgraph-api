@@ -1,8 +1,7 @@
-package test.java.org.aria.imdbgraph;
+package org.aria.imdbgraph;
 
-import main.java.org.aria.imdbgraph.ImdbGraphApplication;
-import main.java.org.aria.imdbgraph.omdb.OmdbService;
-import main.java.org.aria.imdbgraph.omdb.ShowRatings;
+import org.aria.imdbgraph.omdb.OmdbService;
+import org.aria.imdbgraph.omdb.ShowRatings;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,8 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ContextConfiguration(classes = ImdbGraphApplication.class)
 public class ImdbGraphApplicationTests {
 
-    private static final String simpsonsId = "tt0096697";
-    private static final String avatarId = "tt0417299";
+    private static final String AVATAR_ID = "tt0417299";
 
     @Autowired
     private OmdbService omdbService;
@@ -28,12 +26,7 @@ public class ImdbGraphApplicationTests {
 
     @Test
     public void testAvatarSeasonSize() {
-        ShowRatings avatarRatings = omdbService.getShowRating(avatarId);
+        ShowRatings avatarRatings = omdbService.getShowRating(AVATAR_ID);
         Assert.assertEquals(3, avatarRatings.getAllSeasonRatings().size());
-    }
-
-    @Test
-    public void testRatingsGet() {
-        //return omdbService.getE
     }
 }

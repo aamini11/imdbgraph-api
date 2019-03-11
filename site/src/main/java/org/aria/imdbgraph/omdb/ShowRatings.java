@@ -1,4 +1,4 @@
-package main.java.org.aria.imdbgraph.omdb;
+package org.aria.imdbgraph.omdb;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -61,11 +61,11 @@ public class ShowRatings {
             this.imdbRating = imdbRating;
         }
 
-        public String getTitle() {
+        String getTitle() {
             return title;
         }
 
-        public int getEpisode() {
+        int getEpisode() {
             return episode;
         }
 

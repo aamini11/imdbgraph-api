@@ -1,4 +1,4 @@
-package main.java.org.aria.imdbgraph;
+package org.aria.imdbgraph;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -8,7 +8,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
-@PropertySource("main/resources/imdb.properties")
+@PropertySource("classpath:imdb.properties")
 public class ImdbGraphApplication {
 
     public static void main(String[] args) {
