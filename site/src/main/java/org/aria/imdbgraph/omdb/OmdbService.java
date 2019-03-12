@@ -1,5 +1,6 @@
 package org.aria.imdbgraph.omdb;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,10 +32,10 @@ public class OmdbService {
     }
 
     private static final class OmdbResponse {
-        @JsonProperty("totalSeasons")
         private final int numSeasons;
 
-        public OmdbResponse(int numSeaons) {
+        @JsonCreator
+        public OmdbResponse(@JsonProperty("totalSeasons") int numSeaons) {
             this.numSeasons = numSeaons;
         }
 
