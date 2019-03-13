@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.springframework.org/schema/mvc">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -32,6 +32,7 @@
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
 
+<div>
 <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
     <a class="navbar-brand" href="#">Navbar</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
@@ -66,52 +67,98 @@
         </form>
     </div>
 </nav>
-<main role="main" class="container">
-
-    <div class="starter-template">
-        <h1>Bootstrap starter template</h1>
-        <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a
-            mostly barebones HTML document.</p>
-    </div>
-
-    <canvas id="myChart"></canvas>
-    <script type="text/javascript" th:inline="javascript">
-        let ratings = flattenRatings([[${ratingsData}]]);
-        var ctx = document.getElementById('myChart').getContext('2d');
-        var chart = new Chart(ctx, {
-            // The type of chart we want to create
-            type: 'line',
-
-            // The data for our dataset
-            data: {
-                datasets: [{
-                    label: "My First dataset",
-                    //borderColor: 'rgb(255, 99, 132)',
-                    data: ratings,
-                    pointBorderColor: ['rgb(0, 0, 0)', 'rgb(255, 255, 255)'],
-                }]
-            },
-
-            // Configuration options go here
-            options: {
-                maintainAspectRatio: false,
-                layout: {
-                    padding: {
-                        left: 50,
-                        right: 0,
-                        top: 0,
-                        bottom: 0
-                    }
-                }
+</div>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <div id="container" style="height: 400px"></div>
+    <script th:inline="javascript">
+        var data = [[${ratingsData}]];
+    </script>
+    <script th:inline="none">
+        var convertedData = data.allSeasonRatings.map(seasonRatings => {
+            return {
+                name: "Season " + seasonRatings.season,
+                type: "spline",
+                data: seasonRatings.episodes,
             }
         });
 
-        function flattenRatings(ratings) {
-            return ratings.allSeasonRatings.flatMap((season) => {
-                return season.episodes.map((episode) => episode.imdbRating)
-            })
+        function convertToSeries(responseJSON) {
+            responseJSON.allRatings = orderEpisodes(responseJSON.allRatings);
+
+            return responseJSON.allRatings.map(seasonRatings => {
+                return {
+                    name: "Season " + seasonRatings.season,
+                    type: "spline",
+                    data: orderedData,
+                }
+            });
         }
+
+        // let totalEpisodesInSeries = convertedData.reduce((acc, e) => {
+        //     return acc + e.data.length
+        // }, 0);
+
+        function orderEpisodes(allSeasonRatings, season=1, firstEpisodeOfSeason=1) {
+            if (allSeasonRatings.length === 0) {
+                return [];
+            }
+
+            let unorderedSeason = allSeasonRatings[0];
+            let orderedSeason = unorderedSeason.episodes.map((episode, i) => {
+                return {x: firstEpisodeOfSeason + i, y: episode.imdbRating, episode: episode.episode};
+            });
+
+            let firstEpisodeOfNextSeason = firstEpisodeOfSeason + orderedSeason.length;
+            let restOfSeasons = allSeasonRatings.slice(1);
+            return [orderedSeason].concat(orderEpisodes(restOfSeasons, season+1, firstEpisodeOfNextSeason));
+        }
+
+        // for (var season = 0, i = 1; i <= totalEpisodesInSeries; season++) {
+        //     let seasonRatings = convertedData[season];
+        //     let seasonSize = seasonRatings.data.length;
+        //
+        //     for (var j = 0; j < seasonSize; j++) {
+        //         let episodeRating = seasonRatings.data[j].imdbRating;
+        //         seasonRatings.data[j] = {x: i, y: parseFloat(episodeRating), episode: j+1};
+        //         i++;
+        //     }
+        // }
+
+        Highcharts.chart('container', {
+            title: {
+                text: data.title
+            },
+            plotOptions: {
+                spline: {
+                    dataLabels: {
+                        enabled: true
+                    }
+                }
+            },
+
+            xAxis: {
+                tickInterval: 1
+            },
+
+            yAxis: {
+                title: {
+                    text: 'IMDB Rating'
+                },
+                tickInterval: 1
+            },
+
+            tooltip: {
+                shared: true,
+                useHTML: true,
+                headerFormat: '',
+                pointFormat: '<tr><td style="color: {series.color}">{series.name} Episode {point.episode}: </td>' +
+                    '<td style="text-align: right"><b>{point.y}</b></td></tr>',
+                footerFormat: '',
+                valueDecimals: 2
+            },
+
+            series: convertedData
+        });
     </script>
-</main><!-- /.container -->
 </body>
 </html>

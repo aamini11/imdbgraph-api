@@ -7,9 +7,11 @@ import java.util.List;
 public class ShowRatings {
 
     private final List<SeasonRating> allRatings;
+    private final String title;
 
-    ShowRatings(List<SeasonRating> allRatings) {
+    ShowRatings(List<SeasonRating> allRatings, String title) {
         this.allRatings = allRatings;
+        this.title = title;
     }
 
     public String getEpisodeRating(int season, int episode) {
@@ -18,8 +20,12 @@ public class ShowRatings {
         return episodeRating.getImdbRating();
     }
 
-    public List<SeasonRating> getAllSeasonRatings() {
+    public List<SeasonRating> getAllRatings() {
         return allRatings;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     static final class SeasonRating {
