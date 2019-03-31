@@ -15,9 +15,13 @@
           crossorigin="anonymous">
 
     <!-- Custom styles for this template -->
-    <link href="../static/css/starter-template.css" rel="stylesheet">
+    <link href="../static/ratings.css" rel="stylesheet">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+    <style>
+        body {
+            padding-top: 5rem;
+        }
+    </style>
 </head>
 
 <body>
@@ -71,63 +75,44 @@
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <div id="container" style="height: 400px"></div>
     <script th:inline="javascript">
-        var data = [[${ratingsData}]];
+        let data = [[${ratingsData}]];
     </script>
     <script th:inline="none">
-        var convertedData = data.allSeasonRatings.map(seasonRatings => {
+        data.allSeasons = data.allSeasons.map(seasonInfo => {
             return {
-                name: "Season " + seasonRatings.season,
+                name: "Season " + seasonInfo.season,
                 type: "spline",
-                data: seasonRatings.episodes,
+                data: seasonInfo.episodes,
+                seasonInfo: seasonInfo
             }
         });
 
-        function convertToSeries(responseJSON) {
-            responseJSON.allRatings = orderEpisodes(responseJSON.allRatings);
+        let totalEpisodesInSeries = data.allSeasons.reduce((acc, e) => {
+            return acc + e.data.length
+        }, 0);
 
-            return responseJSON.allRatings.map(seasonRatings => {
-                return {
-                    name: "Season " + seasonRatings.season,
-                    type: "spline",
-                    data: orderedData,
-                }
-            });
-        }
+        for (let season = 0, i = 1; i <= totalEpisodesInSeries; season++) {
+            let seasonRatings = data.allSeasons[season];
+            let seasonSize = seasonRatings.data.length;
 
-        // let totalEpisodesInSeries = convertedData.reduce((acc, e) => {
-        //     return acc + e.data.length
-        // }, 0);
-
-        function orderEpisodes(allSeasonRatings, season=1, firstEpisodeOfSeason=1) {
-            if (allSeasonRatings.length === 0) {
-                return [];
+            for (let j = 0; j < seasonSize; j++) {
+                let episodeInfo = seasonRatings.data[j];
+                seasonRatings.data[j] = {
+                    x: i,
+                    y: parseFloat(episodeInfo.imdbRating),
+                    episode: episodeInfo.episode,
+                    season: season+1,
+                    title: episodeInfo.title
+                };
+                i++;
             }
-
-            let unorderedSeason = allSeasonRatings[0];
-            let orderedSeason = unorderedSeason.episodes.map((episode, i) => {
-                return {x: firstEpisodeOfSeason + i, y: episode.imdbRating, episode: episode.episode};
-            });
-
-            let firstEpisodeOfNextSeason = firstEpisodeOfSeason + orderedSeason.length;
-            let restOfSeasons = allSeasonRatings.slice(1);
-            return [orderedSeason].concat(orderEpisodes(restOfSeasons, season+1, firstEpisodeOfNextSeason));
         }
-
-        // for (var season = 0, i = 1; i <= totalEpisodesInSeries; season++) {
-        //     let seasonRatings = convertedData[season];
-        //     let seasonSize = seasonRatings.data.length;
-        //
-        //     for (var j = 0; j < seasonSize; j++) {
-        //         let episodeRating = seasonRatings.data[j].imdbRating;
-        //         seasonRatings.data[j] = {x: i, y: parseFloat(episodeRating), episode: j+1};
-        //         i++;
-        //     }
-        // }
 
         Highcharts.chart('container', {
             title: {
-                text: data.title
+                text: data.showInfo.title
             },
+
             plotOptions: {
                 spline: {
                     dataLabels: {
@@ -151,13 +136,13 @@
                 shared: true,
                 useHTML: true,
                 headerFormat: '',
-                pointFormat: '<tr><td style="color: {series.color}">{series.name} Episode {point.episode}: </td>' +
+                pointFormat: '<tr><td style="color: {series.color}">s{point.season}e{point.episode} ({point.title}): </td>' +
                     '<td style="text-align: right"><b>{point.y}</b></td></tr>',
                 footerFormat: '',
                 valueDecimals: 2
             },
 
-            series: convertedData
+            series: data.allSeasons
         });
     </script>
 </body>

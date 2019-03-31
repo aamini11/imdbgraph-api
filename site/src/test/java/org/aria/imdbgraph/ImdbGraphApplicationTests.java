@@ -1,7 +1,7 @@
 package org.aria.imdbgraph;
 
 import org.aria.imdbgraph.omdb.OmdbService;
-import org.aria.imdbgraph.omdb.ShowRatings;
+import org.aria.imdbgraph.omdb.SearchResponse;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import static org.aria.imdbgraph.omdb.OmdbService.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -27,6 +29,18 @@ public class ImdbGraphApplicationTests {
     @Test
     public void testAvatarSeasonSize() {
         ShowRatings avatarRatings = omdbService.getShowRating(AVATAR_ID);
-        Assert.assertEquals(3, avatarRatings.getAllRatings().size());
+        Assert.assertEquals(3, avatarRatings.getAllSeasons().size());
+    }
+
+    @Test
+    public void testFailingSearch() {
+        SearchResponse response = omdbService.search("a");
+        Assert.assertFalse(response.isResponse());
+    }
+
+    @Test
+    public void testSimpsonsSearch() {
+        SearchResponse response = omdbService.search("Simpsons");
+        Assert.assertTrue(response.isResponse());
     }
 }

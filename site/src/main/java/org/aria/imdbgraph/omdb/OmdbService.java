@@ -1,7 +1,6 @@
 package org.aria.imdbgraph.omdb;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.aria.imdbgraph.omdb.OmdbData.ShowInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -12,13 +11,42 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static org.aria.imdbgraph.omdb.ShowRatings.SeasonRating;
+import static org.aria.imdbgraph.omdb.OmdbData.*;
+import static org.aria.imdbgraph.omdb.OmdbData.SeasonInfo;
 
-/*
- Class that supports basic OMDB operations such as getting the total number of seasons a TV series has.
+/**
+ * Service class that supports basic OMDB api operations like getting ratings for a show
  */
 @Service
 public class OmdbService {
+
+    /**
+     * Data class containing all the ratings of a show.
+     */
+    public static final class ShowRatings {
+
+        private final ShowInfo showInfo;
+        private final List<SeasonInfo> allSeasons;
+
+        ShowRatings(ShowInfo showInfo, List<SeasonInfo> allSeasons) {
+            this.showInfo = showInfo;
+            this.allSeasons = allSeasons;
+        }
+
+        public String getEpisodeRating(int season, int episode) {
+            SeasonInfo seasonRating = allSeasons.get(season - 1);
+            EpisodeInfo episodeRating = seasonRating.getEpisodes().get(episode - 1);
+            return episodeRating.getImdbRating();
+        }
+
+        public ShowInfo getShowInfo() {
+            return showInfo;
+        }
+
+        public List<SeasonInfo> getAllSeasons() {
+            return allSeasons;
+        }
+    }
 
     private static final String BASE_URL = "https://www.omdbapi.com";
 
@@ -31,53 +59,43 @@ public class OmdbService {
         this.restTemplate = restTemplate;
     }
 
-    private static final class OmdbResponse {
-        private final int numSeasons;
-        private final String title;
-
-        @JsonCreator
-        public OmdbResponse(@JsonProperty("totalSeasons") int numSeaons,
-                            @JsonProperty("title") String title) {
-            this.numSeasons = numSeaons;
-            this.title = title;
+    public ShowRatings getShowRating(String showId) {
+        ShowInfo showInfo = getShowInfo(showId);
+        List<SeasonInfo> allSeasons = new ArrayList<>();
+        for (int season = 1; season <= showInfo.getTotalSeasons(); season++) {
+            allSeasons.add(getSeason(showId, season));
         }
-
-        String getTitle() {
-            return title;
-        }
-
-        int getNumSeasons() {
-            return numSeasons;
-        }
+        return new ShowRatings(showInfo, allSeasons);
     }
 
-    private OmdbResponse getShowInfo(String showId) {
+    public SearchResponse search(String searchTerm) {
+        String uri = UriComponentsBuilder
+                .fromUriString(BASE_URL)
+                .queryParam("s", searchTerm)
+                .queryParam("type", "series")
+                .queryParam("apikey", apiKey)
+                .toUriString();
+        return restTemplate.getForObject(uri, SearchResponse.class);
+    }
+
+    private ShowInfo getShowInfo(String showId) {
         String uri = UriComponentsBuilder
                 .fromUriString(BASE_URL)
                 .queryParam("apikey", apiKey)
                 .queryParam("i", showId)
                 .toUriString();
-        OmdbResponse response = restTemplate.getForObject(uri, OmdbResponse.class);
+        ShowInfo response = restTemplate.getForObject(uri, ShowInfo.class);
         Objects.requireNonNull(response);
         return response;
     }
 
-    private SeasonRating getSeason(String showId, int season) {
+    private SeasonInfo getSeason(String showId, int season) {
         String uri = UriComponentsBuilder
                 .fromUriString(BASE_URL)
                 .queryParam("apikey", apiKey)
                 .queryParam("i", showId)
                 .queryParam("Season", season)
                 .toUriString();
-        return restTemplate.getForObject(uri, SeasonRating.class);
-    }
-
-    public ShowRatings getShowRating(String showId) {
-        OmdbResponse showInfo = getShowInfo(showId);
-        List<SeasonRating> allSeasons = new ArrayList<>();
-        for (int season = 1; season <= showInfo.getNumSeasons(); season++) {
-            allSeasons.add(getSeason(showId, season));
-        }
-        return new ShowRatings(allSeasons, showInfo.getTitle());
+        return restTemplate.getForObject(uri, SeasonInfo.class);
     }
 }
