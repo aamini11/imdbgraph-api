@@ -1,7 +1,6 @@
 package org.aria.imdbgraph;
 
-import org.aria.imdbgraph.omdb.OmdbService;
-import org.aria.imdbgraph.omdb.SearchResponse;
+import org.aria.imdbgraph.imdb.ImdbService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,7 +10,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.aria.imdbgraph.omdb.OmdbService.*;
+import static org.aria.imdbgraph.imdb.ImdbService.ShowRatings;
+import static org.aria.imdbgraph.imdb.OmdbJSON.SearchResponse;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -21,26 +21,26 @@ public class ImdbGraphApplicationTests {
     private static final String AVATAR_ID = "tt0417299";
 
     @Autowired
-    private OmdbService omdbService;
+    private ImdbService imdbService;
 
     @Value("${omdb.apikey}")
     private String apikey;
 
     @Test
     public void testAvatarSeasonSize() {
-        ShowRatings avatarRatings = omdbService.getShowRating(AVATAR_ID);
+        ShowRatings avatarRatings = imdbService.getShowRating(AVATAR_ID);
         Assert.assertEquals(3, avatarRatings.getAllSeasons().size());
     }
 
     @Test
     public void testFailingSearch() {
-        SearchResponse response = omdbService.search("a");
+        SearchResponse response = imdbService.search("a");
         Assert.assertFalse(response.isResponse());
     }
 
     @Test
     public void testSimpsonsSearch() {
-        SearchResponse response = omdbService.search("Simpsons");
+        SearchResponse response = imdbService.search("Simpsons");
         Assert.assertTrue(response.isResponse());
     }
 }

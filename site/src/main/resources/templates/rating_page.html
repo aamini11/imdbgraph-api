@@ -37,113 +37,114 @@
         crossorigin="anonymous"></script>
 
 <div>
-<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-    <a class="navbar-brand" href="#">Navbar</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
-            aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand" href="#">Navbar</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
+                aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-                <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Link</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link disabled" href="#">Disabled</a>
-            </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="http://example.com" id="dropdown01" data-toggle="dropdown"
-                   aria-haspopup="true" aria-expanded="false">Dropdown</a>
-                <div class="dropdown-menu" aria-labelledby="dropdown01">
-                    <a class="dropdown-item" href="#">Action</a>
-                    <a class="dropdown-item" href="#">Another action</a>
-                    <a class="dropdown-item" href="#">Something else here</a>
-                </div>
-            </li>
-        </ul>
-        <form class="form-inline my-2 my-lg-0">
-            <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </form>
-    </div>
-</nav>
+        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Link</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" href="#">Disabled</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="http://example.com" id="dropdown01" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">Dropdown</a>
+                    <div class="dropdown-menu" aria-labelledby="dropdown01">
+                        <a class="dropdown-item" href="#">Action</a>
+                        <a class="dropdown-item" href="#">Another action</a>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                    </div>
+                </li>
+            </ul>
+            <form class="form-inline my-2 my-lg-0">
+                <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
+        </div>
+    </nav>
 </div>
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <div id="container" style="height: 400px"></div>
-    <script th:inline="javascript">
-        let data = [[${ratingsData}]];
-    </script>
-    <script th:inline="none">
-        data.allSeasons = data.allSeasons.map(seasonInfo => {
-            return {
-                name: "Season " + seasonInfo.season,
-                type: "spline",
-                data: seasonInfo.episodes,
-                seasonInfo: seasonInfo
-            }
-        });
-
-        let totalEpisodesInSeries = data.allSeasons.reduce((acc, e) => {
-            return acc + e.data.length
-        }, 0);
-
-        for (let season = 0, i = 1; i <= totalEpisodesInSeries; season++) {
-            let seasonRatings = data.allSeasons[season];
-            let seasonSize = seasonRatings.data.length;
-
-            for (let j = 0; j < seasonSize; j++) {
-                let episodeInfo = seasonRatings.data[j];
-                seasonRatings.data[j] = {
-                    x: i,
-                    y: parseFloat(episodeInfo.imdbRating),
-                    episode: episodeInfo.episode,
-                    season: season+1,
-                    title: episodeInfo.title
-                };
-                i++;
-            }
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<div id="container" style="height: 400px"></div>
+<script th:inline="javascript">
+    let data = [[${ratingsData}]];
+</script>
+<script th:inline="none">
+    data.allSeasons = data.allSeasons.map(seasonInfo => {
+        return {
+            name: "Season " + seasonInfo.season,
+            type: "spline",
+            data: seasonInfo.episodes,
+            seasonInfo: seasonInfo
         }
+    });
 
-        Highcharts.chart('container', {
-            title: {
-                text: data.showInfo.title
-            },
+    let totalEpisodesInSeries = data.allSeasons.reduce((acc, e) => {
+        return acc + e.data.length
+    }, 0);
 
-            plotOptions: {
-                spline: {
-                    dataLabels: {
-                        enabled: true
-                    }
+    for (let season = 0, i = 1; i <= totalEpisodesInSeries; season++) {
+        let seasonRatings = data.allSeasons[season];
+        let seasonSize = seasonRatings.data.length;
+
+        for (let j = 0; j < seasonSize; j++) {
+            let episodeInfo = seasonRatings.data[j];
+            seasonRatings.data[j] = {
+                x: i,
+                y: parseFloat(episodeInfo.imdbRating),
+                episode: episodeInfo.episode,
+                season: season + 1,
+                title: episodeInfo.title
+            };
+            i++;
+        }
+    }
+
+    Highcharts.chart('container', {
+        title: {
+            text: data.showInfo.title
+        },
+
+        plotOptions: {
+            spline: {
+                dataLabels: {
+                    enabled: true
                 }
-            },
+            }
+        },
 
-            xAxis: {
-                tickInterval: 1
-            },
+        xAxis: {
+            tickInterval: 1
+        },
 
-            yAxis: {
-                title: {
-                    text: 'IMDB Rating'
-                },
-                tickInterval: 1
+        yAxis: {
+            title: {
+                text: 'IMDB Rating'
             },
+            tickInterval: 1
+        },
 
-            tooltip: {
-                shared: true,
-                useHTML: true,
-                headerFormat: '',
-                pointFormat: '<tr><td style="color: {series.color}">s{point.season}e{point.episode} ({point.title}): </td>' +
-                    '<td style="text-align: right"><b>{point.y}</b></td></tr>',
-                footerFormat: '',
-                valueDecimals: 2
-            },
+        tooltip: {
+            shared: true,
+            useHTML: true,
+            headerFormat: '',
+            pointFormat:
+                '<tr><td style="color: {series.color}">s{point.season}e{point.episode} ({point.title}): </td>' +
+                '<td style="text-align: right"><b>{point.y}</b></td></tr>',
+            footerFormat: '',
+            valueDecimals: 2
+        },
 
-            series: data.allSeasons
-        });
-    </script>
+        series: data.allSeasons
+    });
+</script>
 </body>
 </html>
