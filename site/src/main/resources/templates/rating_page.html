@@ -3,25 +3,17 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <!--    <meta name="description" content="">-->
+    <!--    <meta name="author" content="">-->
 
-    <!--<link rel="icon" href="../../../../favicon.ico">-->
-
-    <title>Starter Template for Bootstrap</title>
+    <title>IMDB graph</title>
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
           crossorigin="anonymous">
 
     <!-- Custom styles for this template -->
-    <link href="../static/ratings.css" rel="stylesheet">
-
-    <style>
-        body {
-            padding-top: 5rem;
-        }
-    </style>
+    <link th:href="@{ratings.css}" rel="stylesheet">
 </head>
 
 <body>
@@ -35,6 +27,7 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
 
 <div>
     <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
@@ -72,79 +65,91 @@
         </div>
     </nav>
 </div>
-<script src="https://code.highcharts.com/highcharts.js"></script>
-<div id="container" style="height: 400px"></div>
+<div id="graph" style="height: 400px"></div>
 <script th:inline="javascript">
     let data = [[${ratingsData}]];
 </script>
 <script th:inline="none">
-    data.allSeasons = data.allSeasons.map(seasonInfo => {
-        return {
-            name: "Season " + seasonInfo.season,
-            type: "spline",
-            data: seasonInfo.episodes,
-            seasonInfo: seasonInfo
-        }
-    });
+    load_graph("graph", data);
 
-    let totalEpisodesInSeries = data.allSeasons.reduce((acc, e) => {
-        return acc + e.data.length
-    }, 0);
+    function parse_ratings(ratings_json) {
+        let ratings = Object.entries(ratings_json.allRatings);
 
-    for (let season = 0, i = 1; i <= totalEpisodesInSeries; season++) {
-        let seasonRatings = data.allSeasons[season];
-        let seasonSize = seasonRatings.data.length;
+        const totalEpisodesInSeries = ratings.reduce((total, [season_num, episode_ratings]) => {
+            return total + Object.keys(episode_ratings).length;
+        }, 0);
 
-        for (let j = 0; j < seasonSize; j++) {
-            let episodeInfo = seasonRatings.data[j];
-            seasonRatings.data[j] = {
-                x: i,
-                y: parseFloat(episodeInfo.imdbRating),
-                episode: episodeInfo.episode,
-                season: season + 1,
-                title: episodeInfo.title
+        let series = ratings.map(([season_num, season_ratings]) => {
+            let data = Object.entries(season_ratings).map(([episode_num, episode]) => {
+                return {
+                    y: parseFloat(episode.imdbRating),
+                    episode: episode_num,
+                    season: season_num,
+                    title: episode.episodeTitle
+                };
+            });
+
+            return {
+                name: "Season " + season_num,
+                type: "spline",
+                data: data
             };
-            i++;
+        });
+
+        // Order episodes
+        for (let ordinal = 1; ordinal <= totalEpisodesInSeries;) {
+            series.forEach(season => {
+                season.data.forEach(episode => {
+                    episode.x = ordinal;
+                    ordinal++;
+                });
+            });
         }
+
+        return series;
     }
 
-    Highcharts.chart('container', {
-        title: {
-            text: data.showInfo.title
-        },
+    function load_graph(html_id, data) {
+        let highcharts_data = parse_ratings(data);
 
-        plotOptions: {
-            spline: {
-                dataLabels: {
-                    enabled: true
-                }
-            }
-        },
-
-        xAxis: {
-            tickInterval: 1
-        },
-
-        yAxis: {
+        Highcharts.chart(html_id, {
             title: {
-                text: 'IMDB Rating'
+                text: data.title
             },
-            tickInterval: 1
-        },
 
-        tooltip: {
-            shared: true,
-            useHTML: true,
-            headerFormat: '',
-            pointFormat:
-                '<tr><td style="color: {series.color}">s{point.season}e{point.episode} ({point.title}): </td>' +
-                '<td style="text-align: right"><b>{point.y}</b></td></tr>',
-            footerFormat: '',
-            valueDecimals: 2
-        },
+            plotOptions: {
+                spline: {
+                    dataLabels: {
+                        enabled: true
+                    }
+                }
+            },
 
-        series: data.allSeasons
-    });
+            xAxis: {
+                visible: false
+            },
+
+            yAxis: {
+                title: {
+                    text: 'IMDB Rating'
+                },
+                tickInterval: 1
+            },
+
+            tooltip: {
+                shared: true,
+                useHTML: true,
+                headerFormat: '',
+                pointFormat:
+                    '<tr><td style="color: {series.color}">s{point.season}e{point.episode} ({point.title}): </td>' +
+                    '<td style="text-align: right"><b>{point.y}</b></td></tr>',
+                footerFormat: '',
+                valueDecimals: 2
+            },
+
+            series: highcharts_data
+        });
+    }
 </script>
 </body>
 </html>
