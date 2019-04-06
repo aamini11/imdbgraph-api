@@ -25,7 +25,6 @@
     <ul>
         <li th:each="result : ${results.search}"><a th:href="@{/ratings(id=${result.imdbID})}"
                                                     th:text="${result.title}"></a></li>
-        <!--        <li th:each="item : ${results}" th:text="${item.title}">-->
     </ul>
 </div>
 <div th:if="not ${results.response}">

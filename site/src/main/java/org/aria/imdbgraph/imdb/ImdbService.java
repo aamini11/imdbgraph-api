@@ -70,7 +70,6 @@ public class ImdbService {
             if (response != null) {
                 Map<Integer, Episode> episodeRatings = new LinkedHashMap<>();
                 for (EpisodeRatingJSON episodeInfo : response.episodes) {
-                    // Increment episode num by 1. OMDB starts episodes from 0 for some reason.
                     episodeRatings.put(episodeInfo.episode, new Episode(episodeInfo.title, episodeInfo.imdbRating));
                 }
 
@@ -87,7 +86,7 @@ public class ImdbService {
      * @return Returns a list of shows matching the search term provided
      */
     public SearchResponseJSON omdbSearch(String searchTerm) {
-        if (searchTerm.isBlank()) {
+        if (searchTerm.trim().isEmpty()) {
             return new SearchResponseJSON(new ArrayList<>(), 0, false, "No input found");
         }
         String uri = UriComponentsBuilder

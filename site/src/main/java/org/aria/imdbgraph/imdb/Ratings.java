@@ -40,12 +40,6 @@ public final class Ratings {
         this.allRatings = allRatings;
     }
 
-    public double getEpisodeRating(int season, int episode) {
-        Map<Integer, Episode> seasonRating = allRatings.get(season);
-        Episode episodeRating = seasonRating.get(episode);
-        return episodeRating.imdbRating;
-    }
-
     public Map<Integer, Map<Integer, Episode>> getAllRatings() {
         return allRatings;
     }
@@ -65,4 +59,11 @@ public final class Ratings {
     public int getTotalSeasons() {
         return show.getTotalSeasons();
     }
+
+    public double getEpisodeRating(int season, int episode) {
+        Map<Integer, Episode> seasonRating = allRatings.get(season);
+        Episode episodeRating = seasonRating.get(episode);
+        return episodeRating.imdbRating;
+    }
+
 }
