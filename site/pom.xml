@@ -18,7 +18,6 @@
         <java.version>1.8</java.version>
         <!-- The main class to start by executing java -jar -->
         <start-class>com.aria.imdbgraph.ImdbGraphApplication</start-class>
-
     </properties>
 
     <dependencies>

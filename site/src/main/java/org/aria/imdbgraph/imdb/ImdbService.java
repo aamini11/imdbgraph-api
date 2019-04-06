@@ -86,7 +86,7 @@ public class ImdbService {
      * @return Returns a list of shows matching the search term provided
      */
     public SearchResponseJSON omdbSearch(String searchTerm) {
-        if (searchTerm.trim().isEmpty()) {
+        if (searchTerm.isBlank()) {
             return new SearchResponseJSON(new ArrayList<>(), 0, false, "No input found");
         }
         String uri = UriComponentsBuilder
