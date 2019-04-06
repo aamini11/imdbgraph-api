@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import static org.aria.imdbgraph.imdb.ImdbService.ImdbType.series;
 import static org.aria.imdbgraph.imdb.OmdbJSON.EpisodeRatingJSON;
 import static org.aria.imdbgraph.imdb.OmdbJSON.SeasonRatingsJSON;
-import static org.aria.imdbgraph.imdb.ShowRatings.Rating;
+import static org.aria.imdbgraph.imdb.Ratings.Episode;
 
 /**
  * Service class that supports basic IMDB operations like getting ratings for a show.
@@ -52,12 +52,12 @@ public class ImdbService {
      * @param showId The Imdb ID of the show to fetch ratings for.
      * @return POJO containing the basic show info and ratings
      */
-    public ShowRatings getShowRating(String showId) {
-        ShowInfo showInfo = getShowInfo(showId);
+    public Ratings getShowRating(String showId) {
+        Show showInfo = getShowInfo(showId);
 
         // Get all ratings of a show season-by-season.
-        Map<Integer, Map<Integer, Rating>> allSeasonsRatings = new LinkedHashMap<>();
-        for (int seasonNum = 1; seasonNum <= showInfo.totalSeasons; seasonNum++) {
+        Map<Integer, Map<Integer, Episode>> allSeasonsRatings = new LinkedHashMap<>();
+        for (int seasonNum = 1; seasonNum <= showInfo.getTotalSeasons(); seasonNum++) {
             String uri = UriComponentsBuilder
                     .fromUriString(BASE_URL)
                     .queryParam(API_KEY, apiKey)
@@ -68,43 +68,28 @@ public class ImdbService {
 
             // Transform omdb response into our own custom JSON.
             if (response != null) {
-                Map<Integer, Rating> episodeRatings = new LinkedHashMap<>();
+                Map<Integer, Episode> episodeRatings = new LinkedHashMap<>();
                 for (EpisodeRatingJSON episodeInfo : response.episodes) {
                     // Increment episode num by 1. OMDB starts episodes from 0 for some reason.
-                    episodeRatings.put(episodeInfo.episode, new Rating(episodeInfo.title, episodeInfo.imdbRating));
+                    episodeRatings.put(episodeInfo.episode, new Episode(episodeInfo.title, episodeInfo.imdbRating));
                 }
 
                 allSeasonsRatings.put(seasonNum, episodeRatings);
             }
         }
 
-        return new ShowRatings(showInfo, allSeasonsRatings);
-    }
-
-    private ShowInfo getShowInfo(String showId) {
-        String uri = UriComponentsBuilder
-                .fromUriString(BASE_URL)
-                .queryParam(API_KEY, apiKey)
-                .queryParam(SHOW_ID, showId)
-                .toUriString();
-
-        ShowInfoJSON response = restTemplate.getForObject(uri, ShowInfoJSON.class);
-
-        Objects.requireNonNull(response);
-        if (!response.response) throw new IllegalArgumentException(response.error);
-        if (response.type != series) throw new IllegalArgumentException("Not a series");
-
-        return new ShowInfo(response);
+        return new Ratings(showInfo, allSeasonsRatings);
     }
 
     /**
-     * Method to search for IMDB shows.
-     *
+     * Search for shows using the OMDB api
      * @param searchTerm The search term to use
-     * @return Returns a map of all shows matching the search criteria. The keys in this case are the IMDB ids
-     * of the shows and the entries are the shows themselves.
+     * @return Returns a list of shows matching the search term provided
      */
-    public List<ShowInfo> search(String searchTerm) {
+    public SearchResponseJSON omdbSearch(String searchTerm) {
+        if (searchTerm.isBlank()) {
+            return new SearchResponseJSON(new ArrayList<>(), 0, false, "No input found");
+        }
         String uri = UriComponentsBuilder
                 .fromUriString(BASE_URL)
                 .queryParam(SEARCH_TERM, searchTerm)
@@ -114,9 +99,29 @@ public class ImdbService {
         SearchResponseJSON response = restTemplate.getForObject(uri, SearchResponseJSON.class);
         Objects.requireNonNull(response);
 
-        // transform from Omdb response JSON to our own custom JSON type.
-        return response.search.stream()
-                .map(json -> new ShowInfo(json))
-                .collect(Collectors.toList());
+        if (response.getSearch() != null) {
+            List<ShowInfoJSON> showsOnly = response.getSearch().stream()
+                    .filter(searchResult -> searchResult.getType() == series)
+                    .collect(Collectors.toList());
+            return new SearchResponseJSON(showsOnly, response.getTotalResults(), response.isResponse(), response.getError());
+        } else {
+            return response;
+        }
+    }
+
+    private Show getShowInfo(String showId) {
+        String uri = UriComponentsBuilder
+                .fromUriString(BASE_URL)
+                .queryParam(API_KEY, apiKey)
+                .queryParam(SHOW_ID, showId)
+                .toUriString();
+
+        ShowInfoJSON response = restTemplate.getForObject(uri, ShowInfoJSON.class);
+
+        Objects.requireNonNull(response);
+        if (!response.isResponse()) throw new IllegalArgumentException(response.getError());
+        if (response.getType() != series) throw new IllegalArgumentException("Not a series");
+
+        return new Show(response);
     }
 }

@@ -17,9 +17,15 @@ public class RatingController {
         this.imbdService = imbdService;
     }
 
-    @GetMapping(value = "/rating")
+    @GetMapping(value = "/ratings")
     public String getRating(@RequestParam(value="id") String showId, Model model) {
         model.addAttribute("ratingsData", imbdService.getShowRating(showId));
         return "rating_page.html";
+    }
+
+    @GetMapping(value = "/search")
+    public String search(@RequestParam(value="term") String searchTerm, Model model) {
+        model.addAttribute("results", imbdService.omdbSearch(searchTerm));
+        return "search_results.html";
     }
 }

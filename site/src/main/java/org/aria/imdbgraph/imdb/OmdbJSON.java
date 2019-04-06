@@ -17,8 +17,7 @@ import static org.aria.imdbgraph.imdb.ImdbService.ImdbType;
  */
 class OmdbJSON {
 
-    private OmdbJSON() {
-    }
+    private OmdbJSON() {}
 
     /**
      * Information about a specific season of a show (including all the episode ratings for that season).
@@ -61,31 +60,31 @@ class OmdbJSON {
     /**
      * General information about a show (title, year, etc...)
      */
-    static final class ShowInfoJSON {
+    public static final class ShowInfoJSON {
 
         @JsonProperty
-        final String title;
+        private final String title;
 
         @JsonProperty
-        final String year;
+        private final String year;
 
         @JsonProperty
-        final String imdbID;
+        private final String imdbID;
 
         @JsonProperty
-        final String poster;
+        private final String poster;
 
         @JsonProperty
-        final int totalSeasons;
+        private final int totalSeasons;
 
         @JsonProperty
-        final ImdbType type;
+        private final ImdbType type;
 
         @JsonProperty
-        final boolean response;
+        private final boolean response;
 
         @JsonProperty
-        final String error;
+        private final String error;
 
         public ShowInfoJSON(String title, String year, String imdbID, String poster, int totalSeasons, ImdbType type, boolean response, String error) {
             this.title = title;
@@ -97,26 +96,71 @@ class OmdbJSON {
             this.response = response;
             this.error = error;
         }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public String getYear() {
+            return year;
+        }
+
+        public String getImdbID() {
+            return imdbID;
+        }
+
+        public String getPoster() {
+            return poster;
+        }
+
+        public int getTotalSeasons() {
+            return totalSeasons;
+        }
+
+        public ImdbType getType() {
+            return type;
+        }
+
+        public boolean isResponse() {
+            return response;
+        }
+
+        public String getError() {
+            return error;
+        }
     }
 
     /**
      * Response received from OMDB when making a search request.
      */
-    static final class SearchResponseJSON {
+    public static final class SearchResponseJSON {
 
-        @JsonProperty
-        final List<ShowInfoJSON> search;
+        private final List<ShowInfoJSON> search;
+        private final int totalResults;
+        private final boolean response;
+        private final String error;
 
-        @JsonProperty
-        final int totalResults;
-
-        @JsonProperty
-        final boolean response;
-
-        SearchResponseJSON(List<ShowInfoJSON> searchResults, int totalResults, boolean response) {
-            this.search = searchResults;
+        SearchResponseJSON(List<ShowInfoJSON> search, int totalResults, boolean response, String error) {
+            this.search = search;
             this.totalResults = totalResults;
             this.response = response;
+            this.error = error;
+        }
+
+        public List<ShowInfoJSON> getSearch() {
+            return search;
+        }
+
+        public int getTotalResults() {
+            return totalResults;
+        }
+
+        public boolean isResponse() {
+            return response;
+        }
+
+        public String getError() {
+            return error;
         }
     }
 }
