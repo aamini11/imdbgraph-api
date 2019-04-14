@@ -50,7 +50,13 @@ import java.util.List;
 public class ImdbgraphApplicationTests {
 
     @Autowired
+    private StepBuilderFactory stepBuilderFactory;
+
+    @Autowired
     private ImdbDao imdbDao;
+
+    @Autowired
+    private Job job;
 
     @Test
     public void testSearch() {
