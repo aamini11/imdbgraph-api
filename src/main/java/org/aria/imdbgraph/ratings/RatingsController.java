@@ -24,7 +24,7 @@ class RatingsController {
 
     @GetMapping(value = "/")
     public String index() {
-        return "search_results.html";
+        return "search_results";
     }
 
     @GetMapping(value = "/ratings/{showId}")
@@ -34,13 +34,13 @@ class RatingsController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Show not found");
         }
         model.addAttribute("ratingsData", ratings.get());
-        return "rating_page.html";
+        return "rating_page";
     }
 
     @GetMapping(value = "/search")
     public String search(@RequestParam(value="q") String searchTerm, Model model) {
         List<Show> shows = imdbRatingsService.searchShows(searchTerm);
         model.addAttribute("results", shows);
-        return "search_results.html";
+        return "search_results";
     }
 }

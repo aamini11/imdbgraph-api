@@ -26,6 +26,6 @@ public class DailyUpdateScheduler {
      */
     @Scheduled(cron = "0 0 8 * * *")
     public void launchJob() {
-        databaseUpdater.loadAllFiles();
+        databaseUpdater.updateDatabase();
     }
 }

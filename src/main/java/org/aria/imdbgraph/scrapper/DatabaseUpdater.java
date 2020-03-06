@@ -17,17 +17,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import static java.util.Map.entry;
-import static org.aria.imdbgraph.scrapper.FileDownloader.ImdbFile;
-import static org.aria.imdbgraph.scrapper.FileDownloader.ImdbFile.*;
+import static org.aria.imdbgraph.scrapper.ImdbFileService.ImdbFile;
+import static org.aria.imdbgraph.scrapper.ImdbFileService.ImdbFile.*;
 
 /**
- * {@code DatabaseUpdater} is a utility class whose responsibility is to
- * download all the files provided by IMDB and load them into the database in
- * bulk. Since IMDB updates their files daily, this class should be scheduled to
- * run everyday.
+ * DatabaseUpdater is a utility class whose responsibility is to fetch the latest
+ * flat files from IMDB and update the databases with that data. All the update
+ * operations are performed in bulk since IMDB only updates their files once a day.
+ * That makes retrieving data in real-time from IMDB impossible, unfortunately.
  */
 @Service
 public class DatabaseUpdater {
@@ -35,7 +36,7 @@ public class DatabaseUpdater {
     private static final Logger logger = LoggerFactory.getLogger(DatabaseUpdater.class);
 
     private final DataSource dataSource;
-    private final FileDownloader fileDownloader;
+    private final ImdbFileService fileService;
     private final JdbcTemplate jdbcTemplate;
 
     /**
@@ -44,7 +45,7 @@ public class DatabaseUpdater {
      *
      * @param dataSource     The {@code DataSource} object representing the
      *                       database that you want to be updated.
-     * @param fileDownloader The {@code FileDownloader} class responsible for
+     * @param fileService The {@code FileDownloader} class responsible for
      *                       downloading and preparing all the files which will
      *                       be read into the database.
      *                       <p>
@@ -54,32 +55,28 @@ public class DatabaseUpdater {
      */
     @Autowired
     DatabaseUpdater(DataSource dataSource,
-                    FileDownloader fileDownloader) {
+                    ImdbFileService fileService) {
         this.dataSource = dataSource;
-        this.fileDownloader = fileDownloader;
+        this.fileService = fileService;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     /**
-     * Method that will begin downloading the latest IMDB files and updating the
-     * database with that data.
+     * Method that will fetch the latest files from IMDB and updating the database
+     * with that data.
      *
-     * @throws FileLoadingError This method will throw a file loading error
-     * if it encounters and IO/SQL errors that prevent it from fully loading
-     * every file into the database.
+     * @throws DailyUpdateError This method will throw a file loading error
+     * if it encounters and IO/SQL errors that prevent it from performing the
+     * full update.
      */
     @Transactional
-    public void loadAllFiles() {
-        try {
-            copyFiles();
-            loadShows();
-            loadEpisodes();
-            // Refresh cache which contains all the shows with at least one
-            // episode rating
-            jdbcTemplate.execute("REFRESH MATERIALIZED VIEW imdb.valid_show;");
-        } catch (SQLException e) {
-            throw new FileLoadingError(e);
-        }
+    public void updateDatabase() {
+        populateAllTempTables();
+        updateShows();
+        updateEpisodes();
+        // Refresh cache which contains all the shows with at least one
+        // episode rating
+        jdbcTemplate.execute("REFRESH MATERIALIZED VIEW imdb.valid_show;");
     }
 
     /**
@@ -88,7 +85,7 @@ public class DatabaseUpdater {
      * are copied into the temp tables, they will soon be reformatted and loaded
      * into the real tables.
      */
-    private void copyFiles() throws SQLException {
+    private void populateAllTempTables() {
         jdbcTemplate.execute("" +
                 "CREATE TEMPORARY TABLE temp_title\n" +
                 "(\n" +
@@ -118,46 +115,57 @@ public class DatabaseUpdater {
                 "    num_votes   INT\n" +
                 ") ON COMMIT DROP;");
 
-        Map<ImdbFile, String> fileToTableName = Map.ofEntries(
+        Map<ImdbFile, String> fileToTableMapping = Map.ofEntries(
                 entry(TITLES_FILE, "temp_title"),
                 entry(EPISODES_FILE, "temp_episode"),
                 entry(RATINGS_FILE, "temp_ratings")
         );
 
-        BaseConnection postgresConnection = DataSourceUtils.getConnection(dataSource)
-                .unwrap(BaseConnection.class);
-
-        Set<ImdbFile> filesToDownload = fileToTableName.keySet();
-        Map<ImdbFile, Path> filePaths = fileDownloader.download(filesToDownload);
-        for (Map.Entry<ImdbFile, String> e : fileToTableName.entrySet()) {
+        Set<ImdbFile> filesToDownload = fileToTableMapping.keySet();
+        Map<ImdbFile, Path> downloadedFiles = fileService.download(filesToDownload);
+        fileService.archive();
+        for (Entry<ImdbFile, Path> e : downloadedFiles.entrySet()) {
             ImdbFile fileToLoad = e.getKey();
-            String tableName = e.getValue();
-            Path pathOfFileToLoad = filePaths.get(fileToLoad);
-            try (BufferedReader br = Files.newBufferedReader(pathOfFileToLoad)) {
-                CopyManager copier = new CopyManager(postgresConnection);
-                //language=SQL
-                String command = "" +
-                        "COPY %s\n" +
-                        "FROM STDIN\n" +
-                        "WITH (DELIMITER '\t');";
+            String tableName = fileToTableMapping.get(fileToLoad);
+            Path pathOfFileToLoad = e.getValue();
 
-                String header = br.readLine();
-                if (header == null) throw new FileLoadingError("Empty file received");
-                copier.copyIn(String.format(command, tableName), br);
-
-                logger.info("{} successfully transferred to table {}",
-                        fileToLoad.getDownloadUrl(),
-                        tableName);
-            } catch (SQLException | IOException exception) {
-                throw new FileLoadingError(exception);
-            }
+            populate(tableName, pathOfFileToLoad);
         }
     }
 
     /**
-     * Load data from temp tables to show table.
+     * Helper method that will use Postgres's COPY command to copy data from
+     * a file into a table.
+     * @param tableName Name of the Postgres table you want to fill with data.
+     * @param fileToLoad Path of file you want to load data from.
      */
-    private void loadShows() {
+    private void populate(String tableName, Path fileToLoad) {
+        try (BufferedReader br = Files.newBufferedReader(fileToLoad)) {
+            BaseConnection postgresConnection = DataSourceUtils.getConnection(dataSource)
+                    .unwrap(BaseConnection.class);
+
+            CopyManager copier = new CopyManager(postgresConnection);
+            //language=SQL
+            String command = "" +
+                    "COPY %s\n" +
+                    "FROM STDIN\n" +
+                    "WITH (DELIMITER '\t');";
+
+            String header = br.readLine();
+            if (header == null) throw new DailyUpdateError("Empty file received");
+            copier.copyIn(String.format(command, tableName), br);
+
+            logger.info("{} successfully transferred to table {}", fileToLoad, tableName);
+        } catch (SQLException | IOException exception) {
+            throw new DailyUpdateError(exception);
+        }
+    }
+
+    /**
+     * Updates show table using freshly loaded data from temp tables. The method
+     * also reformats/transforms that data before using it for updates.
+     */
+    private void updateShows() {
         jdbcTemplate.execute("" +
                 "INSERT INTO imdb.show(imdb_id,\n" +
                 "                      primary_title,\n" +
@@ -184,9 +192,10 @@ public class DatabaseUpdater {
     }
 
     /**
-     * Load data from temp tables to episode table.
+     * Updates episode table using freshly loaded data from temp tables. The
+     * method also reformats/transforms that data before using it for updates.
      */
-    private void loadEpisodes() {
+    private void updateEpisodes() {
         jdbcTemplate.execute("" +
                 "INSERT INTO imdb.episode(show_id,\n" +
                 "                         episode_id,\n" +
@@ -218,12 +227,15 @@ public class DatabaseUpdater {
         logger.info("Episodes successfully updated");
     }
 
-    static class FileLoadingError extends RuntimeException {
-        FileLoadingError(String message) {
+    /**
+     * Exception to indicate any issues when performing daily database updates
+     */
+    static class DailyUpdateError extends RuntimeException {
+        DailyUpdateError(String message) {
             super(message);
         }
 
-        FileLoadingError(Throwable cause) {
+        DailyUpdateError(Throwable cause) {
             super(cause);
         }
     }

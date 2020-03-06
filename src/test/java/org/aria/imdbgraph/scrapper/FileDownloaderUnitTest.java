@@ -11,7 +11,8 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Set;
 
-import static org.aria.imdbgraph.scrapper.FileDownloader.ImdbFile;
+import static org.aria.imdbgraph.scrapper.ImdbFileService.ImdbFile;
+import static org.aria.imdbgraph.scrapper.ImdbFileService.ImdbFile.*;
 
 public class FileDownloaderUnitTest {
 
@@ -20,22 +21,32 @@ public class FileDownloaderUnitTest {
 
     @Test
     public void testDownloadingTitleFile() throws IOException {
-        testDownload(ImdbFile.TITLES_FILE);
+        testDownload(TITLES_FILE);
     }
 
     @Test
     public void testDownloadingRatingsFile() throws IOException {
-        testDownload(ImdbFile.RATINGS_FILE);
+        testDownload(RATINGS_FILE);
     }
 
     @Test
     public void testDownloadingEpisodeFile() throws IOException {
-        testDownload(ImdbFile.EPISODES_FILE);
+        testDownload(EPISODES_FILE);
+    }
+
+    @Test
+    public void testArchivingTitleFile() throws IOException {
+        File downloadDirectory = temporaryFolder.newFolder();
+        ImdbFileService downloader = new ImdbFileService(downloadDirectory.toString());
+        downloader.archive();
+        downloader.download(Set.of(EPISODES_FILE));
+        downloader.archive();
+        downloader.download(Set.of(EPISODES_FILE));
     }
 
     private void testDownload(ImdbFile imdbFile) throws IOException {
         File downloadDirectory = temporaryFolder.newFolder();
-        FileDownloader downloader = new FileDownloader(downloadDirectory.toString());
+        ImdbFileService downloader = new ImdbFileService(downloadDirectory.toString());
         Map<ImdbFile, Path> result = downloader.download(Set.of(imdbFile));
         Path downloadedFile = result.get(imdbFile);
         Assert.assertTrue(downloadedFile.toFile().length() > 0);

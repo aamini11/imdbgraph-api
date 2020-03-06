@@ -16,8 +16,8 @@ import java.nio.file.Path;
 import java.util.EnumMap;
 import java.util.Map;
 
-import static org.aria.imdbgraph.scrapper.FileDownloader.ImdbFile;
-import static org.aria.imdbgraph.scrapper.FileDownloader.ImdbFile.*;
+import static org.aria.imdbgraph.scrapper.ImdbFileService.ImdbFile;
+import static org.aria.imdbgraph.scrapper.ImdbFileService.ImdbFile.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -33,7 +33,7 @@ public class DatabaseLoaderUnitTests {
     private DatabaseUpdater databaseUpdater;
 
     @MockBean
-    private FileDownloader fileDownloader;
+    private ImdbFileService fileService;
 
     @Test
     public void testSampleFiles() {
@@ -43,9 +43,9 @@ public class DatabaseLoaderUnitTests {
         filePaths.put(TITLES_FILE, root.resolve("title_sample.tsv"));
         filePaths.put(RATINGS_FILE, root.resolve("ratings_sample.tsv"));
         filePaths.put(EPISODES_FILE, root.resolve("episode_sample.tsv"));
-        when(fileDownloader.download(any())).thenReturn(filePaths);
+        when(fileService.download(any())).thenReturn(filePaths);
 
-        databaseUpdater.loadAllFiles();
+        databaseUpdater.updateDatabase();
         int epCount = JdbcTestUtils.countRowsInTable(jdbc, "imdb.episode");
         int showCount = JdbcTestUtils.countRowsInTable(jdbc, "imdb.show");
         Assert.assertEquals(3, showCount);
