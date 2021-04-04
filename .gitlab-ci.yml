@@ -43,7 +43,7 @@ build-containers:
 
 integration-tests:
   stage: test
-  image: maven:3.6.3-openjdk-15
+  image: maven:3.6.3-openjdk-16
 
   # Postgres database required for integration testing
   services:
