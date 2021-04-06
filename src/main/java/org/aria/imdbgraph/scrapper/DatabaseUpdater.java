@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
@@ -40,7 +40,7 @@ import static org.aria.imdbgraph.scrapper.ImdbFileService.ImdbFile.*;
  * directory that is specified by the property 'imdbgraph.data.directory' in the
  * spring application.properties file.
  */
-@Service
+@Repository
 @EnableScheduling
 public class DatabaseUpdater {
 
