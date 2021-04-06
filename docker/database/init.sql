@@ -1,5 +1,7 @@
 CREATE EXTENSION pg_trgm;
 
+CREATE SCHEMA imdb;
+
 CREATE TABLE imdb.show
 (
     imdb_id       VARCHAR(10) PRIMARY KEY      NOT NULL,

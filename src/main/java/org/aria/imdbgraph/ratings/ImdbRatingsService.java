@@ -16,41 +16,41 @@ import java.util.Optional;
  * Service class that supports search/query operations involving data from IMDB.
  */
 @Repository
-public class ImdbRatingsService {
+class ImdbRatingsService {
 
     private final NamedParameterJdbcOperations jdbc;
 
     @Autowired
-    public ImdbRatingsService(NamedParameterJdbcOperations jdbc) {
+    ImdbRatingsService(NamedParameterJdbcOperations jdbc) {
         this.jdbc = jdbc;
     }
 
     /**
-     * Method that returns all ratings data for a specific show. If in invalid
-     * ID is passed to the method, an empty {@code Optional} is returned.
+     * Method that returns all ratings data for a specific show.
      *
-     * @param showId The Imdb ID of the show to fetch ratings for.
-     *
+     * @param showId The IMDB ID of the show to fetch ratings for.
      * @return A {@link RatingsGraph} object containing all the show information
-     * and episode ratings.
+     * and episode ratings for a TV show. If in invalid ID is passed to the
+     * method, an empty {@code Optional} is returned.
      */
-    public Optional<RatingsGraph> getAllShowRatings(String showId) {
+    Optional<RatingsGraph> getAllShowRatings(String showId) {
         Optional<Show> show = getShow(showId);
         if (show.isEmpty()) {
             return Optional.empty();
         }
         SqlParameterSource params = new MapSqlParameterSource()
                 .addValue("showId", showId);
-        String getEpisodesSQL = "" +
-                "SELECT episode_title,\n" +
-                "       season_num,\n" +
-                "       episode_num,\n" +
-                "       imdb_rating,\n" +
-                "       num_votes,\n" +
-                "       COALESCE(episode_title, 'No title was found') AS primary_title\n" +
-                "FROM imdb.episode\n" +
-                "WHERE show_id = :showId\n" +
-                "ORDER BY season_num, episode_num;";
+        String getEpisodesSQL = """
+                SELECT episode_title,
+                       season_num,
+                       episode_num,
+                       imdb_rating,
+                       num_votes,
+                       COALESCE(episode_title, 'No title was found') AS primary_title
+                FROM imdb.episode
+                WHERE show_id = :showId
+                ORDER BY season_num, episode_num;
+                """;
         List<Episode> allEpisodeRatings = jdbc.query(getEpisodesSQL, params, (rs, rowNum) -> {
             String title = rs.getString("episode_title");
             int season = rs.getInt("season_num");
@@ -68,37 +68,39 @@ public class ImdbRatingsService {
      * @param searchQuery The search query provided by the user.
      * @return List of possible shows that match the search query.
      */
-    public List<Show> searchShows(String searchQuery) {
+     List<Show> searchShows(String searchQuery) {
         SqlParameterSource params = new MapSqlParameterSource()
                 .addValue("searchTerm", searchQuery);
-        String sql = "" +
-                "SELECT imdb_id,\n" +
-                "       primary_title,\n" +
-                "       start_year,\n" +
-                "       end_year,\n" +
-                "       imdb_rating,\n" +
-                "       num_votes\n" +
-                "FROM imdb.show\n" +
-                "WHERE :searchTerm <% primary_title\n" +
-                "  AND imdb_id IN (SELECT show_id FROM imdb.valid_show)\n" +
-                "ORDER BY num_votes DESC\n" +
-                "LIMIT 50;";
+        String sql = """
+                SELECT imdb_id,
+                       primary_title,
+                       start_year,
+                       end_year,
+                       imdb_rating,
+                       num_votes
+                FROM imdb.show
+                WHERE :searchTerm <% primary_title
+                  AND imdb_id IN (SELECT show_id FROM imdb.valid_show)
+                ORDER BY num_votes DESC
+                LIMIT 50;
+                """;
         return jdbc.query(sql, params, (rs, rowNum) -> mapToShow(rs));
     }
 
     private Optional<Show> getShow(String showId) {
         SqlParameterSource params = new MapSqlParameterSource()
                 .addValue("showId", showId);
-        final String sql =
-                "SELECT\n" +
-                "  imdb_id," +
-                "  primary_title, " +
-                "  start_year," +
-                "  end_year, " +
-                "  imdb_rating, " +
-                "  num_votes\n" +
-                "FROM imdb.show\n" +
-                "WHERE imdb_id = :showId";
+        String sql = """
+                SELECT
+                  imdb_id,
+                  primary_title,
+                  start_year,
+                  end_year,
+                  imdb_rating,
+                  num_votes
+                FROM imdb.show
+                WHERE imdb_id = :showId;
+                """;
         try {
             Show show = jdbc.queryForObject(sql, params, (rs, rowNum) -> mapToShow(rs));
             return Optional.ofNullable(show);
