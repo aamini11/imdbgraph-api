@@ -10,7 +10,7 @@
     <groupId>org.aria</groupId>
     <artifactId>imdbgraph</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>imdbgraph</name>
+    <name>IMDB Graph</name>
     <description>Web app to graph IMDB ratings of shows</description>
 
     <properties>
