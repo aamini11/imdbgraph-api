@@ -3,23 +3,24 @@ package org.aria.imdbgraph.ratings;
 /**
  * Immutable data class containing all the meta-data and ratings information
  * about a specific TV episode.
- *
+ * <p>
  * Note: This class will also be serialized as a JSON object
  */
-public final class Episode {
+public final record Episode(
+        String episodeTitle,
+        int season,
+        int episodeNumber,
+        double imdbRating,
+        int numVotes
+) {
 
-    private final String episodeTitle;
-    private final int season;
-    private final int episodeNumber;
-    private final double imdbRating;
-    private final int numVotes;
-
-    Episode(String episodeTitle, int season, int episodeNumber, double imdbRating, int numVotes) {
-        this.episodeTitle = episodeTitle;
-        this.season = season;
-        this.episodeNumber = episodeNumber;
-        this.imdbRating = imdbRating;
-        this.numVotes = numVotes;
+    public Episode {
+        if (numVotes < 0) {
+            throw new IllegalArgumentException("Negative votes");
+        }
+        if (imdbRating < 0.0 || imdbRating > 10.0) {
+            throw new IllegalArgumentException("Invalid rating");
+        }
     }
 
     /**

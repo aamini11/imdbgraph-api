@@ -1,27 +1,22 @@
 package org.aria.imdbgraph.ratings;
 
 /**
- * Immutable data class to represent all meta-data and ratings information
- * about a specific TV show.
- *
+ * Immutable data class to represent all meta-data and ratings information about
+ * a specific TV show.
+ * <p>
  * Note: This class will also be serialized as a JSON object.
  */
-public final class Show {
+public final record Show(String imdbId, String title,
+                         String startYear, String endYear,
+                         double showRating, int numVotes) {
 
-    private final String imdbId;
-    private final String title;
-    private final String startYear;
-    private final String endYear;
-    private final double showRating;
-    private final int numVotes;
-
-    Show(String imdbId, String title, String startYear, String endYear, double showRating, int numVotes) {
-        this.imdbId = imdbId;
-        this.title = title;
-        this.startYear = startYear;
-        this.endYear = endYear;
-        this.showRating = showRating;
-        this.numVotes = numVotes;
+    public Show {
+        if (numVotes < 0) {
+            throw new IllegalArgumentException("Negative votes");
+        }
+        if (showRating < 0.0 || showRating > 10.0) {
+            throw new IllegalArgumentException("Invalid rating");
+        }
     }
 
     /**
@@ -60,8 +55,8 @@ public final class Show {
     }
 
     /**
-     *  The number of people that voted on the show's rating. Can be 0 if nobody
-     *  has voted on the TV show.
+     * The number of people that voted on the show's rating. Can be 0 if nobody
+     * has voted on the TV show.
      */
     public int getNumVotes() {
         return numVotes;
