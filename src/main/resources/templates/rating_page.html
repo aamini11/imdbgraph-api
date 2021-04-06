@@ -40,8 +40,6 @@
 <div id="graph" style="height: 400px"></div>
 <script th:inline="javascript">
     let data = [[${ratingsData}]];
-</script>
-<script th:inline="none">
     load_graph("graph", data);
 
     function parse_ratings(ratings) {
