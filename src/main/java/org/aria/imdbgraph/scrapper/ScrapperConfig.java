@@ -3,6 +3,7 @@ package org.aria.imdbgraph.scrapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -10,6 +11,7 @@ import java.time.Clock;
 import java.time.ZoneId;
 
 @Configuration
+@Profile("production")
 class ScrapperConfig {
 
     @Bean
