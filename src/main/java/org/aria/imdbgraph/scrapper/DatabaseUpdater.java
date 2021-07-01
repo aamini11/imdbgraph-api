@@ -13,7 +13,10 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
@@ -22,8 +25,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static java.util.Map.entry;
-import static org.aria.imdbgraph.scrapper.ImdbFileService.ImdbFile;
-import static org.aria.imdbgraph.scrapper.ImdbFileService.ImdbFile.*;
+import static org.aria.imdbgraph.scrapper.ImdbFileDownloader.ImdbFile;
+import static org.aria.imdbgraph.scrapper.ImdbFileDownloader.ImdbFile.*;
 
 /**
  * Utility class whose responsible for fetching the latest flat files from IMDB
@@ -48,14 +51,14 @@ public class DatabaseUpdater {
 
     private final JdbcTemplate jdbcTemplate;
     private final DataSource dataSource;
-    private final ImdbFileService fileService;
+    private final ImdbFileDownloader imdbFileDownloader;
     private final FileArchiver fileArchiver;
 
     @Autowired
-    DatabaseUpdater(JdbcTemplate jdbcTemplate,
-                    ImdbFileService fileService,
-                    FileArchiver fileArchiver) {
-        this.fileService = fileService;
+    public DatabaseUpdater(JdbcTemplate jdbcTemplate,
+                           ImdbFileDownloader imdbFileDownloader,
+                           FileArchiver fileArchiver) {
+        this.imdbFileDownloader = imdbFileDownloader;
         this.jdbcTemplate = jdbcTemplate;
         this.fileArchiver = fileArchiver;
         this.dataSource = jdbcTemplate.getDataSource();
@@ -67,7 +70,7 @@ public class DatabaseUpdater {
      */
     @Transactional
     @Scheduled(cron = "0 0 8 * * *")
-    public void updateDatabase() throws ImdbFileParsingError {
+    public void updateDatabase() throws ImdbFileParsingException {
         populateAllTempTables();
         updateShows();
         updateEpisodes();
@@ -83,7 +86,7 @@ public class DatabaseUpdater {
      * into the real tables. And if successfully loaded, the file will be
      * deleted immediately afterwards
      */
-    private void populateAllTempTables() throws ImdbFileParsingError {
+    private void populateAllTempTables() throws ImdbFileParsingException {
         jdbcTemplate.execute("""
                 CREATE TEMPORARY TABLE temp_title
                 (
@@ -122,9 +125,9 @@ public class DatabaseUpdater {
 
         Set<ImdbFile> filesToDownload = fileToTableMapping.keySet();
         Map<ImdbFile, Path> allDownloadedFiles = new EnumMap<>(ImdbFile.class);
-        for (ImdbFile imdbFile : filesToDownload) {
-            Path downloadLocation = fileService.download(imdbFile);
-            allDownloadedFiles.put(imdbFile, downloadLocation);
+        for (ImdbFile file : filesToDownload) {
+            Path downloadLocation = imdbFileDownloader.download(file);
+            allDownloadedFiles.put(file, downloadLocation);
         }
 
         for (Map.Entry<ImdbFile, Path> entry : allDownloadedFiles.entrySet()) {
@@ -148,7 +151,7 @@ public class DatabaseUpdater {
      * @param tableName  Name of the Postgres table you want to fill with data.
      * @param fileToLoad Path of file you want to load data from.
      */
-    private void populate(String tableName, Path fileToLoad) throws ImdbFileParsingError {
+    private void populate(String tableName, Path fileToLoad) throws ImdbFileParsingException {
         try (BufferedReader br = Files.newBufferedReader(fileToLoad)) {
             PgConnection postgresConnection = DataSourceUtils.getConnection(dataSource)
                     .unwrap(PgConnection.class);
@@ -169,7 +172,7 @@ public class DatabaseUpdater {
             logger.info("{} successfully transferred to table {}", fileToLoad, tableName);
         } catch (SQLException | IOException exception) {
             fileArchiver.archive(fileToLoad);
-            throw new ImdbFileParsingError(exception, fileToLoad);
+            throw new ImdbFileParsingException(exception, fileToLoad);
         }
     }
 
@@ -241,15 +244,9 @@ public class DatabaseUpdater {
         logger.info("Episodes successfully updated");
     }
 
-    static class ImdbFileParsingError extends Exception {
-        @Serial
-        private static final long serialVersionUID = 8382725531069054752L;
-
-        final transient Path failedFile;
-
-        public ImdbFileParsingError(Throwable cause, Path failedFile) {
+    public static class ImdbFileParsingException extends Exception {
+        public ImdbFileParsingException(Throwable cause, Path failedFile) {
             super("Failed to load file from: " + failedFile, cause);
-            this.failedFile = failedFile;
         }
     }
 }

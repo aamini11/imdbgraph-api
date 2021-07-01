@@ -1,6 +1,6 @@
 package org.aria.imdbgraph.scrapper;
 
-import org.aria.imdbgraph.scrapper.DatabaseUpdater.ImdbFileParsingError;
+import org.aria.imdbgraph.scrapper.DatabaseUpdater.ImdbFileParsingException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
@@ -25,13 +26,13 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Objects;
 
-import static org.aria.imdbgraph.scrapper.ImdbFileService.ImdbFile.*;
+import static org.aria.imdbgraph.scrapper.ImdbFileDownloader.ImdbFile.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class DatabaseLoaderUnitIT {
+class DatabaseLoaderIT {
 
     private static final Path SAMPLE_FILES_DIR = Paths.get("src/test/resources/samples-files");
     private static Path INPUT_DIR;
@@ -41,6 +42,7 @@ class DatabaseLoaderUnitIT {
     @Profile("test")
     static class ScrapperTestConfiguration {
         @Bean
+        @Primary
         FileArchiver testArchiver() {
             Instant instant = Instant.parse("2007-12-03T10:15:30.00Z");
             return new FileArchiver(ARCHIVE_DIR, Clock.fixed(instant, ZoneId.of("America/Chicago")));
@@ -51,7 +53,7 @@ class DatabaseLoaderUnitIT {
     private JdbcTemplate jdbc;
 
     @MockBean
-    private ImdbFileService fileService;
+    private ImdbFileDownloader fileService;
 
     @Autowired
     private DatabaseUpdater testDatabaseUpdater;
@@ -83,7 +85,7 @@ class DatabaseLoaderUnitIT {
     }
 
     @Test
-    void testSampleFiles() throws ImdbFileParsingError {
+    void testSampleFiles() throws ImdbFileParsingException {
         when(fileService.download(TITLES_FILE)).thenReturn(INPUT_DIR.resolve("title_sample.tsv"));
         when(fileService.download(RATINGS_FILE)).thenReturn(INPUT_DIR.resolve("ratings_sample.tsv"));
         when(fileService.download(EPISODES_FILE)).thenReturn(INPUT_DIR.resolve("episode_sample.tsv"));
@@ -101,7 +103,7 @@ class DatabaseLoaderUnitIT {
         when(fileService.download(RATINGS_FILE)).thenReturn(INPUT_DIR.resolve("ratings_sample.tsv"));
         when(fileService.download(EPISODES_FILE)).thenReturn(INPUT_DIR.resolve("bad_episode_sample.tsv"));
 
-        assertThrows(ImdbFileParsingError.class, () -> testDatabaseUpdater.updateDatabase());
+        assertThrows(ImdbFileParsingException.class, () -> testDatabaseUpdater.updateDatabase());
 
         File[] archivedFiles = ARCHIVE_DIR.toFile().listFiles();
         assertNotNull(archivedFiles);

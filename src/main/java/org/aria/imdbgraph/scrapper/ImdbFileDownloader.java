@@ -20,14 +20,14 @@ import java.util.zip.GZIPInputStream;
  * <p>
  * Documentation for file formats is available here: https://www.imdb.com/interfaces/
  */
-final class ImdbFileService {
+final class ImdbFileDownloader {
 
     private static final Logger logger = LogManager.getLogger();
     private static final String BASE_DOWNLOAD_URL = "https://datasets.imdbws.com";
 
     private final Path downloadDir;
 
-    ImdbFileService(Path downloadDir) {
+    ImdbFileDownloader(Path downloadDir) {
         this.downloadDir = downloadDir;
     }
 
