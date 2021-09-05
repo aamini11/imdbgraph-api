@@ -1,22 +1,29 @@
 package org.aria.imdbgraph;
 
+import org.aria.imdbgraph.scrapper.DatabaseUpdater;
+import org.aria.imdbgraph.scrapper.DatabaseUpdater.ImdbFileParsingException;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
-@EnableTransactionManagement
-public class Main {
+public class Main implements ApplicationRunner {
+
+    private final DatabaseUpdater databaseUpdater;
+
+    public Main(DatabaseUpdater databaseUpdater) {
+        this.databaseUpdater = databaseUpdater;
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);
     }
 
-    @Bean
-    public static RestTemplate restTemplate(RestTemplateBuilder builder) {
-        return builder.build();
+    @Override
+    public void run(ApplicationArguments args) throws ImdbFileParsingException {
+        if (args.getOptionNames().contains("run-scrapper")) {
+            databaseUpdater.updateDatabase();
+        }
     }
 }
