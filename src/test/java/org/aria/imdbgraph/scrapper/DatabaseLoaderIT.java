@@ -67,6 +67,8 @@ class DatabaseLoaderIT {
 
     @BeforeEach
     void loadFiles() throws IOException {
+        cleanUp();
+
         File[] sampleFiles = SAMPLE_FILES_DIR.toFile().listFiles();
         Objects.requireNonNull(sampleFiles, SAMPLE_FILES_DIR + " not found");
         for (File sample : sampleFiles) {
