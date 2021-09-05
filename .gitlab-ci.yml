@@ -1,4 +1,5 @@
 variables:
+  POSTGRES_HOST: 'postgres'
   POSTGRES_DB: 'test_db'
   POSTGRES_USER: 'test_user'
   POSTGRES_PASSWORD: "$DB_PASSWORD"
