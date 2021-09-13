@@ -80,7 +80,6 @@ class ImdbRatingsService {
                        num_votes
                 FROM imdb.show
                 WHERE :searchTerm <% primary_title
-                  AND imdb_id IN (SELECT show_id FROM imdb.valid_show)
                 ORDER BY num_votes DESC
                 LIMIT 50;
                 """;

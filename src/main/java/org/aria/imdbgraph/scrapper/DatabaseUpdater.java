@@ -74,9 +74,8 @@ public class DatabaseUpdater {
         populateAllTempTables();
         updateShows();
         updateEpisodes();
-        // Refresh cache which contains all the shows with at least one
-        // episode rating
-        jdbcTemplate.execute("REFRESH MATERIALIZED VIEW imdb.valid_show;");
+
+        jdbcTemplate.execute("ANALYSE");
     }
 
     /**
@@ -90,7 +89,7 @@ public class DatabaseUpdater {
         jdbcTemplate.execute("""
                 CREATE TEMPORARY TABLE temp_title
                 (
-                    imdb_id         VARCHAR(10) PRIMARY KEY,
+                    imdb_id         VARCHAR(10),
                     title_type      TEXT,
                     primary_title   TEXT,
                     original_title  TEXT,
@@ -103,7 +102,7 @@ public class DatabaseUpdater {
 
                 CREATE TEMPORARY TABLE temp_episode
                 (
-                    episode_id  VARCHAR(10) PRIMARY KEY,
+                    episode_id  VARCHAR(10),
                     show_id     VARCHAR(10),
                     season_num  INT,
                     episode_num INT
@@ -111,7 +110,7 @@ public class DatabaseUpdater {
 
                 CREATE TEMPORARY TABLE temp_ratings
                 (
-                    imdb_id     VARCHAR(10),
+                    imdb_id     VARCHAR(10) PRIMARY KEY,
                     imdb_rating DOUBLE PRECISION,
                     num_votes   INT
                 ) ON COMMIT DROP;
@@ -212,34 +211,40 @@ public class DatabaseUpdater {
      * method also reformats/transforms that data before using it for updates.
      */
     private void updateEpisodes() {
-        jdbcTemplate.execute("""
-                INSERT INTO imdb.episode(show_id,
-                                         episode_id,
-                                         episode_title,
-                                         season_num,
-                                         episode_num,
-                                         imdb_rating,
-                                         num_votes)
+        /*
+         * https://stackoverflow.com/a/17267423/6310030
+         * https://www.postgresql.org/docs/current/populate.html
+         * https://dba.stackexchange.com/questions/41059/optimizing-bulk-update-performance-in-postgresql
+         */
+        jdbcTemplate.execute("""                
+                CREATE TABLE imdb.episode_new AS
                 SELECT show_id,
                        episode_id,
-                       primary_title,
+                       primary_title as episode_title,
                        season_num,
                        episode_num,
-                       COALESCE(imdb_rating, 0.0),
-                       COALESCE(num_votes, 0)
+                       COALESCE(imdb_rating, 0.0) as imdb_rating,
+                       COALESCE(num_votes, 0) as num_votes
                 FROM temp_episode
                          LEFT JOIN temp_title ON (episode_id = imdb_id)
                          LEFT JOIN temp_ratings USING (imdb_id)
                 WHERE show_id IN (SELECT imdb_id FROM imdb.show)
                   AND season_num >= 0
-                  AND episode_num >= 0
-                ON CONFLICT (episode_id) DO UPDATE
-                    SET show_id       = excluded.show_id,
-                        episode_title = excluded.episode_title,
-                        season_num    = excluded.season_num,
-                        episode_num   = excluded.episode_num,
-                        imdb_rating   = excluded.imdb_rating,
-                        num_votes     = excluded.num_votes;
+                  AND episode_num >= 0;
+                
+                ALTER TABLE imdb.episode_new ADD PRIMARY KEY (episode_id);
+                ALTER TABLE imdb.episode_new ADD FOREIGN KEY (show_id) REFERENCES imdb.show(imdb_id);
+                CREATE INDEX ON imdb.episode_new (show_id);
+                
+                ALTER TABLE imdb.episode_new ALTER COLUMN show_id SET NOT NULL;
+                ALTER TABLE imdb.episode_new ALTER COLUMN episode_id SET NOT NULL;
+                ALTER TABLE imdb.episode_new ALTER COLUMN season_num SET NOT NULL;
+                ALTER TABLE imdb.episode_new ALTER COLUMN episode_num SET NOT NULL;
+                ALTER TABLE imdb.episode_new ALTER COLUMN imdb_rating SET NOT NULL;
+                ALTER TABLE imdb.episode_new ALTER COLUMN num_votes SET NOT NULL;
+                
+                DROP TABLE imdb.episode;
+                ALTER TABLE imdb.episode_new RENAME TO episode;
                 """);
         logger.info("Episodes successfully updated");
     }

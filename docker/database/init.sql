@@ -29,6 +29,8 @@ CREATE INDEX episode_show_id_index
 CREATE INDEX trigram_index
     ON imdb.show USING GIN (primary_title gin_trgm_ops);
 
+CREATE INDEX ON imdb.show (imdb_rating DESC);
+
 CREATE MATERIALIZED VIEW imdb.valid_show AS
 SELECT DISTINCT show_id
 FROM imdb.episode
