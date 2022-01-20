@@ -11,7 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Optional;
 
-@RestController("/api")
+@RestController
 class RatingsController {
 
     private final RatingsService ratingsService;
@@ -21,7 +21,7 @@ class RatingsController {
         this.ratingsService = ratingsService;
     }
 
-    @GetMapping(value = "/ratings/{showId}")
+    @GetMapping(value = "api/ratings/{showId}")
     public Ratings getRatings(@PathVariable(value = "showId") String showId) {
         Optional<Ratings> ratings = ratingsService.getAllShowRatings(showId);
         if (ratings.isEmpty()) {
@@ -30,7 +30,7 @@ class RatingsController {
         return ratings.get();
     }
 
-    @GetMapping(value = "/search")
+    @GetMapping(value = "api/search")
     public List<Show> search(@RequestParam(value="q") String searchTerm) {
         return ratingsService.searchShows(searchTerm);
     }
