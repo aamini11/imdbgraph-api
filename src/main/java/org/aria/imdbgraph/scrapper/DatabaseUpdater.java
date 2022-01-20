@@ -216,7 +216,9 @@ public class DatabaseUpdater {
          * https://www.postgresql.org/docs/current/populate.html
          * https://dba.stackexchange.com/questions/41059/optimizing-bulk-update-performance-in-postgresql
          */
-        jdbcTemplate.execute("""                
+        jdbcTemplate.execute("""
+                DROP TABLE IF EXISTS imdb.episode_new;
+                                
                 CREATE TABLE imdb.episode_new AS
                 SELECT show_id,
                        episode_id,
