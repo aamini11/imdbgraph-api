@@ -46,28 +46,6 @@ public final class RatingsGraph {
         return allEpisodeRatings;
     }
 
-    /**
-     * Utility method to retrieve episode information about a specific episode
-     * within the ratings graph.
-     *
-     * @param season  The season number of the episode you want to retrieve.
-     * @param episode The episode number of the episode you want to retrieve.
-     *
-     * @return An {@link Episode} object containing all information about the
-     * episode you retrieved, including the episode's rating data.
-     */
-    public Episode getEpisode(int season, int episode) {
-        if (allEpisodeRatings.containsKey(season)) {
-            Map<Integer, Episode> seasonRatings = allEpisodeRatings.get(season);
-            if (seasonRatings.containsKey(episode)) {
-                return seasonRatings.get(episode);
-            }
-        }
-
-        String errMsg = String.format("Episode: %d Season: %d does not exist", season, episode);
-        throw new InvalidParameterException(errMsg);
-    }
-
     private static Map<Integer, Map<Integer, Episode>> toMap(List<Episode> episodeSequence) {
         Map<Integer, Map<Integer, Episode>> map = new LinkedHashMap<>();
         for (Episode e : episodeSequence) {
