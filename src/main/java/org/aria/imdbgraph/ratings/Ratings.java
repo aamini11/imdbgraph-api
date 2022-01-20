@@ -2,7 +2,6 @@ package org.aria.imdbgraph.ratings;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.security.InvalidParameterException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,12 +13,12 @@ import java.util.Map;
  * Note: This class will also be serialized as a JSON object and returned to the
  * front-end where it will be rendered as an actual graph.
  */
-public final class RatingsGraph {
+public final class Ratings {
 
     private final Show show;
     private final Map<Integer, Map<Integer, Episode>> allEpisodeRatings;
 
-    RatingsGraph(Show show, List<Episode> allEpisodeRatings) {
+    Ratings(Show show, List<Episode> allEpisodeRatings) {
         this.show = show;
         this.allEpisodeRatings = toMap(allEpisodeRatings);
     }

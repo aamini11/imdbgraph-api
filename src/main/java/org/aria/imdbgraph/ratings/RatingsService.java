@@ -16,12 +16,12 @@ import java.util.Optional;
  * Service class that supports search/query operations involving data from IMDB.
  */
 @Repository
-class ImdbRatingsService {
+class RatingsService {
 
     private final NamedParameterJdbcOperations jdbc;
 
     @Autowired
-    ImdbRatingsService(NamedParameterJdbcOperations jdbc) {
+    RatingsService(NamedParameterJdbcOperations jdbc) {
         this.jdbc = jdbc;
     }
 
@@ -29,11 +29,11 @@ class ImdbRatingsService {
      * Method that returns all ratings data for a specific show.
      *
      * @param showId The IMDB ID of the show to fetch ratings for.
-     * @return A {@link RatingsGraph} object containing all the show information
+     * @return A {@link Ratings} object containing all the show information
      * and episode ratings for a TV show. If in invalid ID is passed to the
      * method, an empty {@code Optional} is returned.
      */
-    Optional<RatingsGraph> getAllShowRatings(String showId) {
+    Optional<Ratings> getAllShowRatings(String showId) {
         Optional<Show> show = getShow(showId);
         if (show.isEmpty()) {
             return Optional.empty();
@@ -59,7 +59,7 @@ class ImdbRatingsService {
             int numVotes = rs.getInt("num_votes");
             return new Episode(title, season, episode, imdbRating, numVotes);
         });
-        return Optional.of(new RatingsGraph(show.get(), allEpisodeRatings));
+        return Optional.of(new Ratings(show.get(), allEpisodeRatings));
     }
 
     /**
