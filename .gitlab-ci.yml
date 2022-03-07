@@ -12,27 +12,19 @@ variables:
   # `installAtEnd` and `deployAtEnd` are only effective with recent version of the corresponding plugins.
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
 
-image: openjdk:16-alpine
+image: openjdk:17-alpine
+
+stages:
+  - build
+  - deploy
 
 # Cache downloaded dependencies and plugins between builds.
 cache:
   paths:
     - .m2/repository
-  key: "$CI_JOB_NAME"
 
-stages:
-  - build
-  - test
-
-build-jar:
+build-and-test:
   stage: build
-  script: ./mvnw $MAVEN_CLI_OPTS -DskipTests package
-  artifacts:
-    paths:
-      - target/imdbgraph-0.0.1-SNAPSHOT.jar
-
-integration-tests:
-  stage: test
   services:
     # Postgres database required for integration testing
     - postgres
@@ -44,6 +36,8 @@ integration-tests:
     - ./mvnw $MAVEN_CLI_OPTS verify
 
   artifacts:
+    paths:
+      - target/imdbgraph-0.0.1-SNAPSHOT.jar
     when: always
     reports:
       junit:
