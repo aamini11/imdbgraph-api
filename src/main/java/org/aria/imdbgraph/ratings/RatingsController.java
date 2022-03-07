@@ -21,7 +21,7 @@ class RatingsController {
         this.ratingsService = ratingsService;
     }
 
-    @GetMapping(value = "api/ratings/{showId}")
+    @GetMapping(value = "/ratings/{showId}")
     public Ratings getRatings(@PathVariable(value = "showId") String showId) {
         Optional<Ratings> ratings = ratingsService.getAllShowRatings(showId);
         if (ratings.isEmpty()) {
@@ -30,7 +30,7 @@ class RatingsController {
         return ratings.get();
     }
 
-    @GetMapping(value = "api/search")
+    @GetMapping(value = "/search")
     public List<Show> search(@RequestParam(value="q") String searchTerm) {
         return ratingsService.searchShows(searchTerm);
     }
