@@ -39,4 +39,6 @@ buildNumber.properties
 ### VS Code ###
 .vscode/
 
-*.properties
+# To prevent accidentally commiting config files which could contain sensitive
+# info (like database passwords).
+application-*.properties

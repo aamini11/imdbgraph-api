@@ -2,7 +2,6 @@ variables:
   POSTGRES_HOST: 'postgres'
   POSTGRES_DB: 'test_db'
   POSTGRES_USER: 'test_user'
-  POSTGRES_PASSWORD: "$DB_PASSWORD"
   POSTGRES_HOST_AUTH_METHOD: 'trust'
 
   # This will suppress any download for dependencies and plugins or upload messages which would clutter the console log.
@@ -13,46 +12,37 @@ variables:
   # `installAtEnd` and `deployAtEnd` are only effective with recent version of the corresponding plugins.
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
 
+image: openjdk:16-alpine
+
 # Cache downloaded dependencies and plugins between builds.
 cache:
   paths:
     - .m2/repository
+  key: "$CI_JOB_NAME"
 
 stages:
   - build
   - test
 
-build-containers:
+build-jar:
   stage: build
-  image: docker:20.10.5
-  services:
-    - docker:20.10.5-dind
-
-  variables:
-    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-  before_script:
-    - apk update
-    - apk upgrade
-    - apk add --no-cache docker-compose
-    # Secure practice for passing password: https://stackoverflow.com/a/51518255/6310030
-    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-  script:
-    # https://docs.gitlab.com/ee/user/packages/container_registry/#container-registry-examples-with-gitlab-cicd
-    - docker-compose --version
-    - docker-compose build database
-    - docker-compose push database
+  script: ./mvnw $MAVEN_CLI_OPTS -DskipTests package
+  artifacts:
+    paths:
+      - target/imdbgraph-0.0.1-SNAPSHOT.jar
 
 integration-tests:
   stage: test
-  image: maven:3.6.3-openjdk-16
-
-  # Postgres database required for integration testing
   services:
-    - name: "$CI_REGISTRY_IMAGE/database:$CI_COMMIT_REF_SLUG"
-      alias: postgres
+    # Postgres database required for integration testing
+    - postgres
 
+  before_script:
+    - apk add postgresql-client
   script:
-    - 'mvn $MAVEN_CLI_OPTS verify'
+    - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "init.sql"
+    - ./mvnw $MAVEN_CLI_OPTS verify
+
   artifacts:
     when: always
     reports:
