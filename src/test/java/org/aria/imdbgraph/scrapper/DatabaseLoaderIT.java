@@ -11,9 +11,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.jdbc.JdbcTestUtils;
 
 import java.io.File;
@@ -31,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@ActiveProfiles("test")
 class DatabaseLoaderIT {
 
     private static final Path SAMPLE_FILES_DIR = Paths.get("src/test/resources/samples-files");
@@ -39,7 +36,6 @@ class DatabaseLoaderIT {
     private static Path ARCHIVE_DIR;
 
     @TestConfiguration
-    @Profile("test")
     static class ScrapperTestConfiguration {
         @Bean
         @Primary
