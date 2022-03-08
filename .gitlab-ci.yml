@@ -1,8 +1,10 @@
 variables:
-  POSTGRES_HOST: 'postgres'
-  POSTGRES_DB: 'test_db'
-  POSTGRES_USER: 'test_user'
-  POSTGRES_HOST_AUTH_METHOD: 'trust'
+  JAR_FILE_NAME: imdbgraph-0.0.1-SNAPSHOT.jar
+
+  POSTGRES_HOST: postgres
+  POSTGRES_DB: test_db
+  POSTGRES_USER: test_user
+  POSTGRES_HOST_AUTH_METHOD: trust
 
   # This will suppress any download for dependencies and plugins or upload messages which would clutter the console log.
   # `showDateTime` will show the passed time in milliseconds. You need to specify `--batch-mode` to make this work.
@@ -25,10 +27,10 @@ cache:
 
 build-and-test:
   stage: build
-  services:
-    # Postgres database required for integration testing
-    - postgres
 
+  # Postgres database required for integration testing
+  services:
+    - postgres
   before_script:
     - apk add postgresql-client
   script:
@@ -37,9 +39,32 @@ build-and-test:
 
   artifacts:
     paths:
-      - target/imdbgraph-0.0.1-SNAPSHOT.jar
+      - target/$JAR_FILE_NAME
     when: always
     reports:
       junit:
         - target/surefire-reports/TEST-*.xml
         - target/failsafe-reports/TEST-*.xml
+
+deploy-digitalocean:
+  stage: deploy
+  when: manual
+
+  before_script:
+    # Install ssh-agent if not already installed
+    - command -v ssh-agent >/dev/null || ( apk --update add openssh-client )
+
+    # Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
+    # Why eval the output of ssh-agent? (https://unix.stackexchange.com/q/351725/169515)
+    - eval $(ssh-agent -s)
+    # Create the SSH directory and give it the right permissions
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    # Add SSH key
+    - echo "$SSH_DEPLOY_KEY" | tr -d '\r' | ssh-add -
+    # Add server to known_hosts
+    - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - scp "target/${JAR_FILE_NAME}" "${SERVER_USER}@${SERVER_HOST}:~/${JAR_FILE_NAME}"
+    - ssh "${SERVER_USER}@${SERVER_HOST}" "sudo systemctl restart imdbgraph.service"
