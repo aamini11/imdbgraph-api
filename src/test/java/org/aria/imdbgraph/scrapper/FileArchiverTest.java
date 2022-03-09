@@ -83,12 +83,6 @@ class FileArchiverTest {
         Assertions.assertEquals("file6_2007-12-03", archivedFiles[3].getName());
     }
 
-//    private static File[] getSortedFiles(Path archiveDir) {
-//        File[] archivedFiles = Objects.requireNonNull(archiveDir.toFile().listFiles());
-//        Arrays.sort(archivedFiles, Comparator.comparingLong(File::lastModified));
-//        return archivedFiles;
-//    }
-
     private static File[] getSortedFiles(Path archiveDir) {
         File[] archivedFiles = Objects.requireNonNull(archiveDir.toFile().listFiles());
         Arrays.sort(archivedFiles, Comparator.comparing(File::getName));
