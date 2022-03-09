@@ -50,6 +50,7 @@ deploy-digitalocean:
   stage: deploy
   when: manual
 
+  # Setting up SSH: https://docs.gitlab.com/ee/ci/ssh_keys/
   before_script:
     # Install ssh-agent if not already installed
     - command -v ssh-agent >/dev/null || ( apk --update add openssh-client )
