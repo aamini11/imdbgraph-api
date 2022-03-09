@@ -49,6 +49,8 @@ build-and-test:
 deploy-digitalocean:
   stage: deploy
   when: manual
+  only:
+    - master
 
   # Setting up SSH: https://docs.gitlab.com/ee/ci/ssh_keys/
   before_script:
