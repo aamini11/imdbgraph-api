@@ -21,16 +21,22 @@ default:
 # Setting up SSH: https://docs.gitlab.com/ee/ci/ssh_keys/
 .set-up-ssh: &set-up-ssh
   # Install ssh-agent if not already installed
-  - command -v ssh-agent >/dev/null || ( apk --update add openssh-client )
+  - command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )
 
   # Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
-  # Why eval the output of ssh-agent? (https://unix.stackexchange.com/q/351725/169515)
+  # Why eval the output of ssh-agent?
+  # (https://unix.stackexchange.com/q/351725/169515)
   - eval $(ssh-agent -s)
+
+  # Give the right permissions, otherwise ssh-add will refuse to add files
+  # Add the SSH key stored in SSH_PRIVATE_KEY file type CI/CD variable to the agent store
+  - chmod 400 "$SSH_PRIVATE_KEY"
+  - ssh-add "$SSH_PRIVATE_KEY"
+
   # Create the SSH directory and give it the right permissions
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
-  # Add SSH key
-  - echo "$SSH_DEPLOY_KEY" | tr -d '\r' | ssh-add -
+
   # Add server to known_hosts
   - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
