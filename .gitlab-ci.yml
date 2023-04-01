@@ -61,7 +61,7 @@ test:
         - target/surefire-reports/TEST-*.xml
         - target/failsafe-reports/TEST-*.xml
 
-configure-environment:
+configure:
   stage: configure
   image: python:3.11.2-buster
   before_script:
@@ -71,7 +71,7 @@ configure-environment:
     - cd infra
     - ansible-playbook -i production.ini --vault-password-file $ANSIBLE_PASSWORD_FILE site.yml
 
-deploy-digitalocean:
+deploy:
   stage: deploy
   when: manual
   only:
