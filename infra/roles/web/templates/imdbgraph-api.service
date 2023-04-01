@@ -1,0 +1,9 @@
+[Unit]
+Description=IMDB Graph api service
+
+[Service]
+User=clubhouse-bot
+ExecStart=/home/imdbgraph-api/start.sh
+
+[Install]
+WantedBy=multi-user.target
