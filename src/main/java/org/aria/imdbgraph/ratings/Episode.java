@@ -6,7 +6,7 @@ package org.aria.imdbgraph.ratings;
  * <p>
  * Note: This class will also be serialized as a JSON object
  */
-public final record Episode(
+public record Episode(
         String episodeTitle,
         int season,
         int episodeNumber,

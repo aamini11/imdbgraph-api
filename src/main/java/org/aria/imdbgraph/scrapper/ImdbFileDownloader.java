@@ -18,7 +18,7 @@ import java.util.zip.GZIPInputStream;
  * property 'imdbgraph.data.directory' in the spring application.properties
  * file.
  * <p>
- * Documentation for file formats is available here: https://www.imdb.com/interfaces/
+ * Documentation for file formats is available here: <a href="https://www.imdb.com/interfaces/">link</a>
  */
 final class ImdbFileDownloader {
 

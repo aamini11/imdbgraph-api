@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Immutable data class containing all the ratings information about a specific
  * show, along with information about the TV show itself.
- *
+ * <p>
  * Note: This class will also be serialized as a JSON object and returned to the
  * front-end where it will be rendered as an actual graph.
  */

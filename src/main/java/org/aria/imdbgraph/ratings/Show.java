@@ -6,9 +6,9 @@ package org.aria.imdbgraph.ratings;
  * <p>
  * Note: This class will also be serialized as a JSON object.
  */
-public final record Show(String imdbId, String title,
-                         String startYear, String endYear,
-                         double showRating, int numVotes) {
+public record Show(String imdbId, String title,
+                   String startYear, String endYear,
+                   double showRating, int numVotes) {
 
     public Show {
         if (numVotes < 0) {
