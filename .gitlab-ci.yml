@@ -39,6 +39,9 @@ default:
 # Set up postgres database for integration tests
 .set-up-test-database: &set-up-test-database
   variables:
+    POSTGRES_HOST: postgres
+    POSTGRES_DB: test_db
+    POSTGRES_USER: test_user
     POSTGRES_HOST_AUTH_METHOD: trust
   services:
     - postgres:15.2-bullseye
