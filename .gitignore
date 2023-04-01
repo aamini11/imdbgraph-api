@@ -1,12 +1,13 @@
 # Ansible credentials file
 **/password.txt
 
-### Maven ###
-target/
-
-### IntelliJ IDEA ###
+# IntelliJ
 .idea
-*.iml
+
+# Gradle
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
 
 # To prevent accidentally commiting config files which could contain sensitive
 # info (like database passwords).

@@ -7,16 +7,16 @@ variables:
   POSTGRES_HOST_AUTH_METHOD: trust
 
 stages:
+  - build
   - test
   - configure
   - deploy
 
 default:
   image: openjdk:17-buster
-  # Cache downloaded dependencies and plugins between builds.
-  cache:
-    paths:
-      - .m2/repository
+  before_script:
+    - GRADLE_USER_HOME="$(pwd)/.gradle"
+    - export GRADLE_USER_HOME
 
 # Setting up SSH: https://docs.gitlab.com/ee/ci/ssh_keys/
 .set-up-ssh: &set-up-ssh
@@ -41,8 +41,19 @@ default:
   - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
 
+build:
+  stage: build
+  script: ./gradlew --build-cache assemble
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: push
+    paths:
+      - build
+      - .gradle
+
 test:
   stage: test
+
   # Postgres database required for integration testing
   services:
     - postgres:15.2-bullseye
@@ -51,19 +62,25 @@ test:
     - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "init.sql"
 
   script:
-    - ./mvnw verify
+    - ./gradlew check
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: pull
+    paths:
+      - build
+      - .gradle
   artifacts:
     paths:
       - target/$JAR_FILE_NAME
     when: always
     reports:
-      junit:
-        - target/surefire-reports/TEST-*.xml
-        - target/failsafe-reports/TEST-*.xml
+      junit: build/test-results/test/**/TEST-*.xml
 
 configure:
   stage: configure
   image: python:3.11.2-buster
+  only:
+    - master
   before_script:
     *set-up-ssh
   script:
