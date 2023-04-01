@@ -85,7 +85,7 @@ configure:
   before_script:
     *set-up-ssh
   script:
-    - pip install --user ansible
+    - pip install ansible
     - cd infra
     - ansible-playbook -i production.ini site.yml
 
