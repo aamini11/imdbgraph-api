@@ -71,7 +71,7 @@ test:
       - .gradle
   artifacts:
     paths:
-      - target/$JAR_FILE_NAME
+      - build/libs/$JAR_FILE_NAME
     when: always
     reports:
       junit: build/test-results/test/**/TEST-*.xml
@@ -84,7 +84,7 @@ configure:
   before_script:
     *set-up-ssh
   script:
-    - python3 -m pip install ansible
+    - pip install --user ansible
     - cd infra
     - ansible-playbook -i production.ini --vault-password-file $ANSIBLE_PASSWORD_FILE site.yml
 
