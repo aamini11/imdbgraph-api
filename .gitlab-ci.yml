@@ -69,7 +69,7 @@ configure-environment:
   script:
     - python3 -m pip install ansible
     - cd infra
-    - ansible-playbook -i production.ini --vault-password-file password.txt site.yml
+    - ansible-playbook -i production.ini --vault-password-file $ANSIBLE_PASSWORD_FILE site.yml
 
 deploy-digitalocean:
   stage: deploy
