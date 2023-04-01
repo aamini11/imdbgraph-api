@@ -38,7 +38,7 @@ default:
   - chmod 700 ~/.ssh
 
   # Add server to known_hosts
-  - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+  - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
 
 test:
