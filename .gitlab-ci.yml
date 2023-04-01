@@ -36,6 +36,16 @@ default:
   - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
 
+# Set up postgres database for integration tests
+.set-up-test-database: &set-up-test-database
+  variables:
+    POSTGRES_HOST_AUTH_METHOD: trust
+  services:
+    - postgres:15.2-bullseye
+  before_script:
+    - apt-get update && apt-get install -y postgresql-client
+    - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "init.sql"
+
 build:
   stage: build
   script: ./gradlew --build-cache assemble
@@ -48,14 +58,7 @@ build:
 
 test:
   stage: test
-
-  # Postgres database required for integration testing
-  services:
-    - postgres:15.2-bullseye
-  before_script:
-    - apt-get update && apt-get install -y postgresql-client
-    - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "init.sql"
-
+  <<: *set-up-test-database
   script:
     - ./gradlew check
   cache:
@@ -81,7 +84,7 @@ configure:
   script:
     - pip install --user ansible
     - cd infra
-    - ansible-playbook -i production.ini --vault-password-file $ANSIBLE_PASSWORD_FILE site.yml
+    - ansible-playbook -i production.ini site.yml
 
 deploy:
   stage: deploy
