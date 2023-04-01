@@ -17,23 +17,23 @@
 - name: Create app database
   postgresql_db:
     state: present
-    name: "{{ db_name }}"
+    name: "{{ lookup('env', 'POSTGRES_DB' }}"
   become: yes
   become_user: postgres
 
 - name: Create db user
   postgresql_user:
     state: present
-    name: "{{ db_user }}"
-    password: "{{ db_password }}"
+    name: "{{ lookup('env', 'POSTGRES_USER' }}"
+    password: "{{ lookup('env', 'POSTGRES_PASSWORD' }}"
   become: yes
   become_user: postgres
 
 - name: Grant db user access to app db
   postgresql_privs:
     type: database
-    database: "{{ db_name }}"
-    roles: "{{ db_user }}"
+    database: "{{ lookup('env', 'POSTGRES_DB' }}"
+    roles: "{{ lookup('env', 'POSTGRES_USER' }}"
     grant_option: no
     privs: all
   become: yes

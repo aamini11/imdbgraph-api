@@ -1,11 +1,6 @@
 variables:
   JAR_FILE_NAME: imdbgraph-0.0.1-SNAPSHOT.jar
 
-  POSTGRES_HOST: postgres
-  POSTGRES_DB: test_db
-  POSTGRES_USER: test_user
-  POSTGRES_HOST_AUTH_METHOD: trust
-
 stages:
   - build
   - test
