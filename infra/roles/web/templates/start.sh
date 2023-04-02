@@ -1,9 +1,9 @@
 #!/bin/bash
 
-export DATABASE_HOST="{{ lookup('env', 'DATABASE_HOST') }}"
-export DATABASE_DB="{{ lookup('env', 'DATABASE_DB') }}"
-export DATABASE_USER="{{ lookup('env', 'DATABASE_USER') }}"
-export DATABASE_PASSWORD="{{ lookup('env', 'DATABASE_PASSWORD') }}"
+export DATABASE_HOST="{{ db_host }}"
+export DATABASE_DB="{{ db_name }}"
+export DATABASE_USER="{{ db_user }}"
+export DATABASE_PASSWORD="{{ db_password }}"
 
-cd "home/{{ ansible_user }}"
+cd "home/{{ ansible_user }}" || return
 java -jar imdbgraph-0.0.1-SNAPSHOT.jar

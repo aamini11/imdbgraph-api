@@ -67,9 +67,6 @@ test:
   stage: test
   <<: *set-up-test-database
   script:
-    # Override environment variable so that integration tests tries to connect
-    # to "postgres" hostname instead of production database hostname.
-    - export DATABASE_HOST=postgres
     - ./gradlew check
   cache:
     key: "$CI_COMMIT_REF_NAME"

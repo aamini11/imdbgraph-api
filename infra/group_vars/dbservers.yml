@@ -1,0 +1,3 @@
+db_user: imdbgraph-api
+db_name: imdbgraph-api
+db_host: localhost
