@@ -1,0 +1,19 @@
+- name: Install latest version of NGINX
+  become: true
+  apt:
+    name: nginx
+    state: latest
+    update_cache: true
+
+- name: Create Config File
+  become: true
+  template:
+    src: api.imdbgraph.org.conf
+    dest: "/etc/nginx/conf.d/api.imdbgraph.org.conf"
+
+- name: Start NGINX service
+  become: true
+  service:
+    name: nginx
+    state: started
+    enabled: true
