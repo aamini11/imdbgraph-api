@@ -58,6 +58,9 @@ build:
     paths:
       - build
       - .gradle
+  artifacts:
+    paths:
+      - build/libs/$JAR_FILE_NAME
 
 test:
   stage: test
@@ -71,8 +74,6 @@ test:
       - build
       - .gradle
   artifacts:
-    paths:
-      - build/libs/$JAR_FILE_NAME
     when: always
     reports:
       junit: build/test-results/test/**/TEST-*.xml
