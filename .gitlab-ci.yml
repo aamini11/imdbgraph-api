@@ -40,11 +40,11 @@ default:
 .set-up-test-database: &set-up-test-database
   variables:
     POSTGRES_HOST: postgres
-    POSTGRES_DB: $POSTGRES_DB
-    POSTGRES_USER: $POSTGRES_USER
-    POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+    POSTGRES_DB: $DATABASE_DB
+    POSTGRES_USER: $DATABASE_USER
+    POSTGRES_PASSWORD: $DATABASE_PASSWORD
     # Environment variable used by psql to supply password. Separate from POSTGRES_PASSWORD.
-    PGPASSWORD: $POSTGRES_PASSWORD
+    PGPASSWORD: $DATABASE_PASSWORD
   services:
     - postgres:15.2-bullseye
   before_script:
