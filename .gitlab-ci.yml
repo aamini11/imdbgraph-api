@@ -40,14 +40,15 @@ default:
 .set-up-test-database: &set-up-test-database
   variables:
     POSTGRES_HOST: postgres
-    POSTGRES_DB: "$DATABASE_DB"
-    POSTGRES_USER: "$DATABASE_USER"
-    POSTGRES_PASSWORD: "$DATABASE_PASSWORD"
+    POSTGRES_DB: $DATABASE_DB
+    POSTGRES_USER: $DATABASE_USER
+    POSTGRES_PASSWORD: $DATABASE_PASSWORD
     # Environment variable used by psql to supply password. Separate from POSTGRES_PASSWORD.
-    PGPASSWORD: "$DATABASE_PASSWORD"
+    PGPASSWORD: $DATABASE_PASSWORD
   services:
     - postgres:15.2-bullseye
   before_script:
+    - export
     - apt-get update && apt-get install -y postgresql-client
     - psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "init.sql"
 
