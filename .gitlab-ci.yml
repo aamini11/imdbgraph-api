@@ -44,6 +44,10 @@ default:
     POSTGRES_PASSWORD: $DATABASE_PASSWORD
     # Environment variable used by psql to supply password. Separate from POSTGRES_PASSWORD.
     PGPASSWORD: $DATABASE_PASSWORD
+
+    # Override environment variable so that integration tests tries to connect
+    # to "postgres" hostname instead of production database hostname.
+    DATABASE_HOST: postgres
   services:
     - postgres:15.2-bullseye
   before_script:
@@ -66,10 +70,6 @@ build:
 test:
   stage: test
   <<: *set-up-test-database
-  variables:
-    # Override environment variable so that integration tests tries to connect
-    # to "postgres" hostname instead of production database hostname.
-    DATABASE_HOST: postgres
   script:
     - ./gradlew check
   cache:
