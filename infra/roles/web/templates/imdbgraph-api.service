@@ -2,7 +2,7 @@
 Description=IMDB Graph api service
 
 [Service]
-User=clubhouse-bot
+User=imdbgraph-api
 ExecStart=/home/imdbgraph-api/start.sh
 
 [Install]
