@@ -47,7 +47,7 @@ default:
     - postgres:15.2-bullseye
   before_script:
     - apt-get update && apt-get install -y postgresql-client
-    - psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "init.sql"
+    - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "init.sql"
 
 build:
   stage: build
