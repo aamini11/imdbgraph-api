@@ -1,6 +1,3 @@
-# Ansible credentials file
-**/password.txt
-
 # IntelliJ
 .idea
 
