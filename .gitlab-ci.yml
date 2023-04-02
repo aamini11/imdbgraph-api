@@ -43,6 +43,8 @@ default:
     POSTGRES_DB: $POSTGRES_DB
     POSTGRES_USER: $POSTGRES_USER
     POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+    # Environment variable used by psql to supply password. Separate from POSTGRES_PASSWORD.
+    PGPASSWORD: $POSTGRES_PASSWORD
   services:
     - postgres:15.2-bullseye
   before_script:
