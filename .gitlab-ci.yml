@@ -89,7 +89,7 @@ configure:
   script:
     - pip install ansible
     - cd infra
-    - ansible-playbook -i production.ini site.yml
+    - ansible-playbook -i production.ini -e @secrets.enc --vault-password-file $ANSIBLE_PASSWORD_FILE site.yml
 
 deploy:
   stage: deploy
