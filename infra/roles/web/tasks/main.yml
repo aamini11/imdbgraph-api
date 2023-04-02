@@ -9,10 +9,9 @@
   become: true
   template:
     src: start.sh
-    dest: /usr/bin/start.sh
+    dest: /usr/bin/start-imdbgraph-api
 
 - name: Create Unit file
-  become: true
   template:
     src: imdbgraph-api.service
     dest: /etc/systemd/system/imdbgraph-api.service
