@@ -98,4 +98,4 @@ deploy:
     *set-up-ssh
   script:
     - scp "build/libs/${JAR_FILE_NAME}" "${SERVER_USER}@${SERVER_HOST}:~/${JAR_FILE_NAME}"
-    - ssh "${SERVER_USER}@${SERVER_HOST}" "sudo systemctl restart imdbgraph.service"
+    - ssh "${SERVER_USER}@${SERVER_HOST}" "sudo systemctl start imdbgraph.service"
