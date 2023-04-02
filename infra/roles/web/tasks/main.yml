@@ -9,7 +9,7 @@
   become: true
   template:
     src: start.sh
-    dest: "/home/{{ ansible_user }}/start.sh"
+    dest: /usr/bin/start.sh
 
 - name: Create Unit file
   become: true
@@ -17,5 +17,7 @@
     src: imdbgraph-api.service
     dest: /etc/systemd/system/imdbgraph-api.service
     mode: 644
-  notify:
-    - reload systemctl
+
+- name: Reload after adding new unit file
+  ansible.builtin.systemd:
+    daemon_reload: true
