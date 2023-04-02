@@ -9,7 +9,7 @@
   become: true
   template:
     src: start.sh
-    dest: /usr/bin/start-imdbgraph-api
+    dest: "/home/{{ ansible_user }}/start.sh"
 
 - name: Create Unit file
   template:
