@@ -68,6 +68,8 @@ test:
   stage: test
   <<: *set-up-test-database
   variables:
+    # Override environment variable so that integration tests tries to connect
+    # to "postgres" hostname instead of production database hostname.
     DATABASE_HOST: postgres
   script:
     - ./gradlew check
