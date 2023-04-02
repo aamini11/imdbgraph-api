@@ -1,3 +1,5 @@
+#!/bin/bash
+
 export DATABASE_HOST="{{ lookup('env', 'DATABASE_HOST') }}"
 export DATABASE_DB="{{ lookup('env', 'DATABASE_DB') }}"
 export DATABASE_USER="{{ lookup('env', 'DATABASE_USER') }}"
