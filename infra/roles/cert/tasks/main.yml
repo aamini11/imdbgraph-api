@@ -1,0 +1,17 @@
+- name: Install certbot
+  become: true
+  community.general.snap:
+    name:
+      - certbot
+    classic: true
+
+- name: Link the Certbot command
+  become: true
+  file:
+    src: "/snap/bin/certbot"
+    dest: "/usr/bin/certbot"
+    state: link
+
+- name: Install certificates
+  ansible.builtin.command: certbot --nginx --non-interactive --agree-tos --domains api.imdbgraph.org
+  become: true

@@ -1,0 +1,1 @@
+ansible-playbook site.yml -i production.ini -e @secrets.enc --vault-password-file password.txt

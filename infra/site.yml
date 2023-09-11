@@ -2,6 +2,7 @@
   roles:
     - web
     - proxy
+    - cert
 
 - hosts: dbservers
   roles:
