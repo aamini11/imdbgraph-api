@@ -81,7 +81,7 @@ class RatingsService {
                 FROM imdb.show
                 WHERE :searchTerm <% primary_title
                 ORDER BY num_votes DESC
-                LIMIT 50;
+                LIMIT 5;
                 """;
         return jdbc.query(sql, params, (rs, rowNum) -> mapToShow(rs));
     }
