@@ -23,6 +23,14 @@ CREATE TABLE imdb.episode
     num_votes     INTEGER          DEFAULT 0       NOT NULL
 );
 
+CREATE TABLE imdb.thumbnails
+(
+    imdb_id       VARCHAR(10) PRIMARY KEY NOT NULL,
+    thumbnail_url TEXT,
+    constraint thumbnails_show_imdb_id_fk
+        foreign key (imdb_id) references imdb.show
+);
+
 CREATE INDEX episode_show_id_index
     ON imdb.episode (show_id);
 

@@ -1,4 +1,4 @@
-package org.aria.imdbgraph.ratings;
+package org.aria.imdbgraph.api.ratings;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-class RatingsController {
+public class RatingsController {
 
     private final RatingsService ratingsService;
 

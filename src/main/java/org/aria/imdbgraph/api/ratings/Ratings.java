@@ -1,4 +1,4 @@
-package org.aria.imdbgraph.ratings;
+package org.aria.imdbgraph.api.ratings;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

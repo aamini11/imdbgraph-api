@@ -1,4 +1,4 @@
-package org.aria.imdbgraph.ratings;
+package org.aria.imdbgraph.api.ratings;
 
 /**
  * Immutable data class to represent all meta-data and ratings information about
