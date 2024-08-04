@@ -7,35 +7,6 @@ stages:
   - configure
   - deploy
 
-default:
-  image: openjdk:21-buster
-  before_script:
-    - GRADLE_USER_HOME="$(pwd)/.gradle"
-    - export GRADLE_USER_HOME
-
-# Setting up SSH: https://docs.gitlab.com/ee/ci/ssh_keys/
-.set-up-ssh: &set-up-ssh
-  # Install ssh-agent if not already installed
-  - command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )
-
-  # Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
-  # Why eval the output of ssh-agent?
-  # (https://unix.stackexchange.com/q/351725/169515)
-  - eval $(ssh-agent -s)
-
-  # Give the right permissions, otherwise ssh-add will refuse to add files
-  # Add the SSH key stored in SSH_PRIVATE_KEY file type CI/CD variable to the agent store
-  - chmod 400 "$SSH_PRIVATE_KEY"
-  - ssh-add "$SSH_PRIVATE_KEY"
-
-  # Create the SSH directory and give it the right permissions
-  - mkdir -p ~/.ssh
-  - chmod 700 ~/.ssh
-
-  # Add server to known_hosts
-  - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
-  - chmod 644 ~/.ssh/known_hosts
-
 # Set up postgres database for integration tests
 .set-up-test-database: &set-up-test-database
   variables:
@@ -49,6 +20,12 @@ default:
   before_script:
     - apt-get update && apt-get install -y postgresql-client
     - psql -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "init.sql"
+
+default:
+  image: openjdk:21-buster
+  before_script:
+    - GRADLE_USER_HOME="$(pwd)/.gradle"
+    - export GRADLE_USER_HOME
 
 build:
   stage: build
@@ -79,8 +56,31 @@ test:
     reports:
       junit: build/test-results/test/**/TEST-*.xml
 
-configure:
-  stage: configure
+# Setting up SSH: https://docs.gitlab.com/ee/ci/ssh_keys/
+.set-up-ssh: &set-up-ssh
+  # Install ssh-agent if not already installed
+  - command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )
+
+  # Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
+  # Why eval the output of ssh-agent?
+  # (https://unix.stackexchange.com/q/351725/169515)
+  - eval $(ssh-agent -s)
+
+  # Give the right permissions, otherwise ssh-add will refuse to add files
+  # Add the SSH key stored in SSH_PRIVATE_KEY file type CI/CD variable to the agent store
+  - chmod 400 "$SSH_PRIVATE_KEY"
+  - ssh-add "$SSH_PRIVATE_KEY"
+
+  # Create the SSH directory and give it the right permissions
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+
+  # Add server to known_hosts
+  - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
+
+deploy:
+  stage: deploy
   image: python:3.11.2-buster
   when: manual
   only:
@@ -88,16 +88,12 @@ configure:
   before_script:
     *set-up-ssh
   script:
+    # Run ansible playbooks to make sure infra is configured
     - pip install ansible
     - cd infra
     - ansible-playbook -i production.ini -e @secrets.enc --vault-password-file $ANSIBLE_PASSWORD_FILE site.yml
 
-deploy:
-  stage: deploy
-  needs: ["build", "configure"]
-  before_script:
-    *set-up-ssh
-  script:
+    # Restart service with new JAR
     - ssh "${SERVER_USER}@${SERVER_HOST}" "sudo systemctl stop imdbgraph-api.service"
     - scp "build/libs/${JAR_FILE_NAME}" "${SERVER_USER}@${SERVER_HOST}:~/${JAR_FILE_NAME}"
     - ssh "${SERVER_USER}@${SERVER_HOST}" "sudo systemctl start imdbgraph-api.service"
