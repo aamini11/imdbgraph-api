@@ -55,9 +55,9 @@ public class DatabaseUpdater {
     private final FileArchiver fileArchiver;
 
     @Autowired
-    public DatabaseUpdater(JdbcTemplate jdbcTemplate,
-                           ImdbFileDownloader imdbFileDownloader,
-                           FileArchiver fileArchiver) {
+    DatabaseUpdater(JdbcTemplate jdbcTemplate,
+                    ImdbFileDownloader imdbFileDownloader,
+                    FileArchiver fileArchiver) {
         this.imdbFileDownloader = imdbFileDownloader;
         this.jdbcTemplate = jdbcTemplate;
         this.fileArchiver = fileArchiver;
@@ -233,18 +233,18 @@ public class DatabaseUpdater {
                 WHERE show_id IN (SELECT imdb_id FROM imdb.show)
                   AND season_num >= 0
                   AND episode_num >= 0;
-                
+                                
                 ALTER TABLE imdb.episode_new ADD PRIMARY KEY (episode_id);
                 ALTER TABLE imdb.episode_new ADD FOREIGN KEY (show_id) REFERENCES imdb.show(imdb_id);
                 CREATE INDEX ON imdb.episode_new (show_id);
-                
+                                
                 ALTER TABLE imdb.episode_new ALTER COLUMN show_id SET NOT NULL;
                 ALTER TABLE imdb.episode_new ALTER COLUMN episode_id SET NOT NULL;
                 ALTER TABLE imdb.episode_new ALTER COLUMN season_num SET NOT NULL;
                 ALTER TABLE imdb.episode_new ALTER COLUMN episode_num SET NOT NULL;
                 ALTER TABLE imdb.episode_new ALTER COLUMN imdb_rating SET NOT NULL;
                 ALTER TABLE imdb.episode_new ALTER COLUMN num_votes SET NOT NULL;
-                
+                                
                 DROP TABLE imdb.episode;
                 ALTER TABLE imdb.episode_new RENAME TO episode;
                 """);
