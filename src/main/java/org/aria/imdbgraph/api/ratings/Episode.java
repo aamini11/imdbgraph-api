@@ -22,39 +22,4 @@ public record Episode(
             throw new IllegalArgumentException("Invalid rating");
         }
     }
-
-    /**
-     * Title of the episode
-     */
-    public String getEpisodeTitle() {
-        return episodeTitle;
-    }
-
-    /**
-     * Season number of episode
-     */
-    public int getSeason() {
-        return season;
-    }
-
-    /**
-     * Returns episode number
-     */
-    public int getEpisodeNumber() {
-        return episodeNumber;
-    }
-
-    /**
-     * The average IMDB rating of the episode (0.0 - 10.0)
-     */
-    public double getImdbRating() {
-        return imdbRating;
-    }
-
-    /**
-     * Total number of votes for the episode (&gt; 0)
-     */
-    public int getNumVotes() {
-        return numVotes;
-    }
 }
