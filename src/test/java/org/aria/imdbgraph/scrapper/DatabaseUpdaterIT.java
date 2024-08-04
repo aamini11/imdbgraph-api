@@ -1,7 +1,6 @@
 package org.aria.imdbgraph.scrapper;
 
 import org.aria.imdbgraph.scrapper.DatabaseUpdater.ImdbFileParsingException;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.jdbc.JdbcTestUtils;
 
 import java.io.File;
@@ -24,11 +24,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class DatabaseUpdaterIT {
 
     private static final Path SAMPLE_FILES_DIR = Paths.get("src/test/resources/samples-files");
     private static Path INPUT_DIR;
-    private static Path ARCHIVE_DIR;
 
     @MockBean
     private FileArchiver archiver;
@@ -37,7 +37,7 @@ class DatabaseUpdaterIT {
     private ImdbFileDownloader fileService;
 
     @Autowired
-    private DatabaseUpdater testDatabaseUpdater;
+    private DatabaseUpdater databaseUpdater;
 
     @Autowired
     private JdbcTemplate jdbc;
@@ -46,12 +46,14 @@ class DatabaseUpdaterIT {
     static void setUp() throws IOException {
         Path TEMP_DIR = Files.createTempDirectory("temp");
         INPUT_DIR = Files.createDirectory(TEMP_DIR.resolve("input_files"));
-        ARCHIVE_DIR = Files.createDirectory(TEMP_DIR.resolve("archive"));
     }
 
     @BeforeEach
     void loadFiles() throws IOException {
-        cleanUp();
+        // Wipe database
+        JdbcTestUtils.deleteFromTables(jdbc, "imdb.episode", "imdb.thumbnails", "imdb.show");
+        // Clean directories of previous files
+        cleanDirectory(INPUT_DIR);
 
         File[] sampleFiles = SAMPLE_FILES_DIR.toFile().listFiles();
         Objects.requireNonNull(sampleFiles, SAMPLE_FILES_DIR + " not found");
@@ -60,23 +62,13 @@ class DatabaseUpdaterIT {
         }
     }
 
-    @AfterEach
-    void cleanUp() throws IOException {
-        // Wipe database
-        JdbcTestUtils.deleteFromTables(jdbc, "imdb.episode", "imdb.show");
-
-        // Clean directories of previous files
-        cleanDirectory(INPUT_DIR);
-        cleanDirectory(ARCHIVE_DIR);
-    }
-
     @Test
     void testSampleFiles() throws ImdbFileParsingException {
         when(fileService.download(TITLES_FILE)).thenReturn(INPUT_DIR.resolve("title_sample.tsv"));
         when(fileService.download(RATINGS_FILE)).thenReturn(INPUT_DIR.resolve("ratings_sample.tsv"));
         when(fileService.download(EPISODES_FILE)).thenReturn(INPUT_DIR.resolve("episode_sample.tsv"));
 
-        testDatabaseUpdater.updateDatabase();
+        databaseUpdater.updateDatabase();
         int epCount = JdbcTestUtils.countRowsInTable(jdbc, "imdb.episode");
         int showCount = JdbcTestUtils.countRowsInTable(jdbc, "imdb.show");
         assertEquals(3, showCount);
@@ -89,7 +81,7 @@ class DatabaseUpdaterIT {
         when(fileService.download(RATINGS_FILE)).thenReturn(INPUT_DIR.resolve("ratings_sample.tsv"));
         when(fileService.download(EPISODES_FILE)).thenReturn(INPUT_DIR.resolve("bad_episode_sample.tsv"));
 
-        assertThrows(ImdbFileParsingException.class, () -> testDatabaseUpdater.updateDatabase());
+        assertThrows(ImdbFileParsingException.class, () -> databaseUpdater.updateDatabase());
         verify(archiver, times(1)).archive(any());
     }
 

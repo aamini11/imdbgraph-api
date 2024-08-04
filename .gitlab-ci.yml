@@ -82,6 +82,7 @@ test:
 configure:
   stage: configure
   image: python:3.11.2-buster
+  when: manual
   only:
     - master
   before_script:
@@ -93,7 +94,7 @@ configure:
 
 deploy:
   stage: deploy
-  when: manual
+  needs: ["configure"]
   only:
     - master
   before_script:
