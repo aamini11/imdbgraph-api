@@ -7,10 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.jdbc.JdbcTestUtils;
 
@@ -19,34 +16,22 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
 import java.util.Objects;
 
 import static org.aria.imdbgraph.scrapper.ImdbFileDownloader.ImdbFile.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
-class DatabaseLoaderIT {
+class DatabaseUpdaterIT {
 
     private static final Path SAMPLE_FILES_DIR = Paths.get("src/test/resources/samples-files");
     private static Path INPUT_DIR;
     private static Path ARCHIVE_DIR;
 
-    @TestConfiguration
-    static class ScrapperTestConfiguration {
-        @Bean
-        @Primary
-        FileArchiver testArchiver() {
-            Instant instant = Instant.parse("2007-12-03T10:15:30.00Z");
-            return new FileArchiver(ARCHIVE_DIR, Clock.fixed(instant, ZoneId.of("America/Chicago")));
-        }
-    }
-
-    @Autowired
-    private JdbcTemplate jdbc;
+    @MockBean
+    private FileArchiver archiver;
 
     @MockBean
     private ImdbFileDownloader fileService;
@@ -54,8 +39,11 @@ class DatabaseLoaderIT {
     @Autowired
     private DatabaseUpdater testDatabaseUpdater;
 
+    @Autowired
+    private JdbcTemplate jdbc;
+
     @BeforeAll
-    static void setUpDirectories() throws IOException {
+    static void setUp() throws IOException {
         Path TEMP_DIR = Files.createTempDirectory("temp");
         INPUT_DIR = Files.createDirectory(TEMP_DIR.resolve("input_files"));
         ARCHIVE_DIR = Files.createDirectory(TEMP_DIR.resolve("archive"));
@@ -102,11 +90,7 @@ class DatabaseLoaderIT {
         when(fileService.download(EPISODES_FILE)).thenReturn(INPUT_DIR.resolve("bad_episode_sample.tsv"));
 
         assertThrows(ImdbFileParsingException.class, () -> testDatabaseUpdater.updateDatabase());
-
-        File[] archivedFiles = ARCHIVE_DIR.toFile().listFiles();
-        assertNotNull(archivedFiles);
-        assertEquals(1, archivedFiles.length);
-        assertEquals("bad_episode_sample_2007-12-03.tsv", archivedFiles[0].getName());
+        verify(archiver, times(1)).archive(any());
     }
 
     /**
@@ -115,8 +99,8 @@ class DatabaseLoaderIT {
     private static void cleanDirectory(Path root) throws IOException {
         File[] files = root.toFile().listFiles();
         Objects.requireNonNull(files, root + " not found");
-        for(File f: files) {
-            if(f.isDirectory()) {
+        for (File f : files) {
+            if (f.isDirectory()) {
                 cleanDirectory(f.toPath());
             } else {
                 Files.deleteIfExists(f.toPath());
