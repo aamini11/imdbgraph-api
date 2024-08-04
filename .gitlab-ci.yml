@@ -95,9 +95,8 @@ configure:
 deploy:
   stage: deploy
   needs: ["configure"]
-  dependencies: ["build"]
-  only:
-    - master
+  dependencies:
+    - build
   before_script:
     *set-up-ssh
   script:
