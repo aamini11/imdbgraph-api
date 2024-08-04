@@ -8,7 +8,7 @@ stages:
   - deploy
 
 default:
-  image: openjdk:17-buster
+  image: openjdk:21-buster
   before_script:
     - GRADLE_USER_HOME="$(pwd)/.gradle"
     - export GRADLE_USER_HOME
