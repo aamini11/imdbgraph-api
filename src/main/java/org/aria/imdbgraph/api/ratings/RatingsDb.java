@@ -5,7 +5,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,15 +13,16 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Service class that supports search/query operations involving data from IMDB.
+ * Service class that supports search/query operations involving data from
+ * IMDB.
  */
-@Service
-class RatingsService {
+@Repository
+class RatingsDb {
 
     private final NamedParameterJdbcOperations jdbc;
 
     @Autowired
-    RatingsService(NamedParameterJdbcOperations jdbc) {
+    RatingsDb(NamedParameterJdbcOperations jdbc) {
         this.jdbc = jdbc;
     }
 
@@ -29,9 +30,9 @@ class RatingsService {
      * Method that returns all ratings data for a specific show.
      *
      * @param showId The IMDB ID of the show to fetch ratings for.
-     * @return A {@link Ratings} object containing all the show information
-     * and episode ratings for a TV show. If in invalid ID is passed to the
-     * method, an empty {@code Optional} is returned.
+     * @return A {@link Ratings} object containing all the show information and
+     * episode ratings for a TV show. If in invalid ID is passed to the method,
+     * an empty {@code Optional} is returned.
      */
     Optional<Ratings> getAllShowRatings(String showId) {
         Optional<Show> show = getShow(showId);
@@ -68,7 +69,7 @@ class RatingsService {
      * @param searchQuery The search query provided by the user.
      * @return List of possible shows that match the search query.
      */
-     List<Show> searchShows(String searchQuery) {
+    List<Show> searchShows(String searchQuery) {
         SqlParameterSource params = new MapSqlParameterSource()
                 .addValue("searchTerm", searchQuery);
         String sql = """
@@ -81,7 +82,7 @@ class RatingsService {
                 FROM imdb.show
                 WHERE :searchTerm <% primary_title
                 ORDER BY num_votes DESC
-                LIMIT 10;
+                LIMIT 5;
                 """;
         return jdbc.query(sql, params, (rs, rowNum) -> mapToShow(rs));
     }

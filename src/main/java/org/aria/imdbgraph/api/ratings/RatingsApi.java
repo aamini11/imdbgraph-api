@@ -12,18 +12,18 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-public class RatingsController {
+public class RatingsApi {
 
-    private final RatingsService ratingsService;
+    private final RatingsDb ratingsDb;
 
     @Autowired
-    RatingsController(RatingsService ratingsService) {
-        this.ratingsService = ratingsService;
+    RatingsApi(RatingsDb ratingsDb) {
+        this.ratingsDb = ratingsDb;
     }
 
     @GetMapping(value = "/ratings/{showId}")
     public Ratings getRatings(@PathVariable(value = "showId") String showId) {
-        Optional<Ratings> ratings = ratingsService.getAllShowRatings(showId);
+        Optional<Ratings> ratings = ratingsDb.getAllShowRatings(showId);
         if (ratings.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Show not found");
         }
@@ -31,7 +31,7 @@ public class RatingsController {
     }
 
     @GetMapping(value = "/search")
-    public List<Show> search(@RequestParam(value="q") String searchTerm) {
-        return ratingsService.searchShows(searchTerm);
+    public List<Show> search(@RequestParam(value = "q") String searchTerm) {
+        return ratingsDb.searchShows(searchTerm);
     }
 }

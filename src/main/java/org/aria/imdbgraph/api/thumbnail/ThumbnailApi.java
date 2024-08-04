@@ -2,8 +2,6 @@ package org.aria.imdbgraph.api.thumbnail;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,18 +13,18 @@ import java.net.URI;
 import java.util.Optional;
 
 @RestController
-public class ThumbnailController {
+public class ThumbnailApi {
 
-    private final ThumbnailService thumbnailService;
+    private final ThumbnailDb thumbnailDb;
 
     @Autowired
-    ThumbnailController(ThumbnailService thumbnailService) {
-        this.thumbnailService = thumbnailService;
+    ThumbnailApi(ThumbnailDb thumbnailDb) {
+        this.thumbnailDb = thumbnailDb;
     }
 
-    @GetMapping(value = "/thumbnail/{showId}")
+    @GetMapping(path = "/thumbnail/{showId}.jpg", produces = MediaType.IMAGE_JPEG_VALUE)
     public ResponseEntity<UrlResource> getRatings(@PathVariable(value = "showId") String showId) throws IOException {
-        Optional<String> thumbnailUrl = thumbnailService.getThumbnailUrl(showId);
+        Optional<String> thumbnailUrl = thumbnailDb.getThumbnailUrl(showId);
         if (thumbnailUrl.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -34,12 +32,6 @@ public class ThumbnailController {
         var url = URI.create(thumbnailUrl.get()).toURL();
         var resource = new UrlResource(url);
         return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
-                .contentLength(resource.contentLength())
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        ContentDisposition.attachment()
-                                .filename(showId + ".jpg")
-                                .build().toString())
                 .body(resource);
     }
 }

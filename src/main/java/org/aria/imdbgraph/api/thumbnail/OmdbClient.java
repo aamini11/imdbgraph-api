@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * (OMDB).
  */
 @Service
-class OmdbApi {
+class OmdbClient {
 
     private static final Logger logger = LogManager.getLogger();
 
@@ -60,7 +60,7 @@ class OmdbApi {
     }
 
     @Autowired
-    OmdbApi(@Value("${omdb.api.key}") String apiKey) {
+    OmdbClient(@Value("${omdb.api.key}") String apiKey) {
         this.apiKey = apiKey;
     }
 

@@ -95,6 +95,7 @@ configure:
 deploy:
   stage: deploy
   needs: ["configure"]
+  dependencies: ["build"]
   only:
     - master
   before_script:
