@@ -7,10 +7,10 @@ import java.time.Clock;
 import java.time.ZoneId;
 
 @Configuration
-class ApplicationContext {
+public class ApplicationContext {
 
     @Bean
-    Clock texasClock() {
+    public Clock texasClock() {
         return Clock.system(ZoneId.of("US/Central"));
     }
 }

@@ -7,10 +7,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
+import static org.aria.imdbgraph.BaseTest.*;
 import static org.mockito.Mockito.mock;
 
 @SpringBootTest
-@Import({BaseTest.TestConfig.class})
+@Import({TestConfig.class})
 @ActiveProfiles("test")
 public abstract class BaseTest {
     // All tests that need access to the Spring context should extend this class.
