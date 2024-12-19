@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
 @ActiveProfiles("test")
 class ScrapperTest {
 
-    private static final Path SAMPLE_FILES_DIR = Paths.get("src/test/resources/samples-files");
+    private static final Path SAMPLE_FILES_DIR = Paths.get("src/integrationTest/resources/samples-files");
 
     private static Path inputDir;
 
