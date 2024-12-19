@@ -1,6 +1,5 @@
 package org.aria.imdbgraph.api.thumbnail;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,43 +26,15 @@ public class OmdbClient {
     private final String apiKey;
     private final AtomicInteger counter = new AtomicInteger(1);
 
-    private record OmdbApiResponse(
-            @JsonProperty("Title") String title,
-            @JsonProperty("Year") String year,
-            @JsonProperty("Rated") String rated,
-            @JsonProperty("Released") String released,
-            @JsonProperty("Runtime") String runtime,
-            @JsonProperty("Genre") String genre,
-            @JsonProperty("Director") String director,
-            @JsonProperty("Writer") String writer,
-            @JsonProperty("Actors") String actors,
-            @JsonProperty("Plot") String plot,
-            @JsonProperty("Language") String language,
-            @JsonProperty("Country") String country,
-            @JsonProperty("Awards") String awards,
-            @JsonProperty("Poster") String poster,
-            @JsonProperty("Ratings") List<Rating> ratings,
-            @JsonProperty("Metascore") String metascore,
-            @JsonProperty("imdbRating") String imdbRating,
-            @JsonProperty("imdbVotes") String imdbVotes,
-            @JsonProperty("imdbID") String imdbID,
-            @JsonProperty("Type") String type,
-            @JsonProperty("totalSeasons") String totalSeasons,
-            @JsonProperty("Response") String response
-    ) {
-    }
-
-    private record Rating(
-            @JsonProperty("Source") String source,
-            @JsonProperty("Value") String value
-    ) {
-    }
-
     @Autowired
     public OmdbClient(@Value("${omdb.api.key}") String apiKey) {
         this.apiKey = apiKey;
     }
 
+    /**
+     * Given an IMDB ID, return a thumbnail URL for that TV show. Return empty
+     * result if given invalid ID.
+     */
     public Optional<String> getThumbnailUrl(String imdbId) {
         int curr = counter.getAndIncrement();
         if (curr > LIMIT) {
@@ -82,5 +53,37 @@ public class OmdbClient {
             logger.info("Fetching OMDB thumbnail ({} out of {}): {}", curr, LIMIT, poster);
             return Optional.of(poster);
         }
+    }
+
+    record Rating(
+            String source,
+            String value
+    ) {
+    }
+
+    record OmdbApiResponse(
+            String title,
+            String year,
+            String rated,
+            String released,
+            String runtime,
+            String genre,
+            String director,
+            String writer,
+            String actors,
+            String plot,
+            String language,
+            String country,
+            String awards,
+            String poster,
+            List<Rating> ratings,
+            String metascore,
+            String imdbRating,
+            String imdbVotes,
+            String imdbID,
+            String type,
+            String totalSeasons,
+            String response
+    ) {
     }
 }
