@@ -22,7 +22,7 @@ public class ThumbnailApi {
     private final ThumbnailDb thumbnailDb;
 
     @Autowired
-    ThumbnailApi(ThumbnailDb thumbnailDb) {
+    public ThumbnailApi(ThumbnailDb thumbnailDb) {
         this.thumbnailDb = thumbnailDb;
     }
 

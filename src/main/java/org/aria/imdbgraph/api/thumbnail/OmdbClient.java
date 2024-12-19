@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * (OMDB).
  */
 @Service
-class OmdbClient {
+public class OmdbClient {
 
     private static final Logger logger = LogManager.getLogger();
 
@@ -60,11 +60,11 @@ class OmdbClient {
     }
 
     @Autowired
-    OmdbClient(@Value("${omdb.api.key}") String apiKey) {
+    public OmdbClient(@Value("${omdb.api.key}") String apiKey) {
         this.apiKey = apiKey;
     }
 
-    Optional<String> getThumbnailUrl(String imdbId) {
+    public Optional<String> getThumbnailUrl(String imdbId) {
         int curr = counter.getAndIncrement();
         if (curr > LIMIT) {
             logger.info("OMDB API Limit reached");

@@ -1,14 +1,13 @@
 package org.aria.imdbgraph.api.ratings.scrapper;
 
+import org.aria.imdbgraph.BaseTest;
 import org.aria.imdbgraph.api.ratings.scrapper.Scrapper.ImdbFileParsingException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.jdbc.JdbcTestUtils;
 
 import java.io.File;
@@ -23,13 +22,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
-@ActiveProfiles("test")
-class ScrapperTest {
+class ScrapperTest extends BaseTest {
 
     private static final Path SAMPLE_FILES_DIR = Paths.get("src/integrationTest/resources/samples-files");
 
     private static Path inputDir;
+
+    @BeforeAll
+    static void setUp() throws IOException {
+        Path temp = Files.createTempDirectory("temp");
+        inputDir = Files.createDirectory(temp.resolve("input_files"));
+    }
 
     @MockBean
     private FileArchiver archiver;
@@ -38,16 +41,10 @@ class ScrapperTest {
     private ImdbFileDownloader fileService;
 
     @Autowired
-    private Scrapper scrapper;
-
-    @Autowired
     private JdbcTemplate jdbc;
 
-    @BeforeAll
-    static void setUp() throws IOException {
-        Path temp = Files.createTempDirectory("temp");
-        inputDir = Files.createDirectory(temp.resolve("input_files"));
-    }
+    @Autowired
+    private Scrapper scrapper;
 
     @BeforeEach
     void loadFiles() throws IOException {

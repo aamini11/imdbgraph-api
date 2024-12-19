@@ -8,18 +8,18 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-class ThumbnailDb {
+public class ThumbnailDb {
 
     private final JdbcTemplate jdbcTemplate;
     private final OmdbClient omdbClient;
 
     @Autowired
-    ThumbnailDb(JdbcTemplate jdbcTemplate, OmdbClient omdbClient) {
+    public ThumbnailDb(JdbcTemplate jdbcTemplate, OmdbClient omdbClient) {
         this.jdbcTemplate = jdbcTemplate;
         this.omdbClient = omdbClient;
     }
 
-    Optional<String> getThumbnailUrl(String showId) {
+    public Optional<String> getThumbnailUrl(String showId) {
         var thumbnailUrl = checkDatabase(showId);
         if (thumbnailUrl.isPresent()) {
             return thumbnailUrl;

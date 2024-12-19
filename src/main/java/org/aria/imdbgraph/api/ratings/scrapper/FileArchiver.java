@@ -22,7 +22,7 @@ import java.util.stream.Stream;
  * errors in production so that they can be audited later.
  */
 @Service
-final class FileArchiver {
+public final class FileArchiver {
 
     private static final Logger logger = LogManager.getLogger();
 
@@ -34,13 +34,14 @@ final class FileArchiver {
     private final Clock clock;
 
     @Autowired
-    FileArchiver(
+    public FileArchiver(
             @Value("${imdbgraph.data.directory}") String downloadDirPath,
             Clock clock
     ) {
         this(Path.of(downloadDirPath), clock, DEFAULT_ARCHIVE_CAPACITY);
     }
 
+    // Only used for testing.
     FileArchiver(Path archiveDestination, Clock clock, int archiveCapacity) {
         this.archiveDestination = archiveDestination;
         this.archiveCapacity = archiveCapacity;
@@ -52,7 +53,7 @@ final class FileArchiver {
      * of each in ./archive. If The limit is exceeded, the archive rolls over by
      * deleting the oldest files.
      */
-    void archive(Path... filesToArchive) {
+    public void archive(Path... filesToArchive) {
         try {
             Files.createDirectories(archiveDestination); // nop if dir already exists
 

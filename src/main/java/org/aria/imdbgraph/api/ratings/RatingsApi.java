@@ -23,7 +23,7 @@ public class RatingsApi {
     private final RatingsDb ratingsDb;
 
     @Autowired
-    RatingsApi(RatingsDb ratingsDb) {
+    public RatingsApi(RatingsDb ratingsDb) {
         this.ratingsDb = ratingsDb;
     }
 

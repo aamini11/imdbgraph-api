@@ -22,19 +22,19 @@ import java.util.Optional;
  * database is updated with the latest data from IMDB.
  */
 @Repository
-class RatingsDb {
+public class RatingsDb {
 
     private final NamedParameterJdbcOperations jdbc;
 
     @Autowired
-    RatingsDb(NamedParameterJdbcOperations jdbc) {
+    public RatingsDb(NamedParameterJdbcOperations jdbc) {
         this.jdbc = jdbc;
     }
 
     /**
      * Given an IMDB ID, find the all ratings data about that show.
      */
-    Optional<Ratings> getAllShowRatings(String showId) {
+    public Optional<Ratings> getAllShowRatings(String showId) {
         Optional<Show> show = getShow(showId);
         if (show.isEmpty()) {
             return Optional.empty();
@@ -67,7 +67,7 @@ class RatingsDb {
      * Given a user query, try to find the top 5 shows with the most similar
      * title. An empty array can be returned if no shows are found.
      */
-    List<Show> searchShows(String searchQuery) {
+    public List<Show> searchShows(String searchQuery) {
         SqlParameterSource params = new MapSqlParameterSource()
                 .addValue("searchTerm", searchQuery);
         String sql = """
