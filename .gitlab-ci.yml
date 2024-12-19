@@ -90,7 +90,7 @@ deploy:
   script:
     # Run ansible playbooks to make sure infra is configured
     - pip install ansible
-    - cd infra
+    - cd infra/ansible
     - ansible-playbook -i production.ini -e @secrets.enc --vault-password-file $ANSIBLE_PASSWORD_FILE site.yml
 
     # Restart service with new JAR
