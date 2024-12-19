@@ -45,9 +45,11 @@ public class Scrapper {
     private final FileArchiver fileArchiver;
 
     @Autowired
-    Scrapper(JdbcTemplate jdbcTemplate,
-             ImdbFileDownloader imdbFileDownloader,
-             FileArchiver fileArchiver) {
+    public Scrapper(
+            JdbcTemplate jdbcTemplate,
+            ImdbFileDownloader imdbFileDownloader,
+            FileArchiver fileArchiver
+    ) {
         this.imdbFileDownloader = imdbFileDownloader;
         this.jdbcTemplate = jdbcTemplate;
         this.fileArchiver = fileArchiver;

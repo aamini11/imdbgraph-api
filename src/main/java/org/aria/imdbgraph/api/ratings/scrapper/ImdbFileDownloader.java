@@ -22,18 +22,18 @@ import java.util.zip.GZIPInputStream;
  * <a href="https://www.imdb.com/interfaces/">More info about file format</a>
  */
 @Service
-final class ImdbFileDownloader {
+public final class ImdbFileDownloader {
 
     private static final Logger logger = LogManager.getLogger();
     private static final String BASE_DOWNLOAD_URL = "https://datasets.imdbws.com";
 
     private final Path downloadDir;
 
-    ImdbFileDownloader(@Value("${imdbgraph.data.directory}") String downloadDirPath) {
+    public ImdbFileDownloader(@Value("${imdbgraph.data.directory}") String downloadDirPath) {
         this.downloadDir = Path.of(downloadDirPath);
     }
 
-    enum ImdbFile {
+    public enum ImdbFile {
         TITLES_FILE("title.basics.tsv.gz"),
         EPISODES_FILE("title.episode.tsv.gz"),
         RATINGS_FILE("title.ratings.tsv.gz");
@@ -69,7 +69,7 @@ final class ImdbFileDownloader {
      * Downloads and unzips an IMDB data file and return the Path of the file if
      * succesful.
      */
-    Path download(ImdbFile fileToDownload) {
+    public Path download(ImdbFile fileToDownload) {
         URL downloadURL = fileToDownload.getDownloadUrl();
         File outputFile = downloadDir.resolve(fileToDownload.getUnzippedFileName()).toFile();
         try (InputStream unzippedStream = new GZIPInputStream(downloadURL.openStream()); // Unzip
