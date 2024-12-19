@@ -36,7 +36,6 @@ import static org.aria.imdbgraph.api.ratings.scrapper.ImdbFileDownloader.ImdbFil
  * are updated once a day. This class will download and parse those files then
  * bulk update the database with all the new data.
  */
-
 @Repository
 @EnableScheduling
 public class Scrapper {
