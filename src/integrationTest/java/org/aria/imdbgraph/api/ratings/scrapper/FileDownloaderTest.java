@@ -1,15 +1,15 @@
-package org.aria.imdbgraph.scrapper;
+package org.aria.imdbgraph.api.ratings.scrapper;
 
-import org.aria.imdbgraph.scrapper.ImdbFileDownloader.ImdbFile;
+import org.aria.imdbgraph.api.ratings.scrapper.ImdbFileDownloader.ImdbFile;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
 
-import static org.aria.imdbgraph.scrapper.ImdbFileDownloader.ImdbFile.*;
+import static org.aria.imdbgraph.api.ratings.scrapper.ImdbFileDownloader.ImdbFile.*;
 
-class FileDownloaderIT {
+class FileDownloaderTest {
 
     @TempDir
     Path temporaryFolder;
@@ -30,7 +30,7 @@ class FileDownloaderIT {
     }
 
     private void testDownload(ImdbFile imdbFile) {
-        ImdbFileDownloader downloader = new ImdbFileDownloader(temporaryFolder);
+        ImdbFileDownloader downloader = new ImdbFileDownloader(temporaryFolder.toString());
         long fileSize = downloader.download(imdbFile).toFile().length();
         Assertions.assertTrue(fileSize > 0);
     }

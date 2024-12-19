@@ -1,11 +1,15 @@
 package org.aria.imdbgraph.api.ratings;
 
+import org.aria.imdbgraph.api.ratings.json.Episode;
+import org.aria.imdbgraph.api.ratings.json.Ratings;
+import org.aria.imdbgraph.api.ratings.json.Show;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
+import org.aria.imdbgraph.api.ratings.scrapper.Scrapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,8 +17,9 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Service class that supports search/query operations involving data from
- * IMDB.
+ * Database class that supports search/query operations involving IMDB ratings
+ * from our internal database. See {@link Scrapper} for how this internal
+ * database is updated with the latest data from IMDB.
  */
 @Repository
 class RatingsDb {
@@ -27,12 +32,7 @@ class RatingsDb {
     }
 
     /**
-     * Method that returns all ratings data for a specific show.
-     *
-     * @param showId The IMDB ID of the show to fetch ratings for.
-     * @return A {@link Ratings} object containing all the show information and
-     * episode ratings for a TV show. If in invalid ID is passed to the method,
-     * an empty {@code Optional} is returned.
+     * Given an IMDB ID, find the all ratings data about that show.
      */
     Optional<Ratings> getAllShowRatings(String showId) {
         Optional<Show> show = getShow(showId);
@@ -64,10 +64,8 @@ class RatingsDb {
     }
 
     /**
-     * Search method used by users to look for TV shows.
-     *
-     * @param searchQuery The search query provided by the user.
-     * @return List of possible shows that match the search query.
+     * Given a user query, try to find the top 5 shows with the most similar
+     * title. An empty array can be returned if no shows are found.
      */
     List<Show> searchShows(String searchQuery) {
         SqlParameterSource params = new MapSqlParameterSource()

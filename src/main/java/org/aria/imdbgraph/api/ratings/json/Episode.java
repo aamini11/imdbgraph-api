@@ -1,10 +1,7 @@
-package org.aria.imdbgraph.api.ratings;
+package org.aria.imdbgraph.api.ratings.json;
 
 /**
- * Immutable data class containing all the meta-data and ratings information
- * about a specific TV episode.
- * <p>
- * Note: This class will also be serialized as a JSON object
+ * Data-class containing all the meta-data about a TV episode.
  */
 public record Episode(
         String episodeTitle,

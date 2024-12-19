@@ -1,4 +1,4 @@
-package org.aria.imdbgraph.scrapper;
+package org.aria.imdbgraph.api.ratings.scrapper;
 
 import org.postgresql.copy.CopyManager;
 import org.postgresql.jdbc.PgConnection;
@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,29 +24,24 @@ import java.util.Map;
 import java.util.Set;
 
 import static java.util.Map.entry;
-import static org.aria.imdbgraph.scrapper.ImdbFileDownloader.ImdbFile;
-import static org.aria.imdbgraph.scrapper.ImdbFileDownloader.ImdbFile.*;
+import static org.aria.imdbgraph.api.ratings.scrapper.ImdbFileDownloader.ImdbFile;
+import static org.aria.imdbgraph.api.ratings.scrapper.ImdbFileDownloader.ImdbFile.*;
 
 /**
- * Utility class whose responsible for fetching the latest flat files from IMDB
- * and update the databases with that data. All the update operations are
- * performed in bulk since IMDB only updates their files once a day. That makes
- * retrieving data in real-time from IMDB impossible, unfortunately.
+ * Class responsible for keeping our internal database up-to-date with the most
+ * recent data from IMDB.
  * <p>
- * Daily update are done at 8:00 AM UTC.
- * <p>
- * If any error occurs when trying to load the IMDB files into the database,
- * whether from malformed files or just general Database/IO errors, an error
- * message will be logged and all files from that session will be archived. The
- * archived files can be found under a directory called archive in the data
- * directory that is specified by the property 'imdbgraph.data.directory' in the
- * spring application.properties file.
+ * Because IMDB has no official API, we have to keep an internal database with
+ * our own copy of all the data. IMDB releases all their data in text files that
+ * are updated once a day. This class will download and parse those files then
+ * bulk update the database with all the new data.
  */
+
 @Repository
 @EnableScheduling
-public class DatabaseUpdater {
+public class Scrapper {
 
-    private static final Logger logger = LoggerFactory.getLogger(DatabaseUpdater.class);
+    private static final Logger logger = LoggerFactory.getLogger(Scrapper.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final DataSource dataSource;
@@ -55,9 +49,9 @@ public class DatabaseUpdater {
     private final FileArchiver fileArchiver;
 
     @Autowired
-    DatabaseUpdater(JdbcTemplate jdbcTemplate,
-                    ImdbFileDownloader imdbFileDownloader,
-                    FileArchiver fileArchiver) {
+    Scrapper(JdbcTemplate jdbcTemplate,
+             ImdbFileDownloader imdbFileDownloader,
+             FileArchiver fileArchiver) {
         this.imdbFileDownloader = imdbFileDownloader;
         this.jdbcTemplate = jdbcTemplate;
         this.fileArchiver = fileArchiver;
@@ -65,25 +59,37 @@ public class DatabaseUpdater {
     }
 
     /**
-     * Main method that is scheduled to fetch the latest files from IMDB and
-     * update the database with that data.
+     * Main method that downloads the latest files from IMDB and updating our
+     * internal database with the latest data.
+     *
+     * @throws ImdbFileParsingException If any error occurs when trying to load
+     *                                  the IMDB files into the database. An
+     *                                  error message will be logged and all
+     *                                  files from that session will be
+     *                                  archived. See {@link FileArchiver} for
+     *                                  more info.
      */
     @Transactional
-    @Scheduled(cron = "0 0 8 * * *")
     public void updateDatabase() throws ImdbFileParsingException {
         populateAllTempTables();
         updateShows();
         updateEpisodes();
-
-        jdbcTemplate.execute("ANALYSE");
     }
 
-    /**
-     * Method that's responsible for downloading all the files from IMDB and
-     * loading them into temporary tables in the database. Once these files are
-     * copied into the temp tables, they will soon be reformatted and loaded
-     * into the real tables. And if successfully loaded, the file will be
-     * deleted immediately afterwards
+    public static class ImdbFileParsingException extends Exception {
+        public ImdbFileParsingException(Throwable cause, Path failedFile) {
+            super("Failed to load file from: " + failedFile, cause);
+        }
+    }
+
+    /*
+     * Download files and store them in temp tables using the Postgres copy
+     * command. This is the most efficient way to bulk update data from files
+     * into a postgres database.
+     *
+     * https://stackoverflow.com/a/17267423/6310030
+     * https://www.postgresql.org/docs/current/populate.html
+     * https://dba.stackexchange.com/questions/41059/optimizing-bulk-update-performance-in-postgresql
      */
     private void populateAllTempTables() throws ImdbFileParsingException {
         jdbcTemplate.execute("""
@@ -99,7 +105,7 @@ public class DatabaseUpdater {
                     runtime_minutes INT,
                     genres          TEXT
                 ) ON COMMIT DROP;
-
+                
                 CREATE TEMPORARY TABLE temp_episode
                 (
                     episode_id  VARCHAR(10),
@@ -107,7 +113,7 @@ public class DatabaseUpdater {
                     season_num  INT,
                     episode_num INT
                 ) ON COMMIT DROP;
-
+                
                 CREATE TEMPORARY TABLE temp_ratings
                 (
                     imdb_id     VARCHAR(10) PRIMARY KEY,
@@ -129,55 +135,47 @@ public class DatabaseUpdater {
             allDownloadedFiles.put(file, downloadLocation);
         }
 
+        // use Postgres' COPY command to copy data from a file into a table
         for (Map.Entry<ImdbFile, Path> entry : allDownloadedFiles.entrySet()) {
-            ImdbFile fileToLoad = entry.getKey();
-            Path pathOfFileToLoad = entry.getValue();
+            ImdbFile imdbFile = entry.getKey();
+            Path filePath = entry.getValue();
 
-            String tableName = fileToTableMapping.get(fileToLoad);
-            populate(tableName, pathOfFileToLoad);
+            String tableName = fileToTableMapping.get(imdbFile);
+
+            try (BufferedReader br = Files.newBufferedReader(filePath)) {
+                PgConnection postgresConnection = DataSourceUtils.getConnection(dataSource)
+                        .unwrap(PgConnection.class);
+
+                CopyManager copier = new CopyManager(postgresConnection);
+                //language=SQL
+                String command = """
+                        COPY %s
+                        FROM STDIN
+                        WITH (DELIMITER '\t');
+                        """;
+
+                String header = br.readLine();
+                if (header == null)
+                    throw new FileNotFoundException(filePath.toString());
+                copier.copyIn(String.format(command, tableName), br);
+
+                logger.info("{} successfully transferred to table {}", filePath, tableName);
+            } catch (SQLException | IOException exception) {
+                fileArchiver.archive(filePath);
+                throw new ImdbFileParsingException(exception, filePath);
+            }
+
+            // clean up file after successful import
             try {
-                Files.delete(pathOfFileToLoad); // clean up file after successful import
+                Files.delete(filePath);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         }
     }
 
-    /**
-     * Helper method that will use Postgres' COPY command to copy data from a
-     * file into a table.
-     *
-     * @param tableName  Name of the Postgres table you want to fill with data.
-     * @param fileToLoad Path of file you want to load data from.
-     */
-    private void populate(String tableName, Path fileToLoad) throws ImdbFileParsingException {
-        try (BufferedReader br = Files.newBufferedReader(fileToLoad)) {
-            PgConnection postgresConnection = DataSourceUtils.getConnection(dataSource)
-                    .unwrap(PgConnection.class);
-
-            CopyManager copier = new CopyManager(postgresConnection);
-            //language=SQL
-            String command = """
-                    COPY %s
-                    FROM STDIN
-                    WITH (DELIMITER '\t');
-                    """;
-
-            String header = br.readLine();
-            if (header == null)
-                throw new FileNotFoundException(fileToLoad.toString());
-            copier.copyIn(String.format(command, tableName), br);
-
-            logger.info("{} successfully transferred to table {}", fileToLoad, tableName);
-        } catch (SQLException | IOException exception) {
-            fileArchiver.archive(fileToLoad);
-            throw new ImdbFileParsingException(exception, fileToLoad);
-        }
-    }
-
-    /**
-     * Updates show table using freshly loaded data from temp tables. The method
-     * also reformats/transforms that data before using it for updates.
+    /*
+     * Updates show table using new data from temp tables.
      */
     private void updateShows() {
         jdbcTemplate.execute("""
@@ -206,19 +204,13 @@ public class DatabaseUpdater {
         logger.info("Shows successfully updated");
     }
 
-    /**
-     * Updates episode table using freshly loaded data from temp tables. The
-     * method also reformats/transforms that data before using it for updates.
+    /*
+     * Updates episode table using new data from temp tables.
      */
     private void updateEpisodes() {
-        /*
-         * https://stackoverflow.com/a/17267423/6310030
-         * https://www.postgresql.org/docs/current/populate.html
-         * https://dba.stackexchange.com/questions/41059/optimizing-bulk-update-performance-in-postgresql
-         */
         jdbcTemplate.execute("""
                 DROP TABLE IF EXISTS imdb.episode_new;
-                                
+                
                 CREATE TABLE imdb.episode_new AS
                 SELECT show_id,
                        episode_id,
@@ -233,27 +225,21 @@ public class DatabaseUpdater {
                 WHERE show_id IN (SELECT imdb_id FROM imdb.show)
                   AND season_num >= 0
                   AND episode_num >= 0;
-                                
+                
                 ALTER TABLE imdb.episode_new ADD PRIMARY KEY (episode_id);
                 ALTER TABLE imdb.episode_new ADD FOREIGN KEY (show_id) REFERENCES imdb.show(imdb_id);
                 CREATE INDEX ON imdb.episode_new (show_id);
-                                
+                
                 ALTER TABLE imdb.episode_new ALTER COLUMN show_id SET NOT NULL;
                 ALTER TABLE imdb.episode_new ALTER COLUMN episode_id SET NOT NULL;
                 ALTER TABLE imdb.episode_new ALTER COLUMN season_num SET NOT NULL;
                 ALTER TABLE imdb.episode_new ALTER COLUMN episode_num SET NOT NULL;
                 ALTER TABLE imdb.episode_new ALTER COLUMN imdb_rating SET NOT NULL;
                 ALTER TABLE imdb.episode_new ALTER COLUMN num_votes SET NOT NULL;
-                                
+                
                 DROP TABLE imdb.episode;
                 ALTER TABLE imdb.episode_new RENAME TO episode;
                 """);
         logger.info("Episodes successfully updated");
-    }
-
-    public static class ImdbFileParsingException extends Exception {
-        public ImdbFileParsingException(Throwable cause, Path failedFile) {
-            super("Failed to load file from: " + failedFile, cause);
-        }
     }
 }

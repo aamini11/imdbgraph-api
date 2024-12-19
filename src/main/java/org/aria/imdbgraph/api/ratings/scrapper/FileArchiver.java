@@ -1,7 +1,10 @@
-package org.aria.imdbgraph.scrapper;
+package org.aria.imdbgraph.api.ratings.scrapper;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,10 +18,12 @@ import java.util.*;
 import java.util.stream.Stream;
 
 /**
- * Utility class used to archive IMDB files for auditing in-case of production
- * errors.
+ * Utility class used by {@link Scrapper} to archive any IMDB files that caused
+ * parsing errors in production so that they can be audited later.
  */
+@Service
 final class FileArchiver {
+
     private static final Logger logger = LogManager.getLogger();
 
     // Limit for number of files allowed in archive directory
@@ -28,8 +33,12 @@ final class FileArchiver {
     private final int archiveCapacity;
     private final Clock clock;
 
-    FileArchiver(Path archiveDestination, Clock clock) {
-        this(archiveDestination, clock, DEFAULT_ARCHIVE_CAPACITY);
+    @Autowired
+    FileArchiver(
+            @Value("${imdbgraph.data.directory}") String downloadDirPath,
+            Clock clock
+    ) {
+        this(Path.of(downloadDirPath), clock, DEFAULT_ARCHIVE_CAPACITY);
     }
 
     FileArchiver(Path archiveDestination, Clock clock, int archiveCapacity) {
@@ -39,15 +48,9 @@ final class FileArchiver {
     }
 
     /**
-     * Takes all the files currently located in the download directory and
-     * places a timestamped copy of each file in ./archive. The size limit for
-     * the archive is specified by {@code archiveLimit}. If The limit is
-     * exceeded the archive rolls over, which means the oldest files will be
-     * deleted to make room for new files
-     * <p>
-     * This method is mainly used for auditing in case of production error.
-     *
-     * @param filesToArchive The files you want to archive.
+     * Takes all the files passed as an argument and places a timestamped copy
+     * of each in ./archive. If The limit is exceeded, the archive rolls over by
+     * deleting the oldest files.
      */
     void archive(Path... filesToArchive) {
         try {
@@ -69,18 +72,12 @@ final class FileArchiver {
         }
     }
 
-    /**
-     * Helper method to check if archive directory is full.
-     */
     private boolean archiveIsFull() {
         File[] archives = archiveDestination.toFile().listFiles(File::isFile);
         Objects.requireNonNull(archives);
         return archives.length >= archiveCapacity;
     }
 
-    /**
-     * Helper method to find the oldest file in the archive directory.
-     */
     private Path findOldestArchivedFile() {
         File[] archives = archiveDestination.toFile().listFiles(File::isFile);
         Objects.requireNonNull(archives, archiveDestination + " does not exist");
@@ -95,13 +92,12 @@ final class FileArchiver {
      * Utility method that takes a file name and tags it with a timestamp.
      * <p>
      * Example: file1.txt -> file1_2019-12-28.txt
-     *
-     * @throws IllegalArgumentException File name must be non-empty
      */
     private String genArchiveFileName(String fileName) {
         // error check
         Objects.requireNonNull(fileName);
-        if (fileName.isEmpty()) throw new IllegalArgumentException("Empty file name");
+        if (fileName.isEmpty())
+            throw new IllegalArgumentException("Empty file name");
 
         int extensionPos = fileName.lastIndexOf('.'); // Index where file extension starts
         int fileNameStart = Math.max(fileName.lastIndexOf('/'), fileName.lastIndexOf('\\'));
