@@ -7,11 +7,8 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 
 @SpringBootApplication
-@EnableScheduling
 public class Main implements ApplicationRunner {
 
     private final Scrapper scrapper;
@@ -26,11 +23,6 @@ public class Main implements ApplicationRunner {
         if (args.getOptionNames().contains("run-scrapper")) {
             scrapper.updateDatabase();
         }
-    }
-
-    @Scheduled(cron = "0 52 2 * * *")
-    public void dailyDatabaseUpdate() throws ImdbFileParsingException {
-        this.scrapper.updateDatabase();
     }
 
     public static void main(String[] args) {

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,37 +61,33 @@ public class Scrapper {
     /**
      * Main method that downloads the latest files from IMDB and updating our
      * internal database with the latest data.
+     * <p>
+     * Runs daily at 8:00 AM UTC.
      *
      * @throws ImdbFileParsingException If any error occurs when trying to load
-     *                                  the IMDB files into the database. An
+     *                                  the IMDB files into the database, an
      *                                  error message will be logged and all
      *                                  files from that session will be
      *                                  archived. See {@link FileArchiver} for
      *                                  more info.
      */
     @Transactional
+    @Scheduled(cron = "0 0 8 * * *")
     public void updateDatabase() throws ImdbFileParsingException {
-        populateAllTempTables();
-        updateShows();
-        updateEpisodes();
-    }
-
-    public static class ImdbFileParsingException extends Exception {
-        public ImdbFileParsingException(Throwable cause, Path failedFile) {
-            super("Failed to load file from: " + failedFile, cause);
-        }
+        update();
     }
 
     /*
      * Download files and store them in temp tables using the Postgres copy
      * command. This is the most efficient way to bulk update data from files
-     * into a postgres database.
+     * into a postgres database. Once all data is loaded into temp tables,
+     * update all the real tables with data from the temp tables.
      *
      * https://stackoverflow.com/a/17267423/6310030
      * https://www.postgresql.org/docs/current/populate.html
      * https://dba.stackexchange.com/questions/41059/optimizing-bulk-update-performance-in-postgresql
      */
-    private void populateAllTempTables() throws ImdbFileParsingException {
+    public void update() throws ImdbFileParsingException {
         jdbcTemplate.execute("""
                 CREATE TEMPORARY TABLE temp_title
                 (
@@ -163,20 +160,18 @@ public class Scrapper {
                 fileArchiver.archive(filePath);
                 throw new ImdbFileParsingException(exception, filePath);
             }
+        }
 
-            // clean up file after successful import
+        // Delete all files.
+        for (Path filePath : allDownloadedFiles.values()) {
             try {
                 Files.delete(filePath);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         }
-    }
 
-    /*
-     * Updates show table using new data from temp tables.
-     */
-    private void updateShows() {
+        // Updates show table using new data from temp tables.
         jdbcTemplate.execute("""
                 INSERT INTO imdb.show(imdb_id,
                                       primary_title,
@@ -201,12 +196,8 @@ public class Scrapper {
                         num_votes     = excluded.num_votes;
                 """);
         logger.info("Shows successfully updated");
-    }
 
-    /*
-     * Updates episode table using new data from temp tables.
-     */
-    private void updateEpisodes() {
+        // Updates episode table using new data from temp tables.
         jdbcTemplate.execute("""
                 DROP TABLE IF EXISTS imdb.episode_new;
                 
@@ -240,5 +231,11 @@ public class Scrapper {
                 ALTER TABLE imdb.episode_new RENAME TO episode;
                 """);
         logger.info("Episodes successfully updated");
+    }
+
+    public static class ImdbFileParsingException extends Exception {
+        public ImdbFileParsingException(Throwable cause, Path failedFile) {
+            super("Failed to load file from: " + failedFile, cause);
+        }
     }
 }
