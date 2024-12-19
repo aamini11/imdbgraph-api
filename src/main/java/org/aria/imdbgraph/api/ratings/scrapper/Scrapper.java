@@ -29,13 +29,9 @@ import static org.aria.imdbgraph.api.ratings.scrapper.ImdbFileDownloader.ImdbFil
 import static org.aria.imdbgraph.api.ratings.scrapper.ImdbFileDownloader.ImdbFile.*;
 
 /**
- * Class responsible for keeping our internal database up-to-date with the most
- * recent data from IMDB.
- * <p>
- * Because IMDB has no official API, we have to keep an internal database with
- * our own copy of all the data. IMDB releases all their data in text files that
- * are updated once a day. This class will download and parse those files then
- * bulk update the database with all the new data.
+ * IMDB has no free API to use. Instead, they release all their data in text
+ * files once a day. This class downloads those files daily and updates an
+ * internal database with all the new data.
  */
 @Repository
 @EnableScheduling
