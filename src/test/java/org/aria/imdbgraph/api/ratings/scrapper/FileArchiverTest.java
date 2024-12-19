@@ -1,7 +1,6 @@
 package org.aria.imdbgraph.api.ratings.scrapper;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -22,22 +21,15 @@ class FileArchiverTest {
     @TempDir
     Path tempDir;
 
-    private Path archiveDir;
-
-    @BeforeEach
-    void setUp() {
-        archiveDir = tempDir.resolve("archive");
-    }
-
-    private FileArchiver initFileArchiver(int archiveCapacity) {
-        ZonedDateTime sampleTime = ZonedDateTime.parse("2007-12-03T10:15:30.00Z");
-        Clock clock = Clock.fixed(sampleTime.toInstant(), ZoneId.of("America/Chicago"));
-        return new FileArchiver(archiveDir, clock, archiveCapacity);
-    }
+    private static final Clock TEST_CLOCK = Clock.fixed(
+            ZonedDateTime.parse("2007-12-03T10:15:30.00Z").toInstant(),
+            ZoneId.of("America/Chicago")
+    );
 
     @Test
     void testArchivingSingleFile() throws IOException {
-        FileArchiver fileArchiver = initFileArchiver(1);
+        Path archiveDir = tempDir.resolve("archive");
+        FileArchiver fileArchiver = new FileArchiver(archiveDir, TEST_CLOCK, 1);
         fileArchiver.archive(); // test no-op
 
         List<Path> files = List.of(
@@ -58,7 +50,8 @@ class FileArchiverTest {
 
     @Test
     void testArchivingMultipleFile() throws IOException {
-        FileArchiver fileArchiver = initFileArchiver(4);
+        Path archiveDir = tempDir.resolve("archive");
+        FileArchiver fileArchiver = new FileArchiver(archiveDir, TEST_CLOCK, 4);
         fileArchiver.archive(); // test no-op
 
         fileArchiver.archive(
