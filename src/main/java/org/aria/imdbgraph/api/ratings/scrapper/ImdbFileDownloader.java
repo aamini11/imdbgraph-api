@@ -16,7 +16,7 @@ import java.nio.file.Path;
 import java.util.zip.GZIPInputStream;
 
 /**
- * Utility class used by {@link Scrapper} to download the latest data files from
+ * Utility class used by {@link Scraper} to download the latest data files from
  * IMDB.
  * <p>
  * <a href="https://www.imdb.com/interfaces/">More info about file format</a>

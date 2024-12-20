@@ -18,7 +18,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 /**
- * Utility class used by {@link Scrapper} to archive any IMDB files that caused
+ * Utility class used by {@link Scraper} to archive any IMDB files that caused
  * errors in production so that they can be audited later.
  */
 @Service

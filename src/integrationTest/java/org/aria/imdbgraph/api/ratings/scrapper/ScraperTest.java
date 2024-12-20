@@ -1,7 +1,7 @@
 package org.aria.imdbgraph.api.ratings.scrapper;
 
 import org.aria.imdbgraph.BaseTest;
-import org.aria.imdbgraph.api.ratings.scrapper.Scrapper.ImdbFileParsingException;
+import org.aria.imdbgraph.api.ratings.scrapper.Scraper.ImdbFileParsingException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-class ScrapperTest extends BaseTest {
+class ScraperTest extends BaseTest {
 
     private static final Path SAMPLE_FILES_DIR = Paths.get("src/integrationTest/resources/samples-files");
 
@@ -44,7 +44,7 @@ class ScrapperTest extends BaseTest {
     private JdbcTemplate jdbc;
 
     @Autowired
-    private Scrapper scrapper;
+    private Scraper scraper;
 
     @BeforeEach
     void loadFiles() throws IOException {
@@ -66,7 +66,7 @@ class ScrapperTest extends BaseTest {
         when(fileService.download(RATINGS_FILE)).thenReturn(inputDir.resolve("ratings_sample.tsv"));
         when(fileService.download(EPISODES_FILE)).thenReturn(inputDir.resolve("episode_sample.tsv"));
 
-        scrapper.updateDatabase();
+        scraper.updateDatabase();
         int epCount = JdbcTestUtils.countRowsInTable(jdbc, "imdb.episode");
         int showCount = JdbcTestUtils.countRowsInTable(jdbc, "imdb.show");
         assertEquals(3, showCount);
@@ -79,7 +79,7 @@ class ScrapperTest extends BaseTest {
         when(fileService.download(RATINGS_FILE)).thenReturn(inputDir.resolve("ratings_sample.tsv"));
         when(fileService.download(EPISODES_FILE)).thenReturn(inputDir.resolve("bad_episode_sample.tsv"));
 
-        assertThrows(ImdbFileParsingException.class, () -> scrapper.updateDatabase());
+        assertThrows(ImdbFileParsingException.class, () -> scraper.updateDatabase());
         verify(archiver, times(1)).archive(any());
     }
 

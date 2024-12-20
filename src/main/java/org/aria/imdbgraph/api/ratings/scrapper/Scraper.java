@@ -35,9 +35,9 @@ import static org.aria.imdbgraph.api.ratings.scrapper.ImdbFileDownloader.ImdbFil
  */
 @Repository
 @EnableScheduling
-public class Scrapper {
+public class Scraper {
 
-    private static final Logger logger = LoggerFactory.getLogger(Scrapper.class);
+    private static final Logger logger = LoggerFactory.getLogger(Scraper.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final DataSource dataSource;
@@ -45,7 +45,7 @@ public class Scrapper {
     private final FileArchiver fileArchiver;
 
     @Autowired
-    public Scrapper(
+    public Scraper(
             JdbcTemplate jdbcTemplate,
             ImdbFileDownloader imdbFileDownloader,
             FileArchiver fileArchiver
