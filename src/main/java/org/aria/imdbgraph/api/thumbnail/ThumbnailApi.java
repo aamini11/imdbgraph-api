@@ -34,8 +34,8 @@ public class ThumbnailApi {
             return ResponseEntity.noContent().build();
         }
 
-        var url = URI.create(thumbnailUrl.get()).toURL();
-        var resource = new UrlResource(url);
+        var uri = URI.create(thumbnailUrl.get());
+        var resource = new UrlResource(uri);
         return ResponseEntity.ok()
                 .body(resource);
     }

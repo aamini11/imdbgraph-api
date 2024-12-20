@@ -1,35 +1,23 @@
 # IMDB Graph
-Website to visualize the episode ratings of TV shows using data from IMDB. Website available at: https://www.imdbgraph.org/
+The backend API code for www.imdbgraph.org/. This repo scrapes ratings data from 
+IMDB daily and provides that data as an easy to consume REST API. The frontend 
+code that consumes this API is available 
+[here](https://gitlab.com/aamini11/imdbgraph-client).
 
-Copyright Notice:
-Information courtesy of
-IMDb
-(http://www.imdb.com).
-Used with permission.
+Note: See [Scrapper.java](src/main/java/org/aria/imdbgraph/api/ratings/scrapper) 
+for the class responsible for implementing this scrapping behavior.
 
-## Architecture of App
+## Endpoints
 
-### Overview of App
-This repo contains the backend code responsible for scraping data from IMDB and
-providing it as an API used by www.imdbgraph.org. The frontend code that
-consumes this API is found at https://gitlab.com/aamini11/imdbgraph. 
-
-### How data is scraped
-The reason data has to be scrapped is that IMDB doesn't provide an API for
-their data. Instead, they provide all their data in large text files that are
-updated once a day. This app downloads those files once a day and updates the 
-database with that new data. 
-
-### The endpoints
 This app is really simple and only supports 2 endpoints:
 
 https://api.imdbgraph.org/search?q=[anyquery]
 
 https://api.imdbgraph.org/ratings/[showId]
 
-The first endpoint just provides a list of show suggestions given
-any query. For example https://api.imdbgraph.org/search?q=breaking
-would return the following list:
+## Examples 
+
+https://api.imdbgraph.org/search?q=breaking would return:
 
 ```json
 [
@@ -69,8 +57,6 @@ would return the following list:
 ]
 ```
 
-The second endpoint returns all the episode ratings for any IMDB TV show.
-You just need to provide the IMDB ID for that show. Example:
 https://api.imdbgraph.org/ratings/tt26687196 would return:
 
 ```json
@@ -110,3 +96,6 @@ https://api.imdbgraph.org/ratings/tt26687196 would return:
   }
 }
 ```
+
+### Copyright
+Copyright Notice: Information courtesy of IMDb (http://www.imdb.com). Used with permission.
