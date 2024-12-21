@@ -1,4 +1,4 @@
-package org.aria.imdbgraph.api.ratings.scrapper;
+package org.aria.imdbgraph.api.ratings.scraper.auditing;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

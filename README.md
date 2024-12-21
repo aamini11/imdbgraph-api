@@ -1,11 +1,17 @@
-# IMDB Graph
-The backend API code for www.imdbgraph.org/. This repo scrapes ratings data from 
-IMDB daily and provides that data as an easy to consume REST API. The frontend 
-code that consumes this API is available 
-[here](https://gitlab.com/aamini11/imdbgraph-client).
+# IMDb Graph API
 
-Note: See [Scrapper.java](src/main/java/org/aria/imdbgraph/api/ratings/scrapper) 
-for the class responsible for implementing this scrapping behavior.
+www.imdbgraph.org is a website for visualizing the episode ratings of TV shows
+using user data from imdb.com. Because IMDb doesn't provide an API for accessing 
+their ratings data directly, this project scrapes data from IMDb and provides a copy of
+their data as a REST API. The frontend code for imdbgraph that uses this API is available [here](https://gitlab.com/aamini11/imdbgraph-client).
+
+## Scraping 
+Instead of an API, IMDb publishes all their data as text files, and they update
+those files once a day. The code responsible for scraping that data from IMDB is
+available in this [folder](src/main/java/org/aria/imdbgraph/api/ratings/scraper).
+
+- [Scraper.java](src/main/java/org/aria/imdbgraph/api/ratings/scraper/Scraper.java) 
+is the file that's run once a day 
 
 ## Endpoints
 
@@ -27,33 +33,40 @@ https://api.imdbgraph.org/search?q=breaking would return:
     "startYear": "2008",
     "endYear": "2013",
     "showRating": 9.5,
-    "numVotes": 1949748
+    "numVotes": 2249931
   },
   {
-    "imdbId": "tt3865236",
-    "title": "Into the Badlands",
-    "startYear": "2015",
-    "endYear": "2019",
-    "showRating": 7.9,
-    "numVotes": 47690
+    "imdbId": "tt1630574",
+    "title": "Breaking In",
+    "startYear": "2011",
+    "endYear": "2012",
+    "showRating": 7.1,
+    "numVotes": 7648
   },
   {
-    "imdbId": "tt12708542",
-    "title": "Star Wars: The Bad Batch",
+    "imdbId": "tt14408016",
+    "title": "Now, We Are Breaking Up",
     "startYear": "2021",
-    "endYear": null,
-    "showRating": 7.8,
-    "numVotes": 41215
+    "endYear": "2022",
+    "showRating": 6.4,
+    "numVotes": 1723
   },
   {
-    "imdbId": "tt15469618",
-    "title": "Bad Sisters",
-    "startYear": "2022",
+    "imdbId": "tt2387761",
+    "title": "Breaking Bad: Original Minisodes",
+    "startYear": "2009",
+    "endYear": "2011",
+    "showRating": 7.6,
+    "numVotes": 1700
+  },
+  {
+    "imdbId": "tt11151792",
+    "title": "The Road to El Camino: Behind the Scenes of El Camino: A Breaking Bad Movie",
+    "startYear": "2019",
     "endYear": null,
-    "showRating": 8.3,
-    "numVotes": 23215
+    "showRating": 7.1,
+    "numVotes": 1634
   }
-  // ...
 ]
 ```
 

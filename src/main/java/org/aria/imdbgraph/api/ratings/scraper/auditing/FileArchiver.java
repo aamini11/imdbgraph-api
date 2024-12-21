@@ -1,7 +1,8 @@
-package org.aria.imdbgraph.api.ratings.scrapper;
+package org.aria.imdbgraph.api.ratings.scraper.auditing;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.aria.imdbgraph.api.ratings.scraper.Scraper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,8 +19,12 @@ import java.util.*;
 import java.util.stream.Stream;
 
 /**
- * Utility class used by {@link Scraper} to archive any IMDB files that caused
- * errors in production so that they can be audited later.
+ * Utility class used by {@link Scraper} to archive any IMDb files that caused
+ * crashes in production so that they can be examined later for bug fixes.
+ * <p>
+ * Note: To save space, the archive folder has a size limit of
+ * {@value DEFAULT_ARCHIVE_CAPACITY}. Once that limit is reached, the oldest
+ * file is deleted.
  */
 @Service
 public final class FileArchiver {

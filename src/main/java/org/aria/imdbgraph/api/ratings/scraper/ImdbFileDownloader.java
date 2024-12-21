@@ -1,4 +1,4 @@
-package org.aria.imdbgraph.api.ratings.scrapper;
+package org.aria.imdbgraph.api.ratings.scraper;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

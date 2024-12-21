@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
-import org.aria.imdbgraph.api.ratings.scrapper.Scraper;
+import org.aria.imdbgraph.api.ratings.scraper.Scraper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

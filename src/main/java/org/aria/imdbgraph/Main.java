@@ -1,7 +1,7 @@
 package org.aria.imdbgraph;
 
-import org.aria.imdbgraph.api.ratings.scrapper.Scraper;
-import org.aria.imdbgraph.api.ratings.scrapper.Scraper.ImdbFileParsingException;
+import org.aria.imdbgraph.api.ratings.scraper.Scraper;
+import org.aria.imdbgraph.api.ratings.scraper.Scraper.ImdbFileParsingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;

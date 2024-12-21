@@ -1,5 +1,6 @@
-package org.aria.imdbgraph.api.ratings.scrapper;
+package org.aria.imdbgraph.api.ratings.scraper;
 
+import org.aria.imdbgraph.api.ratings.scraper.auditing.FileArchiver;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.jdbc.PgConnection;
 import org.slf4j.Logger;
@@ -25,13 +26,13 @@ import java.util.Map;
 import java.util.Set;
 
 import static java.util.Map.entry;
-import static org.aria.imdbgraph.api.ratings.scrapper.ImdbFileDownloader.ImdbFile;
-import static org.aria.imdbgraph.api.ratings.scrapper.ImdbFileDownloader.ImdbFile.*;
+import static org.aria.imdbgraph.api.ratings.scraper.ImdbFileDownloader.ImdbFile;
+import static org.aria.imdbgraph.api.ratings.scraper.ImdbFileDownloader.ImdbFile.*;
 
 /**
- * IMDB has no free API to use. Instead, they release all their data in text
- * files once a day. This class downloads those files daily and updates an
- * internal database with all the new data.
+ * IMDB has no free API to use to fetch their ratings data directly. Instead,
+ * they release all their data in text files once a day. This class downloads
+ * those files daily and updates an internal database with all the new data.
  */
 @Repository
 @EnableScheduling
