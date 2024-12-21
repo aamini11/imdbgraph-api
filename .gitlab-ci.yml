@@ -84,7 +84,7 @@ deploy:
   image: python:3.11.2-buster
   when: manual
   only:
-    - master
+    - main
   before_script:
     *set-up-ssh
   script:
