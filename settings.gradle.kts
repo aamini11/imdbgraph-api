@@ -1,1 +1,1 @@
-rootProject.name = "imdbgraph"
+rootProject.name = "imdbgraph-api"
