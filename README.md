@@ -75,40 +75,66 @@ https://api.imdbgraph.org/search?q=breaking would return:
 
 https://api.imdbgraph.org/ratings/tt26687196 would return:
 
-```json
+```json5
 {
   "show": {
-    "imdbId": "tt26687196",
-    "title": "Waco: American Apocalypse",
-    "startYear": "2023",
-    "endYear": "2023",
-    "showRating": 7.1,
-    "numVotes": 2497
+    "imdbId": "tt0944947",
+    "title": "Game of Thrones",
+    "startYear": "2011",
+    "endYear": "2019",
+    "showRating": 9.2,
+    "numVotes": 2377099
   },
   "allEpisodeRatings": {
     "1": {
       "1": {
-        "episodeTitle": "In the Beginning...",
+        "episodeTitle": "Winter Is Coming",
         "season": 1,
         "episodeNumber": 1,
-        "imdbRating": 7.5,
-        "numVotes": 164
+        "imdbRating": 8.9,
+        "numVotes": 59293
       },
       "2": {
-        "episodeTitle": "Children of God",
+        "episodeTitle": "The Kingsroad",
         "season": 1,
         "episodeNumber": 2,
-        "imdbRating": 7.3,
-        "numVotes": 148
+        "imdbRating": 8.6,
+        "numVotes": 44512
       },
       "3": {
-        "episodeTitle": "Fire",
+        "episodeTitle": "Lord Snow",
         "season": 1,
         "episodeNumber": 3,
-        "imdbRating": 7.4,
-        "numVotes": 142
+        "imdbRating": 8.5,
+        "numVotes": 42106
       }
+      // ...More episodes
+    },
+    "2": {
+      "1": {
+        "episodeTitle": "The North Remembers",
+        "season": 2,
+        "episodeNumber": 1,
+        "imdbRating": 8.6,
+        "numVotes": 37018
+      },
+      "2": {
+        "episodeTitle": "The Night Lands",
+        "season": 2,
+        "episodeNumber": 2,
+        "imdbRating": 8.3,
+        "numVotes": 35097
+      },
+      "3": {
+        "episodeTitle": "What Is Dead May Never Die",
+        "season": 2,
+        "episodeNumber": 3,
+        "imdbRating": 8.7,
+        "numVotes": 34680
+      }
+      // ...More episodes
     }
+    // ...More seasons
   }
 }
 ```
