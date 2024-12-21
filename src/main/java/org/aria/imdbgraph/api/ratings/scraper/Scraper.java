@@ -171,6 +171,7 @@ public class Scraper {
         }
 
         // Updates show table using new data from temp tables.
+        //noinspection SqlResolve,SqlCheckUsingColumns
         jdbcTemplate.execute("""
                 INSERT INTO imdb.show(imdb_id,
                                       primary_title,
@@ -197,6 +198,7 @@ public class Scraper {
         logger.info("Shows successfully updated");
 
         // Updates episode table using new data from temp tables.
+        //noinspection SqlResolve,SqlCheckUsingColumns
         jdbcTemplate.execute("""
                 DROP TABLE IF EXISTS imdb.episode_new;
                 
