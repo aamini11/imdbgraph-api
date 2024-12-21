@@ -11,7 +11,10 @@ those files once a day. The code responsible for scraping that data from IMDB is
 available in this [folder](src/main/java/org/aria/imdbgraph/api/ratings/scraper).
 
 - [Scraper.java](src/main/java/org/aria/imdbgraph/api/ratings/scraper/Scraper.java) 
-is the file that's run once a day 
+is the code that's run once a day to download the latest files and updates the
+database with the data
+- [ImdbFileDownloader.java](src/main/java/org/aria/imdbgraph/api/ratings/scraper/ImdbFileDownloader.java)
+is the helper class used to download the files.
 
 ## Endpoints
 
