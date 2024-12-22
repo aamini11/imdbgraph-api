@@ -31,24 +31,22 @@ sourceSets {
 }
 
 val integrationTestImplementation: Configuration by configurations.getting {
-    extendsFrom(configurations.implementation.get())
+    extendsFrom(configurations.testImplementation.get())
 }
 
 val integrationTestRuntimeOnly: Configuration by configurations.getting {
-    extendsFrom(configurations.runtimeOnly.get())
+    extendsFrom(configurations.testRuntimeOnly.get())
 }
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-log4j2")
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
-    implementation("org.postgresql:postgresql")
+    implementation("org.postgresql:postgresql:42.7.3")
 
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.3")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.10.3")
 
-    integrationTestImplementation("org.junit.jupiter:junit-jupiter")
-    integrationTestRuntimeOnly("org.junit.platform:junit-platform-launcher")
     integrationTestImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
@@ -85,7 +83,7 @@ publishing {
     }
     repositories {
         maven {
-            url = uri("https://gitlab.com/api/v4/projects/imdbgraph/imdbgraph-api/packages/maven")
+            url = uri("https://gitlab.com/api/v4/projects/19488309/packages/maven")
             credentials(HttpHeaderCredentials::class) {
                 name = "ci-package-deploy-token"
                 value = properties["gitLabPrivateToken"].toString()
