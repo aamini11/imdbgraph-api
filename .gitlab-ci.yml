@@ -65,9 +65,9 @@ release_job:
 deploy_job:
   stage: deploy
   image: python:3.11.2-buster
-  when: manual
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual
   script:
     # Run ansible playbooks to make sure infra is configured
     - pip install ansible
