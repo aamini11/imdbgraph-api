@@ -1,12 +1,29 @@
-- name: Install Required Packages
+- name: Install postgres
   become: true
-  apt:
-    name:
-      - postgresql
-      - postgresql-contrib
-      - acl
-      - python3-psycopg2
-    state: latest
+  block:
+    - name: Add postgres Apt signing directory
+      file:
+        path: /usr/share/postgresql-common/pgdg
+        state: directory
+        mode: '0755'
+    - name: Add postgres Apt signing key
+      get_url:
+        url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+        dest: /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc
+        mode: '0644'
+    - name: Add postgres repository into sources list
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt {{ ansible_lsb.codename }}-pgdg main"
+        state: present
+        update_cache: yes
+    - name: Install Postgres
+      apt:
+        name:
+        - postgresql-17
+        - postgresql-contrib
+        - acl
+        - python3-psycopg2
+        state: latest
 
 - name: Start postgres service
   service:
@@ -14,27 +31,27 @@
     state: started
     enabled: true
 
-- name: Create app database
-  postgresql_db:
-    state: present
-    name: "{{ db_name }}"
+- name: Setup Database
   become: yes
   become_user: postgres
-
-- name: Create db user
-  postgresql_user:
-    state: present
-    name: "{{ db_user }}"
-    password: "{{ db_password }}"
-  become: yes
-  become_user: postgres
-
-- name: Grant db user access to app db
-  postgresql_privs:
-    type: database
-    database: "{{ db_name }}"
-    roles: "{{ db_user }}"
-    grant_option: no
-    privs: all
-  become: yes
-  become_user: postgres
+  block:
+    - name: Create db user
+      postgresql_user:
+        state: present
+        name: "{{ db_user }}"
+        password: "{{ db_password }}"
+    - name: Create app database
+      postgresql_db:
+        state: present
+        name: "{{ db_name }}"
+        owner: "{{ db_user }}"
+    - name: Grant db user access to app db
+      postgresql_privs:
+        type: database
+        database: "{{ db_name }}"
+        roles: "{{ db_user }}"
+        privs: ALL
+    - name: Adds pg_trgm extension
+      postgresql_ext:
+        name: pg_trgm
+        db: "{{ db_name }}"

@@ -5,12 +5,6 @@
     state: latest
     update_cache: true
 
-- name: Create Config File
-  become: true
-  template:
-    src: api.imdbgraph.org.conf
-    dest: "/etc/nginx/conf.d/api.imdbgraph.org.conf"
-
 - name: Start NGINX service
   become: true
   service:

@@ -1,8 +1,8 @@
 - hosts: webservers
   roles:
-    - web
-    - proxy
-    - cert
+    - app
+    - nginx
+    - certbot
 
 - hosts: dbservers
   roles:

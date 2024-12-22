@@ -6,7 +6,11 @@ plugins {
 }
 
 group = "org.aamini"
-version = "0.0.1-SNAPSHOT"
+
+// Hardcode version if not specified through CLI while running in CI.
+if (project.version == "unspecified" || project.version.toString().isBlank()) {
+    version = "0.0.1-SNAPSHOT"
+}
 
 java {
     toolchain {

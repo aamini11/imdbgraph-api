@@ -1,25 +1,8 @@
-variables:
-  JAR_FILE_NAME: imdbgraph-0.0.1-SNAPSHOT.jar
-
 stages:
   - build
   - test
-  - configure
+  - release
   - deploy
-
-# Set up postgres database for integration tests
-.set-up-test-database: &set-up-test-database
-  variables:
-    POSTGRES_DB: $DATABASE_DB
-    POSTGRES_USER: $DATABASE_USER
-    POSTGRES_PASSWORD: $DATABASE_PASSWORD
-    # Environment variable used by psql to supply password. Separate from POSTGRES_PASSWORD.
-    PGPASSWORD: $DATABASE_PASSWORD
-  services:
-    - postgres:15.2-bullseye
-  before_script:
-    - apt-get update && apt-get install -y postgresql-client
-    - psql -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "init.sql"
 
 default:
   image: openjdk:21-buster
@@ -27,9 +10,9 @@ default:
     - GRADLE_USER_HOME="$(pwd)/.gradle"
     - export GRADLE_USER_HOME
 
-build:
+build_job:
   stage: build
-  script: ./gradlew --build-cache assemble
+  script: "./gradlew --build-cache bootJar -Pversion=$CI_COMMIT_TAG"
   cache:
     key: "$CI_COMMIT_REF_NAME"
     policy: push
@@ -38,11 +21,10 @@ build:
       - .gradle
   artifacts:
     paths:
-      - build/libs/$JAR_FILE_NAME
+      - "build/libs/imdbgraph-api-*.jar"
 
-test:
+test_job:
   stage: test
-  <<: *set-up-test-database
   script:
     - ./gradlew check
   cache:
@@ -55,38 +37,42 @@ test:
     when: always
     reports:
       junit: build/test-results/test/**/TEST-*.xml
+  # ===================== Set up DB for integration tests ======================
+  variables:
+    POSTGRES_DB: $DATABASE_DB
+    POSTGRES_USER: $DATABASE_USER
+    POSTGRES_PASSWORD: $DATABASE_PASSWORD
+    # Variable used by psql. (Separate from POSTGRES_PASSWORD)
+    PGPASSWORD: $DATABASE_PASSWORD
+  services:
+    - postgres:15.2-bullseye
+  before_script:
+    - apt-get update && apt-get install -y postgresql-client
+    - psql -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "init.sql"
+  # ============================================================================
 
-# Setting up SSH: https://docs.gitlab.com/ee/ci/ssh_keys/
-.set-up-ssh: &set-up-ssh
-  # Install ssh-agent if not already installed
-  - command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )
+release_job:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  rules:
+    - if: $CI_COMMIT_TAG # Run this job when a tag is created
+  script:
+    - echo "Running the release job."
+  release:
+    tag_name: $CI_COMMIT_TAG
+    name: 'Release $CI_COMMIT_TAG'
+    description: 'Release created using the release-cli.'
+    assets:
+      links:
+        - name: imdbgraph-api-$CI_COMMIT_TAG.jar
+          url: '$CI_SERVER_URL/$CI_PROJECT_PATH/-/jobs/&CI_JOB_ID/artifacts/download?file_type=archive'
 
-  # Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
-  # Why eval the output of ssh-agent?
-  # (https://unix.stackexchange.com/q/351725/169515)
-  - eval $(ssh-agent -s)
-
-  # Give the right permissions, otherwise ssh-add will refuse to add files
-  # Add the SSH key stored in SSH_PRIVATE_KEY file type CI/CD variable to the agent store
-  - chmod 400 "$SSH_PRIVATE_KEY"
-  - ssh-add "$SSH_PRIVATE_KEY"
-
-  # Create the SSH directory and give it the right permissions
-  - mkdir -p ~/.ssh
-  - chmod 700 ~/.ssh
-
-  # Add server to known_hosts
-  - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
-  - chmod 644 ~/.ssh/known_hosts
-
-deploy:
+deploy_job:
   stage: deploy
   image: python:3.11.2-buster
-  when: manual
-  only:
-    - main
-  before_script:
-    *set-up-ssh
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - when: manual
   script:
     # Run ansible playbooks to make sure infra is configured
     - pip install ansible
@@ -95,5 +81,29 @@ deploy:
 
     # Restart service with new JAR
     - ssh "${SERVER_USER}@${SERVER_HOST}" "sudo systemctl stop imdbgraph-api.service"
-    - scp "build/libs/${JAR_FILE_NAME}" "${SERVER_USER}@${SERVER_HOST}:~/${JAR_FILE_NAME}"
+    - scp "build/libs/imdbgraph-api-*.jar" "${SERVER_USER}@${SERVER_HOST}:~/imdbgraph-api-*.jar"
     - ssh "${SERVER_USER}@${SERVER_HOST}" "sudo systemctl start imdbgraph-api.service"
+
+  # =========== Set up SSH (https://docs.gitlab.com/ee/ci/ssh_keys) ============
+  before_script:
+    # Install ssh-agent if not already installed
+    - command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )
+
+    # Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
+    # Why eval the output of ssh-agent?
+    # (https://unix.stackexchange.com/q/351725/169515)
+    - eval $(ssh-agent -s)
+
+    # Give the right permissions, otherwise ssh-add will refuse to add files
+    # Add the SSH key stored in SSH_PRIVATE_KEY file type CI/CD variable to the agent store
+    - chmod 400 "$SSH_PRIVATE_KEY"
+    - ssh-add "$SSH_PRIVATE_KEY"
+
+    # Create the SSH directory and give it the right permissions
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+
+    # Add server to known_hosts
+    - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  # ============================================================================

@@ -1,23 +1,30 @@
-- name: Install latest version of Open JDK 17
+- name: Install latest version of Open JDK 21
   become: true
   apt:
-    name: openjdk-17-jdk
+    name: openjdk-21-jdk
     state: latest
     update_cache: true
+
+- name: Create data directory
+  file:
+    name: "/home/{{ ansible_user }}/data"
+    state: directory
 
 - name: Create Script file
   become: true
   template:
     src: start.sh
     dest: "/home/{{ ansible_user }}/start.sh"
+    mode: "0755"
 
 - name: Create Unit file
+  become: true
   template:
     src: imdbgraph-api.service
     dest: /etc/systemd/system/imdbgraph-api.service
-    mode: 644
+    mode: "0644"
 
 - name: Reload after adding new unit file
   become: true
-  ansible.builtin.systemd:
+  systemd:
     daemon_reload: true
