@@ -3,6 +3,7 @@ plugins {
     idea
     id("org.springframework.boot") version "3.3.2"
     id("io.spring.dependency-management") version "1.1.6"
+    `maven-publish`
 }
 
 group = "org.aamini"
@@ -74,6 +75,27 @@ val integrationTest = tasks.register<Test>("integrationTest") {
 }
 
 tasks.check { dependsOn(integrationTest) }
+
+// https://docs.gitlab.com/ee/user/packages/maven_repository/?tab=gradle#edit-the-configuration-file-for-publishing
+publishing {
+    publications {
+        create<MavenPublication>("library") {
+            from(components["java"])
+        }
+    }
+    repositories {
+        maven {
+            url = uri("https://gitlab.com/api/v4/projects/imdbgraph/imdbgraph-api/packages/maven")
+            credentials(HttpHeaderCredentials::class) {
+                name = "ci-package-deploy-token"
+                value = properties["gitLabPrivateToken"].toString()
+            }
+            authentication {
+                create("header", HttpHeaderAuthentication::class)
+            }
+        }
+    }
+}
 
 // Marks the integrationTest folder green color for testing.
 // https://docs.gradle.org/current/userguide/idea_plugin.html#sec:idea_identify_additional_source_sets
