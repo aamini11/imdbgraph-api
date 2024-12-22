@@ -1,9 +1,14 @@
+import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
+
 plugins {
     java
-    idea
+
+    // https://docs.spring.io/spring-boot/docs/3.2.5/gradle-plugin/reference/htmlsingle/#managing-dependencies.dependency-management-plugin
     id("org.springframework.boot") version "3.3.2"
     id("io.spring.dependency-management") version "1.1.6"
-    `maven-publish`
+
+    // helper IntelliJ IDE plugin used on last line.
+    idea
 }
 
 group = "org.aamini"
@@ -74,25 +79,14 @@ val integrationTest = tasks.register<Test>("integrationTest") {
 
 tasks.check { dependsOn(integrationTest) }
 
-// https://docs.gitlab.com/ee/user/packages/maven_repository/?tab=gradle#edit-the-configuration-file-for-publishing
-publishing {
-    // https://docs.spring.io/spring-boot/gradle-plugin/publishing.html
-    publications {
-        create<MavenPublication>("bootJava") {
-            artifact(tasks["bootJar"])
-        }
-    }
-    repositories {
-        maven {
-            url = uri("https://gitlab.com/api/v4/projects/19488309/packages/maven")
-            name = "GitLab"
-            credentials(HttpHeaderCredentials::class) {
-                name = "Job-Token"
-                value = System.getenv("CI_JOB_TOKEN")
-            }
-            authentication {
-                create("header", HttpHeaderAuthentication::class)
-            }
+// https://docs.spring.io/spring-boot/docs/3.2.7/gradle-plugin/reference/htmlsingle/#build-image.examples.publish
+tasks.named<BootBuildImage>("bootBuildImage") {
+    publish = true
+    docker {
+        builderRegistry {
+            url = System.getenv("CI_REGISTRY")
+            username = System.getenv("CI_REGISTRY_USER")
+            password = System.getenv("CI_REGISTRY_PASSWORD")
         }
     }
 }
