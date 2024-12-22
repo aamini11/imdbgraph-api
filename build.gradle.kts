@@ -86,7 +86,7 @@ publishing {
             url = uri("https://gitlab.com/api/v4/projects/19488309/packages/maven")
             name = "GitLab"
             credentials(HttpHeaderCredentials::class) {
-                name = "ci-package-deploy-token"
+                name = "Job-Token"
                 value = System.getenv("CI_JOB_TOKEN")
             }
             authentication {
