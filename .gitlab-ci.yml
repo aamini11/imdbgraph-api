@@ -45,6 +45,9 @@ publish_job:
   stage: publish
   variables:
     DOCKER_HOST: tcp://docker:2375
+    CI_REGISTRY: $CI_REGISTRY
+    CI_REGISTRY_USER: $CI_REGISTRY_USER
+    CI_REGISTRY_PASSWORD: $CI_REGISTRY_USER
   services:
     - docker:dind
   script:
