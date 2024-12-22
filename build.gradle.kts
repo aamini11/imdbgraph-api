@@ -76,9 +76,10 @@ tasks.check { dependsOn(integrationTest) }
 
 // https://docs.gitlab.com/ee/user/packages/maven_repository/?tab=gradle#edit-the-configuration-file-for-publishing
 publishing {
+    // https://docs.spring.io/spring-boot/gradle-plugin/publishing.html
     publications {
-        create<MavenPublication>("library") {
-            from(components["java"])
+        create<MavenPublication>("bootJava") {
+            artifact(tasks["bootJar"])
         }
     }
     repositories {
