@@ -36,7 +36,9 @@ test_job:
   artifacts:
     when: always
     reports:
-      junit: build/test-results/test/**/TEST-*.xml
+      junit:
+        - build/test-results/test/**/TEST-*.xml
+        - build/test-results/integrationTest/**/TEST-*.xml
   # ===================== Set up DB for integration tests ======================
   variables:
     POSTGRES_DB: $DATABASE_DB
