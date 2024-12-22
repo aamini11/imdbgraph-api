@@ -86,7 +86,7 @@ publishing {
             url = uri("https://gitlab.com/api/v4/projects/19488309/packages/maven")
             credentials(HttpHeaderCredentials::class) {
                 name = "ci-package-deploy-token"
-                value = properties["gitLabPrivateToken"].toString()
+                value = project.findProperty("gitLabPrivateToken").toString()
             }
             authentication {
                 create("header", HttpHeaderAuthentication::class)

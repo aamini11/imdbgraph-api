@@ -50,7 +50,7 @@ publish_job:
   <<: *gradle
   stage: publish
   script:
-    ./gradlew publish -DgitLabPrivateToken=$GITLAB_PRIVATE_TOKEN
+    ./gradlew publish -PgitLabPrivateToken=$GITLAB_PRIVATE_TOKEN
 
 release_job:
   stage: release
