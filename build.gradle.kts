@@ -81,10 +81,9 @@ tasks.check { dependsOn(integrationTest) }
 
 // https://docs.spring.io/spring-boot/docs/3.2.7/gradle-plugin/reference/htmlsingle/#build-image.examples.publish
 tasks.named<BootBuildImage>("bootBuildImage") {
-    publish = true
     docker {
         builderRegistry {
-            url = System.getenv("CI_REGISTRY")
+            url = "registry.gitlab.com/imdbgraph/imdbgraph-api"
             username = System.getenv("CI_REGISTRY_USER")
             password = System.getenv("CI_REGISTRY_PASSWORD")
         }

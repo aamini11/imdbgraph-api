@@ -52,7 +52,7 @@ publish_job:
   script:
     echo $CI_REGISTRY
     echo $CI_REGISTRY_USER
-    ./gradlew bootBuildImage
+    ./gradlew bootBuildImage --publishImage
 
 release_job:
   stage: release
