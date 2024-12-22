@@ -79,13 +79,12 @@ deploy_job:
     - scp "build/libs/imdbgraph-api-*.jar" "${SERVER_USER}@${SERVER_HOST}:~/imdbgraph-api-*.jar"
     - ssh "${SERVER_USER}@${SERVER_HOST}" "sudo systemctl start imdbgraph-api.service"
 
-  # =========== Set up SSH (https://docs.gitlab.com/ee/ci/ssh_keys) ============
+  # ================= https://docs.gitlab.com/ee/ci/ssh_keys  ==================
   before_script:
-    # Install ssh-agent if not already installed
+    # Install ssh-agent
     - command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )
 
-    # Why eval the output of ssh-agent?
-    # (https://unix.stackexchange.com/q/351725)
+    # https://unix.stackexchange.com/q/351725
     - eval $(ssh-agent -s)
 
     # Give right permissions so ssh-add can add SSH key to agent store.
