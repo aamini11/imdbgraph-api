@@ -44,7 +44,7 @@ publish_job:
   <<: *gradle
   stage: publish
   script:
-    ./gradlew publish
+    ./gradlew bootBuildImage
 
 release_job:
   stage: release
