@@ -28,7 +28,7 @@
 
 - name: Run app container
   docker_container:
-    image: "registry.gitlab.com/imdbgraph/imdbgraph-api:infra"
+    image: "registry.gitlab.com/imdbgraph/imdbgraph-api:main"
     name: imdbgraph-api
     pull: true
     state: started
