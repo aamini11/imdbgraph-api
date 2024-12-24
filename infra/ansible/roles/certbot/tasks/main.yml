@@ -14,7 +14,7 @@
 
 - name: Install certificates
   become: true
-  command: "certbot certonly --nginx --non-interactive --agree-tos --email aamini1024@gmail.com --domains {{ hostname }}"
+  command: "certbot certonly --nginx --non-interactive --agree-tos --email aamini1024@gmail.com --domains {{ inventory_hostname }}"
   register: certbot_result
   changed_when:
     - '"Certificate not yet due for renewal" not in certbot_result.stdout'
