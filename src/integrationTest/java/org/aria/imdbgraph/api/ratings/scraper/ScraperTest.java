@@ -1,14 +1,15 @@
 package org.aria.imdbgraph.api.ratings.scraper;
 
-import org.aria.imdbgraph.BaseTest;
 import org.aria.imdbgraph.api.ratings.scraper.Scraper.ImdbFileParsingException;
 import org.aria.imdbgraph.api.ratings.scraper.auditing.FileArchiver;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.jdbc.JdbcTestUtils;
 
 import java.io.File;
@@ -23,22 +24,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-class ScraperTest extends BaseTest {
+@SpringBootTest
+class ScraperTest {
 
     private static final Path SAMPLE_FILES_DIR = Paths.get("src/integrationTest/resources/samples-files");
-
     private static Path inputDir;
 
     @BeforeAll
     static void setUp() throws IOException {
+        // Set up ${TEMP_DIR}/input to store input files.
         Path temp = Files.createTempDirectory("temp");
         inputDir = Files.createDirectory(temp.resolve("input_files"));
     }
 
-    @MockBean
+    @MockitoBean
     private FileArchiver archiver;
 
-    @MockBean
+    @MockitoBean
     private ImdbFileDownloader fileService;
 
     @Autowired
@@ -49,16 +51,18 @@ class ScraperTest extends BaseTest {
 
     @BeforeEach
     void loadFiles() throws IOException {
-        // Wipe database
-        JdbcTestUtils.deleteFromTables(jdbc, "imdb.episode", "imdb.thumbnails", "imdb.show");
-        // Clean directories of previous files
-        cleanDirectory(inputDir);
-
+        cleanDirectory(inputDir); // Clean directories of previous files
         File[] sampleFiles = SAMPLE_FILES_DIR.toFile().listFiles();
         Objects.requireNonNull(sampleFiles, SAMPLE_FILES_DIR + " not found");
         for (File sample : sampleFiles) {
             Files.copy(sample.toPath(), inputDir.resolve(sample.getName()));
         }
+    }
+
+    @AfterEach
+    void cleanUpDatabase() {
+        // Wipe database
+        JdbcTestUtils.deleteFromTables(jdbc, "imdb.episode", "imdb.thumbnails", "imdb.show");
     }
 
     @Test

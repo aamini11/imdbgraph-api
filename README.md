@@ -73,7 +73,7 @@ https://api.imdbgraph.org/search?q=breaking would return:
 ]
 ```
 
-https://api.imdbgraph.org/ratings/tt26687196 would return:
+https://api.imdbgraph.org/ratings/tt0944947 would return:
 
 ```json5
 {

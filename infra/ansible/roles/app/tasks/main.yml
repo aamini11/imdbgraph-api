@@ -1,30 +1,42 @@
-- name: Install latest version of Open JDK 21
-  become: true
-  apt:
-    name: openjdk-21-jdk
-    state: latest
-    update_cache: true
+- name: Install Docker
+  block:
+    - name: Install Docker from snap
+      become: true
+      snap:
+        name: docker
+    # To run Docker without root: https://docs.docker.com/engine/install/linux-postinstall/
+    - name: Create docker group
+      become: true
+      group:
+        name: docker
+        state: present
+    # SSH reset required after user creation: https://stackoverflow.com/a/44753457
+    - name: Create docker user
+      become: true
+      user:
+        name: docker
+        groups: docker
+        append: true
+      register: result
+    - name: Reset ssh connection to allow user changes to affect 'current login user'
+      ansible.builtin.meta: reset_connection
 
 - name: Create data directory
   file:
     name: "/home/{{ ansible_user }}/data"
     state: directory
 
-- name: Create Script file
-  become: true
-  template:
-    src: start.sh
-    dest: "/home/{{ ansible_user }}/start.sh"
-    mode: "0755"
-
-- name: Create Unit file
-  become: true
-  template:
-    src: imdbgraph-api.service
-    dest: /etc/systemd/system/imdbgraph-api.service
-    mode: "0644"
-
-- name: Reload after adding new unit file
-  become: true
-  systemd:
-    daemon_reload: true
+- name: Run app container
+  docker_container:
+    image: "registry.gitlab.com/imdbgraph/imdbgraph-api:infra"
+    name: imdbgraph-api
+    pull: true
+    state: started
+    network_mode: host
+    restart_mode: always
+    env:
+      DATABASE_HOST: "{{ db_host }}"
+      DATABASE_DB: "{{ db_name }}"
+      DATABASE_USER: "{{ db_user }}"
+      DATABASE_PASSWORD: "{{ db_password }}"
+      OMDB_KEY: "{{ omdb_key }}"

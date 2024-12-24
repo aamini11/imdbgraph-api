@@ -1,93 +1,78 @@
 stages:
   - test
   - publish
-  - release
   - deploy
 
-# https://cookbook.gradle.org/ci/gitlab-ci/#enable-caching
-.gradle: &gradle
+# ================================= JOBS =======================================
+# Builds the main app JAR file and runs all tests.
+test_job:
+  stage: test
+  extends:
+    - .gradle-job
+    - .docker-job # Docker needed by TestContainer in integration tests.
+  script:
+    ./gradlew check -Pversion=$CI_COMMIT_TAG
+  artifacts: # Tells GitLab where test reports are.
+    when: always
+    reports:
+      junit:
+        - build/test-results/test/**/TEST-*.xml
+        - build/test-results/integrationTest/**/TEST-*.xml
+
+# Builds the app's docker image and pushes it to GitLab's registry.
+publish_job:
+  stage: publish
+  extends:
+    - .gradle-job
+    - .docker-job # Docker needed to build images.
+  variables:
+    CI_REGISTRY: $CI_REGISTRY
+    CI_REGISTRY_USER: $CI_REGISTRY_USER
+    CI_REGISTRY_PASSWORD: $CI_REGISTRY_PASSWORD
+  script:
+    ./gradlew bootBuildImage --publishImage --imageName $CI_REGISTRY/imdbgraph/imdbgraph-api:$CI_COMMIT_REF_NAME
+
+# Deployment job which will run scripts to make sure host machine is configured
+# and up to date. Including updating the container running the app with the
+# latest image that was built and published in the previous step.
+deploy_job:
+  stage: deploy
+  when: manual
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  extends: .ssh-job
+  script:
+    - pip install ansible
+    - cd infra/ansible
+    - ansible-playbook -i production.ini -e @secrets.enc --vault-password-file $ANSIBLE_PASSWORD_FILE site.yml
+# ================================= JOBS =======================================
+
+# =============================== HELPERS ======================================
+# Sets up gradle + cache for jobs that need to run gradle commands
+.gradle-job:
   image: openjdk:21-buster
   variables:
     GRADLE_USER_HOME: $CI_PROJECT_DIR/.gradle
-  cache:
+  cache: # https://cookbook.gradle.org/ci/gitlab-ci/#enable-caching
     paths:
       - .gradle/wrapper
     key:
       files:
         - gradle/wrapper/gradle-wrapper.properties
 
-#test_job:
-#  <<: *gradle
-#  stage: test
-#  script:
-#    - "./gradlew check -Pversion=$CI_COMMIT_TAG"
-#  artifacts:
-#    when: always
-#    reports:
-#      junit:
-#        - build/test-results/test/**/TEST-*.xml
-#        - build/test-results/integrationTest/**/TEST-*.xml
-#  # ===================== Set up DB for integration tests ======================
-#  variables:
-#    POSTGRES_DB: $DATABASE_DB
-#    POSTGRES_USER: $DATABASE_USER
-#    POSTGRES_PASSWORD: $DATABASE_PASSWORD
-#    PGPASSWORD: $DATABASE_PASSWORD # Used by psql. (Diff from POSTGRES_PASSWORD)
-#  services:
-#    - postgres:15.2-bullseye
-#  before_script:
-#    - apt-get update && apt-get install -y postgresql-client
-#    - psql -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "init.sql"
-#  # ============================================================================
-
-publish_job:
-  <<: *gradle
-  stage: publish
+# Sets up a docker daemon service for jobs that need to communicate to one.
+.docker-job:
   variables:
-    CI_REGISTRY: $CI_REGISTRY
-    CI_REGISTRY_USER: $CI_REGISTRY_USER
-    CI_REGISTRY_PASSWORD: $CI_REGISTRY_PASSWORD
+    DOCKER_HOST: tcp://docker:2375 # Required (https://stackoverflow.com/a/73587059)
   services:
     - docker:dind
-  script:
-    echo $CI_REGISTRY
-    echo $CI_REGISTRY_USER
-    ./gradlew bootBuildImage --publishImage
 
-release_job:
-  stage: release
-  image: registry.gitlab.com/gitlab-org/release-cli:latest
-  rules:
-    - if: $CI_COMMIT_TAG # Run this job when a tag is created
-  script:
-    - echo "Running the release job."
-  release:
-    tag_name: $CI_COMMIT_TAG
-    name: 'Release $CI_COMMIT_TAG'
-    description: 'Release created using the release-cli.'
-    assets:
-      links:
-        - name: imdbgraph-api-$CI_COMMIT_TAG.jar
-          url: '$CI_SERVER_URL/$CI_PROJECT_PATH/-/jobs/$CI_JOB_ID/artifacts/download?file_type=archive'
-
-deploy_job:
-  stage: deploy
-  image: python:3.11.2-buster
-  when: manual
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  script:
-    # Run ansible playbooks to make sure infra is configured
-    - pip install ansible
-    - cd infra/ansible
-    - ansible-playbook -i production.ini -e @secrets.enc --vault-password-file $ANSIBLE_PASSWORD_FILE site.yml
-
-    # Restart service with new JAR
-    - ssh "${SERVER_USER}@${SERVER_HOST}" "sudo systemctl stop imdbgraph-api.service"
-    - scp "build/libs/imdbgraph-api-*.jar" "${SERVER_USER}@${SERVER_HOST}:~/imdbgraph-api-*.jar"
-    - ssh "${SERVER_USER}@${SERVER_HOST}" "sudo systemctl start imdbgraph-api.service"
-
-  # ================= https://docs.gitlab.com/ee/ci/ssh_keys  ==================
+# Sets up SSH for jobs that need to connect to the host machine for deployments.
+# Requires access to the $SSH_PRIVATE_KEY file that only runners running on
+# protected branches like main can access.
+#
+# https://docs.gitlab.com/ee/ci/ssh_keys
+.ssh-job:
   before_script:
     # Install ssh-agent
     - command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )
@@ -104,4 +89,4 @@ deploy_job:
     # Add to known_hosts
     - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-  # ============================================================================
+# ==============================================================================
