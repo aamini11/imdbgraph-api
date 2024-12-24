@@ -28,7 +28,9 @@
 
 - name: Login to Docker
   docker_login:
-
+    registry: registry.gitlab.com/imdbgraph/imdbgraph-api
+    username: "{{ lookup('env', 'CI_REGISTRY_USER') }}"
+    password: "{{ lookup('env', 'CI_REGISTRY_PASSWORD') }}"
 
 - name: Run app container
   docker_container:

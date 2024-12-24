@@ -73,7 +73,7 @@ tasks.named<BootBuildImage>("bootBuildImage") {
         publishRegistry {
             url = System.getenv("CI_REGISTRY")
             username = System.getenv("CI_REGISTRY_USER")
-            password = System.getenv("CI_JOB_TOKEN")
+            password = System.getenv("CI_REGISTRY_PASSWORD")
         }
     }
 }

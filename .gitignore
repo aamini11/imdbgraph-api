@@ -1,7 +1,9 @@
 # Credentials
 **/password.txt
-application-dev.properties
+**/secrets.pass
+**/secrets.dec
 config/**/*
+.env
 
 # IntelliJ
 .idea
