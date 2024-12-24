@@ -44,7 +44,7 @@ deploy_job:
   script:
     - pip install ansible
     - cd infra/ansible
-    - ansible-playbook -i production.ini -e @secrets.enc --vault-password-file $ANSIBLE_PASSWORD_FILE site.yml
+    - ansible-playbook -i production -e @secrets.enc --vault-password-file $ANSIBLE_PASSWORD_FILE site.yml
 # ================================= JOBS =======================================
 
 # =============================== HELPERS ======================================

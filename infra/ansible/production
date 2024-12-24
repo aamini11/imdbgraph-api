@@ -1,0 +1,5 @@
+[webservers]
+40.117.82.118 ansible_user=imdbgraph-api
+
+[dbservers]
+40.117.82.118
