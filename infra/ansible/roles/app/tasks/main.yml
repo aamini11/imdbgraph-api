@@ -26,6 +26,10 @@
     name: "/home/{{ ansible_user }}/data"
     state: directory
 
+- name: Login to Docker
+  docker_login:
+
+
 - name: Run app container
   docker_container:
     image: "registry.gitlab.com/imdbgraph/imdbgraph-api:main"
@@ -33,7 +37,7 @@
     pull: true
     state: started
     network_mode: host
-    restart_mode: always
+    restart_policy: always
     env:
       DATABASE_HOST: "{{ db_host }}"
       DATABASE_DB: "{{ db_name }}"

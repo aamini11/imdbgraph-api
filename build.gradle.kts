@@ -12,10 +12,7 @@ plugins {
 }
 
 group = "org.aamini"
-// Hardcode version if not specified.
-if (project.version == "unspecified" || project.version.toString().isBlank()) {
-    version = "0.0.1-SNAPSHOT"
-}
+version = getVersionToUse()
 
 java {
     toolchain {
@@ -26,22 +23,6 @@ java {
 repositories {
     mavenCentral()
 }
-
-sourceSets {
-    create("integrationTest") {
-        compileClasspath += sourceSets.main.get().output
-        runtimeClasspath += sourceSets.main.get().output
-    }
-}
-
-val integrationTestImplementation: Configuration by configurations.getting {
-    extendsFrom(configurations.testImplementation.get())
-}
-
-val integrationTestRuntimeOnly: Configuration by configurations.getting {
-    extendsFrom(configurations.testRuntimeOnly.get())
-}
-
 
 buildscript {
     dependencies {
@@ -62,17 +43,27 @@ dependencies {
         }
     }
 
-    // Testing libraries
+    // Unit Testing Libraries
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
+    // Integration Testing Libraries
+    sourceSets {
+        create("integrationTest") {
+            compileClasspath += sourceSets.main.get().output
+            runtimeClasspath += sourceSets.main.get().output
+        }
+    }
+    val integrationTestImplementation: Configuration by configurations.getting {
+        extendsFrom(configurations.testImplementation.get())
+    }
+    val integrationTestRuntimeOnly: Configuration by configurations.getting {
+        extendsFrom(configurations.testRuntimeOnly.get())
+    }
     integrationTestImplementation("org.springframework.boot:spring-boot-starter-test")
     integrationTestImplementation("org.testcontainers:junit-jupiter")
     integrationTestImplementation("org.testcontainers:postgresql")
     integrationTestImplementation("org.flywaydb:flyway-database-postgresql:11.1.0")
-
-    // Used to resolve large security warning. Delete later (Written: 12/22/24)
-    implementation("org.apache.commons:commons-compress:1.26.0")
 }
 
 // Build final app image (OCI).
@@ -125,4 +116,13 @@ flyway {
     user = "postgres"
     password = "YOUR_PASSWORD"
     locations = arrayOf("classpath:db/migration")
+}
+
+fun getVersionToUse(): String {
+    // Hardcode version if not specified.
+    return if (project.version == "unspecified" || project.version.toString().isBlank()) {
+        "0.0.1-SNAPSHOT"
+    } else {
+        project.version.toString()
+    }
 }
