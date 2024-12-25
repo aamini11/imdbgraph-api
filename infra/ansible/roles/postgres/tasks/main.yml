@@ -35,12 +35,12 @@
   become: yes
   become_user: postgres
   block:
-    - name: Create db user
+    - name: Create db user ('{{ db_user }}')
       postgresql_user:
         state: present
         name: "{{ db_user }}"
         password: "{{ db_password }}"
-    - name: Create app database
+    - name: Create app database ('{{ db_user }}')
       postgresql_db:
         state: present
         name: "{{ db_name }}"

@@ -6,4 +6,4 @@
 
 - hosts: dbservers
   roles:
-    - database
+    - postgres

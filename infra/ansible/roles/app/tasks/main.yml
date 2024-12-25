@@ -1,23 +1,48 @@
 - name: Install Docker
+  become: true
+  # https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
+  # https://docs.docker.com/engine/install/linux-postinstall/
   block:
-    - name: Install Docker from snap
-      become: true
-      snap:
-        name: docker
-    # To run Docker without root: https://docs.docker.com/engine/install/linux-postinstall/
+    - name: Ensure keyring directory exists
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+    - name: Add Docker apt key
+      get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: '0444'
+    - name: Add Docker Repository
+      apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+    - name: Install Docker
+      apt:
+        pkg:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: latest
+        update_cache: true
+    # Set up permissions to run docker without root.
     - name: Create docker group
-      become: true
       group:
         name: docker
         state: present
-    # SSH reset required after user creation: https://stackoverflow.com/a/44753457
     - name: Create docker user
-      become: true
       user:
         name: docker
         groups: docker
         append: true
       register: result
+    - name: Adding existing user '{{ ansible_user }}' to group docker
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+    # SSH reset required after user creation: https://stackoverflow.com/a/44753457
     - name: Reset ssh connection to allow user changes to affect 'current login user'
       ansible.builtin.meta: reset_connection
 
@@ -28,7 +53,7 @@
 
 - name: Login to Docker
   docker_login:
-    registry: registry.gitlab.com/imdbgraph/imdbgraph-api
+    registry: "{{ lookup('env', 'CI_REGISTRY') }}"
     username: "{{ lookup('env', 'CI_REGISTRY_USER') }}"
     password: "{{ lookup('env', 'CI_REGISTRY_PASSWORD') }}"
 
@@ -45,4 +70,4 @@
       DATABASE_DB: "{{ db_name }}"
       DATABASE_USER: "{{ db_user }}"
       DATABASE_PASSWORD: "{{ db_password }}"
-      OMDB_KEY: "{{ omdb_key }}"
+      OMDB_KEY: "{{ lookup('env', 'OMDB_KEY') }}"

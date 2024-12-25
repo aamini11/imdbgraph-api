@@ -1,0 +1,5 @@
+* text=auto
+
+# ENV files passed to shell scripts. Must use UNIX line endings.
+.env text eol=lf
+.env.sample text eol=lf
