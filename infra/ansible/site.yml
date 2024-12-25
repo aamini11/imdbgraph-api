@@ -1,9 +1,9 @@
-- hosts: webservers
-  roles:
-    - app
-    - nginx
-    - certbot
-
 - hosts: dbservers
   roles:
     - postgres
+
+- hosts: webservers
+  roles:
+    - nginx
+    - certbot
+    - app
