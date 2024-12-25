@@ -51,7 +51,3 @@
         database: "{{ db_name }}"
         roles: "{{ db_user }}"
         privs: ALL
-    - name: Adds pg_trgm extension
-      postgresql_ext:
-        name: pg_trgm
-        db: "{{ db_name }}"

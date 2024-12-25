@@ -5,6 +5,12 @@
     state: latest
     update_cache: true
 
+- name: Create Config File
+  become: true
+  template:
+    src: "nginx.conf"
+    dest: "/etc/nginx/conf.d/{{ ansible_hostname }}.conf"
+
 - name: Start NGINX service
   become: true
   service:
