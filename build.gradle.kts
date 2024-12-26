@@ -112,7 +112,7 @@ idea {
 // =============================================================================
 
 // Used to set up Flyway commands that developers can run through gradle. These
-// CLI commands let you use commands like migrate, clean, info, etc to test any
+// CLI commands let you use commands like migrate, clean, info, etc. to test any
 // new Flyway scripts being worked on.
 flyway {
     // Enter your database info below:

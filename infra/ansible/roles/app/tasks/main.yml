@@ -47,8 +47,9 @@
       ansible.builtin.meta: reset_connection
 
 - name: Create data directory
+  become: true
   file:
-    name: "/home/{{ ansible_user }}/data"
+    name: "/var/lib/imdbgraph-api/data"
     state: directory
 
 - name: Login to Docker

@@ -72,6 +72,10 @@ public final class ImdbFileDownloader {
     public Path download(ImdbFile fileToDownload) {
         URL downloadURL = fileToDownload.getDownloadUrl();
         File outputFile = downloadDir.resolve(fileToDownload.getUnzippedFileName()).toFile();
+        if (!downloadDir.toFile().exists()) {
+            throw new UncheckedIOException(new FileNotFoundException(downloadDir.toString()));
+        }
+
         try (InputStream unzippedStream = new GZIPInputStream(downloadURL.openStream()); // Unzip
              ReadableByteChannel rbc = Channels.newChannel(unzippedStream);
              FileOutputStream fos = new FileOutputStream(outputFile)) {
