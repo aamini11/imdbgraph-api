@@ -9,7 +9,11 @@
   become: true
   template:
     src: "nginx.conf"
-    dest: "/etc/nginx/conf.d/{{ ansible_hostname }}.conf"
+    dest: "/etc/nginx/conf.d/{{ ansible_host }}.conf"
+    mode: 755
+    # Only create the file if empty.
+    # We don't want to override the changes certbot makes to the conf file
+    force: no
 
 - name: Start NGINX service
   become: true

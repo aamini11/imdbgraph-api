@@ -63,7 +63,7 @@
     name: imdbgraph-api
     pull: true
     state: started
-    network_mode: host
+    network_mode: host # only needed if db and server on same machine.
     restart_policy: always
     env:
       DATABASE_HOST: "{{ db_host }}"
