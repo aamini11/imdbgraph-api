@@ -46,12 +46,6 @@
     - name: Reset ssh connection to allow user changes to affect 'current login user'
       ansible.builtin.meta: reset_connection
 
-- name: Create data directory
-  become: true
-  file:
-    name: "/var/lib/imdbgraph-api/data"
-    state: directory
-
 - name: Login to Docker
   docker_login:
     registry: "{{ lookup('env', 'CI_REGISTRY') }}"
@@ -66,6 +60,7 @@
     state: started
     network_mode: host # only needed if db and server on same machine.
     restart_policy: always
+    volume: ~/data:~/data
     env:
       DATABASE_HOST: "{{ db_host }}"
       DATABASE_DB: "{{ db_name }}"
