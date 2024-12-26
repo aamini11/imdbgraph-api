@@ -12,6 +12,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.zip.GZIPInputStream;
 
@@ -72,7 +73,7 @@ public final class ImdbFileDownloader {
     public Path download(ImdbFile fileToDownload) {
         URL downloadURL = fileToDownload.getDownloadUrl();
         File outputFile = downloadDir.resolve(fileToDownload.getUnzippedFileName()).toFile();
-        if (!downloadDir.toFile().exists()) {
+        if (!Files.isDirectory(downloadDir)) {
             throw new UncheckedIOException(new FileNotFoundException(downloadDir.toString()));
         }
 

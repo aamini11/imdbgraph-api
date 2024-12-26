@@ -20,7 +20,7 @@ public class Main implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws ImdbFileParsingException {
-        if (args.getOptionNames().contains("run-scrapper")) {
+        if (args.getOptionNames().contains("run-scraper")) {
             scraper.updateDatabase();
         }
     }
