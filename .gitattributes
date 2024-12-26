@@ -1,5 +1,6 @@
 * text=auto
 
-# ENV files passed to shell scripts. Must use UNIX line endings.
+# Shell files that need UNIX line endings
 .env text eol=lf
 .env.sample text eol=lf
+gradlew text eol=lf
