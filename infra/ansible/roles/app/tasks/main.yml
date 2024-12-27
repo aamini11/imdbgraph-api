@@ -52,6 +52,11 @@
     username: "{{ lookup('env', 'CI_REGISTRY_USER') }}"
     password: "{{ lookup('env', 'CI_REGISTRY_PASSWORD') }}"
 
+- name: Create data directory
+  file:
+    name: "/home/{{ ansible_user }}/data"
+    state: directory
+
 - name: Run app container
   docker_container:
     image: "registry.gitlab.com/imdbgraph/imdbgraph-api:main"
@@ -60,10 +65,10 @@
     state: started
     network_mode: host # only needed if db and server on same machine.
     restart_policy: always
-    volume: ~/data:~/data
+    volumes: ~/data:/var/lib/imdbgraph-api/data/
     env:
       DATABASE_HOST: "{{ db_host }}"
-      DATABASE_DB: "{{ db_name }}"
+      DATABASE_NAME: "{{ db_name }}"
       DATABASE_USER: "{{ db_user }}"
       DATABASE_PASSWORD: "{{ db_password }}"
       OMDB_KEY: "{{ lookup('env', 'OMDB_KEY') }}"

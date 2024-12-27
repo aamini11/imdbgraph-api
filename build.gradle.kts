@@ -1,4 +1,6 @@
 import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
+import java.io.FileInputStream
+import java.util.*
 
 plugins {
     java
@@ -13,6 +15,9 @@ plugins {
 
 group = "org.aamini"
 version = getVersionToUse()
+
+// Load Credentials from .env file.
+val envFile = loadEnvFile()
 
 java {
     toolchain {
@@ -35,9 +40,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-log4j2")
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
-    // Replace the default spring logger.
-    // https://docs.spring.io/spring-boot/how-to/logging.html#howto.logging.log4j
     configurations {
+        // Replace the default spring logger.
+        // https://docs.spring.io/spring-boot/how-to/logging.html#howto.logging.log4j
         all {
             exclude("org.springframework.boot", "spring-boot-starter-logging")
         }
@@ -73,13 +78,25 @@ dependencies {
 // Build final app image (OCI).
 // https://docs.spring.io/spring-boot/gradle-plugin/packaging-oci-image.html#build-image.examples.publish
 tasks.named<BootBuildImage>("bootBuildImage") {
+    val registry = "registry.gitlab.com"
     docker {
         publishRegistry {
-            url = System.getenv("CI_REGISTRY")
-            username = System.getenv("CI_REGISTRY_USER")
-            password = System.getenv("CI_REGISTRY_PASSWORD")
+            imageName = "${registry}/imdbgraph/${project.name}:main"
+            url= "https://${registry}"
+            username=getEnv("CI_REGISTRY_USER")
+            password=getEnv("CI_REGISTRY_PASSWORD")
         }
     }
+}
+
+// Used to set up Flyway commands that developers can run through gradle. These
+// CLI commands let you use commands like migrate, clean, info, etc. to test any
+// new Flyway scripts being worked on with a local database.
+flyway {
+    url = "jdbc:postgresql://${getEnv("DATABASE_HOST")}:5432/${getEnv("DATABASE_NAME")}"
+    user = getEnv("DATABASE_USER")
+    password = getEnv("DATABASE_PASSWORD")
+    locations = arrayOf("classpath:db/migration")
 }
 
 // ============================= Testing Setup =================================
@@ -111,17 +128,7 @@ idea {
 }
 // =============================================================================
 
-// Used to set up Flyway commands that developers can run through gradle. These
-// CLI commands let you use commands like migrate, clean, info, etc. to test any
-// new Flyway scripts being worked on.
-flyway {
-    // Enter your database info below:
-    url = "jdbc:postgresql://localhost:5432/postgres"
-    user = "postgres"
-    password = "YOUR_PASSWORD"
-    locations = arrayOf("classpath:db/migration")
-}
-
+// ================================ HELPERS ====================================
 fun getVersionToUse(): String {
     // Hardcode version if not specified.
     return if (project.version == "unspecified" || project.version.toString().isBlank()) {
@@ -130,3 +137,20 @@ fun getVersionToUse(): String {
         project.version.toString()
     }
 }
+
+fun loadEnvFile(): Properties? {
+    val properties = Properties()
+    val envFile = File(".env")
+    if (!envFile.exists()) {
+        return null
+    }
+    FileInputStream(envFile).use {
+        properties.load(it)
+    }
+    return properties
+}
+
+fun getEnv(envName: String): String {
+    return envFile?.getProperty(envName) ?: System.getenv(envName) ?: ""
+}
+// =============================================================================
