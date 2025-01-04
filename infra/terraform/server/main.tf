@@ -1,13 +1,14 @@
 resource "azurerm_resource_group" "rg" {
   name     = var.resource_group_name
-  location = var.resource_group_location
+  location = var.location
 }
 
+// ======================= Virtual Machine + SSH ===============================
 resource "azurerm_linux_virtual_machine" "vm" {
   name                  = var.name
   admin_username        = var.name
-  location              = azurerm_resource_group.rg.location
-  resource_group_name   = azurerm_resource_group.rg.name
+  location              = var.location
+  resource_group_name   = var.resource_group_name
   network_interface_ids = [azurerm_network_interface.nic.id]
   size                  = "Standard_B2s"
 
@@ -32,17 +33,48 @@ resource "azurerm_linux_virtual_machine" "vm" {
   }
 }
 
+resource "azapi_resource" "ssh_public_key" {
+  type      = "Microsoft.Compute/sshPublicKeys@2022-11-01"
+  name      = "${var.name}-key"
+  location  = var.location
+  parent_id = azurerm_resource_group.rg.id
+}
+
+resource "azapi_resource_action" "ssh_public_key_gen" {
+  type        = "Microsoft.Compute/sshPublicKeys@2022-11-01"
+  resource_id = azapi_resource.ssh_public_key.id
+  action      = "generateKeyPair"
+  method      = "POST"
+
+  response_export_values = ["publicKey", "privateKey"]
+}
+// =============================================================================
+
+// ============================= Networking ====================================
 resource "azurerm_virtual_network" "virtual_network" {
   name                = "${var.name}-vnet"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = var.resource_group_name
+  location            = var.location
 
   address_space = ["10.0.0.0/16"]
 }
 
+resource "azurerm_network_interface" "nic" {
+  name                = "${var.name}-nic"
+  resource_group_name = var.resource_group_name
+  location            = var.location
+
+  ip_configuration {
+    name                          = "ipconfig1"
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.public_ip.id
+    subnet_id                     = azurerm_subnet.subnet.id
+  }
+}
+
 resource "azurerm_subnet" "subnet" {
   name                = "default"
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = var.resource_group_name
 
   virtual_network_name = azurerm_virtual_network.virtual_network.name
   address_prefixes     = ["10.0.1.0/24"]
@@ -50,16 +82,23 @@ resource "azurerm_subnet" "subnet" {
 
 resource "azurerm_public_ip" "public_ip" {
   name                = "${var.name}-ip"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = var.resource_group_name
+  location            = var.location
 
   allocation_method = "Static"
+}
+// =============================================================================
+
+// ============================== Firewall =====================================
+resource "azurerm_network_interface_security_group_association" "nic_sg" {
+  network_interface_id      = azurerm_network_interface.nic.id
+  network_security_group_id = azurerm_network_security_group.nsg.id
 }
 
 resource "azurerm_network_security_group" "nsg" {
   name                = "${var.name}-nsg"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = var.resource_group_name
+  location            = var.location
 
   security_rule {
     access                     = "Allow"
@@ -97,21 +136,4 @@ resource "azurerm_network_security_group" "nsg" {
     source_port_range           = "*"
   }
 }
-
-resource "azurerm_network_interface" "nic" {
-  name                = "${var.name}-nic"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-
-  ip_configuration {
-    name                          = "ipconfig1"
-    private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.public_ip.id
-    subnet_id                     = azurerm_subnet.subnet.id
-  }
-}
-
-resource "azurerm_network_interface_security_group_association" "nic_sg" {
-  network_interface_id      = azurerm_network_interface.nic.id
-  network_security_group_id = azurerm_network_security_group.nsg.id
-}
+// =============================================================================

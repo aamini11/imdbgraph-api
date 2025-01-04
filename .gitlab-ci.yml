@@ -35,7 +35,7 @@ publish_job:
 # Deployment job which will run scripts to make sure host machine is configured
 # and up to date. Including updating the container running the app with the
 # latest image that was built and published in the previous step.
-deploy_job:
+deploy_production_job:
   stage: deploy
   when: manual
   rules:
@@ -44,7 +44,18 @@ deploy_job:
   script:
     - pip install ansible
     - cd infra/ansible
-    - ansible-playbook -i production -e @secrets.enc --vault-password-file $ANSIBLE_PASSWORD_FILE site.yml
+    - ansible-playbook -i production site.yml
+
+deploy_staging_job:
+  stage: deploy
+  when: manual
+  rules:
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+  extends: .ssh-job
+  script:
+    - pip install ansible
+    - cd infra/ansible
+    - ansible-playbook -i staging site.yml
 # ================================= JOBS =======================================
 
 # =============================== HELPERS ======================================
