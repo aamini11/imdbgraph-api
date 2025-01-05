@@ -1,8 +1,14 @@
 component "server" {
   source = "./server"
 
+  inputs = {
+    name = var.name
+    resource_group_name = var.resource_group_name
+    location = var.location
+  }
+
   providers = {
-    aws    = provider.aws.configurations[each.value]
-    random = provider.random.this
+    azapi   = provider.azapi.this
+    azurerm = provider.azurerm.this
   }
 }
