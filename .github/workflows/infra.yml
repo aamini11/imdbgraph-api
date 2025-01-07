@@ -1,3 +1,5 @@
+name: Provision Infrastructure
+
 on:
   workflow_call:
     inputs:
