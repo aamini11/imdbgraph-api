@@ -2,7 +2,7 @@ name: "Workflow for Staging Environment"
 
 on:
   pull_request:
-    branches: ['$default-branch']
+    branches: ["main"]
 
 jobs:
   provision:
