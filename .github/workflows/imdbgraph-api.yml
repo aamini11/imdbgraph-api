@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ $default-branch, staging ]
 
+env:
+  VERSION: ${{ github.head_ref || github.ref_name }}
+
 jobs:
   test-and-publish-image:
     runs-on: ubuntu-24.04
@@ -13,7 +16,6 @@ jobs:
       contents: read
       packages: write
     env:
-      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
       IMAGE_NAME: ${{ github.repository }}
       CI_REGISTRY: ghcr.io
       CI_REGISTRY_USER: ${{ github.actor }}
@@ -29,8 +31,15 @@ jobs:
           java-version: 22
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
-      - name: Build/Test
-        run: ./gradlew check -Pversion=${{ env.BRANCH_NAME }}
+      - name: Build
+        run: ./gradlew bootJar -Pversion=${{ env.VERSION }}
+      - name: Test
+        run: ./gradlew check
+      - name: Upload JAR file
+        uses: actions/upload-artifact@v4
+        with:
+          name: imdbgraph-api-${{ env.VERSION }}.jar
+          path: build/libs/imdbgraph-api-${{ env.VERSION }}.jar
       # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images#publishing-images-to-github-packages
       - name: Publish Image
         run: ./gradlew bootBuildImage --publishImage --imageName ${{ env.CI_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BRANCH_NAME }}
