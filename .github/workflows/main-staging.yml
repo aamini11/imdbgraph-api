@@ -1,4 +1,4 @@
-name: "Workflow for imdbgraph-api Staging Environment"
+name: "Workflow for Staging Environment"
 
 on:
   pull_request:
