@@ -7,6 +7,6 @@ on:
 
 jobs:
   terraform-prod:
-    uses: ./.github/workflows/infra.yml
+    uses: ./.github/templates/infra.yml
     with:
       environment: prod
