@@ -17,7 +17,9 @@ jobs:
       statuses: write      # required to validate combined PR status
     with:
       environment: staging
+
   deploy:
+    needs: provision
     name: Deploy Staging Environment
     uses: ./.github/workflows/app.yml
     permissions:
