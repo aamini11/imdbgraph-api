@@ -1,3 +1,5 @@
+name: CD template
+
 on:
   workflow_call:
     inputs:

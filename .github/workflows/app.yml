@@ -1,3 +1,5 @@
+name: CI Template
+
 on:
   workflow_call:
     inputs:
