@@ -15,13 +15,14 @@ jobs:
       pull-requests: write # required to post PR comments
       issues: read         # required to check if PR number is an issue or not
       statuses: write      # required to validate combined PR status
-      checks: write
-      packages: write
     with:
       environment: staging
   deploy:
     name: Deploy Staging Environment
     uses: ./.github/workflows/app.yml
+    permissions:
+      checks: write
+      packages: write
     with:
       environment: staging
 
