@@ -1,5 +1,5 @@
 [webservers]
-staging.api.imdbgraph.org ansible_user=imdbgraph-api
+api.staging.imdbgraph.org ansible_user=imdbgraph-api-staging
 
 [dbservers]
-staging.api.imdbgraph.org
+api.staging.imdbgraph.org
