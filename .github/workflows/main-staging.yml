@@ -6,7 +6,6 @@ on:
 
 jobs:
   provision:
-    name: Provision Staging Environment
     uses: ./.github/workflows/infra.yml
     permissions:
       contents: write      # required to merge PRs
@@ -20,7 +19,6 @@ jobs:
 
   deploy:
     needs: provision
-    name: Deploy Staging Environment
     uses: ./.github/workflows/app.yml
     permissions:
       checks: write

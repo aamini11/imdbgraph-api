@@ -12,7 +12,7 @@ env:
 
 jobs:
   build:
-    name: "Build/Test + Publish App Image"
+    name: "Build/Publish"
     runs-on: ubuntu-24.04
     permissions:
       packages: write
