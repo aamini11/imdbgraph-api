@@ -12,7 +12,7 @@ jobs:
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-24.04
     steps:
-      - run: echo "Running ${{ inputs.environment }}"
+      - run: echo "Running ${{ secrets.ARM_SUBSCRIPTION_ID }}"
       - uses: actions/checkout@v4
       - uses: diggerhq/digger@vLatest
         with:
@@ -27,5 +27,3 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-
-
