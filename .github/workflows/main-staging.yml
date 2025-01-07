@@ -6,13 +6,13 @@ on:
 
 jobs:
   provision:
-    name: Provision Staging Environment (Terraform)
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: ./.github/workflows/app.yml
-        with:
-          environment: staging
-      - uses: ./.github/workflows/infra.yml
-        with:
-          environment: staging
+    name: Provision Staging Environment
+    uses: ./.github/workflows/infra.yml
+    with:
+      environment: staging
+  deploy:
+    name: Deploy Staging Environment
+    uses: ./.github/workflows/app.yml
+    with:
+      environment: staging
 
