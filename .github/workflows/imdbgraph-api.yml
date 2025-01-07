@@ -13,6 +13,7 @@ jobs:
       contents: read
       packages: write
     env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
       IMAGE_NAME: ${{ github.repository }}
       CI_REGISTRY: ghcr.io
       CI_REGISTRY_USER: ${{ github.actor }}
@@ -32,4 +33,4 @@ jobs:
         run: ./gradlew check -Pversion=$CI_COMMIT_TAG
       # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images#publishing-images-to-github-packages
       - name: Publish Image
-        run: ./gradlew bootBuildImage --publishImage --imageName ${{ env.CI_REGISTRY }}/${{ env.IMAGE_NAME }}:$CI_COMMIT_REF_NAME
+        run: ./gradlew bootBuildImage --publishImage --imageName ${{ env.CI_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ BRANCH_NAME }}
