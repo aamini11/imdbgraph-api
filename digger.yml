@@ -1,0 +1,5 @@
+projects:
+  - name: production
+    dir: infra/terraform/prod
+  - name: staging
+    dir: infra/terraform/staging

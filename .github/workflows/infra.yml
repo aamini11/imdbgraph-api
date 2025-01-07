@@ -1,11 +1,11 @@
 name: Infrastructure Pipeline
 
-on:
-  workflow_dispatch:
+on: workflow_dispatch
 
 jobs:
   digger-job:
-    runs-on: ubuntu-latest
+    environment: staging
+    runs-on: ubuntu-24.02
     permissions:
       contents: write      # required to merge PRs
       actions: write       # required for plan persistence
