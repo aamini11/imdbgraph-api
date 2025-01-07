@@ -8,6 +8,7 @@ on:
 
 jobs:
   terraform-prod:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     uses: ./.github/workflows/infra.yml
     with:
       environment: prod
