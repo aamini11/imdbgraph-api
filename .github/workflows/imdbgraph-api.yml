@@ -51,10 +51,11 @@ jobs:
       - name: Checkout Sources
         uses: actions/checkout@v4
       - name: Setup SSH
+        shell: bash
         run: |
           install -m 600 -D /dev/null ~/.ssh/id_rsa
-          ssh-keyscan api.staging.imdbgraph.org >> ~/.ssh/known_hosts
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          ssh-keyscan api.staging.imdbgraph.org >> ~/.ssh/known_hosts
       - name: Run ansible script
         run: |
           cd infra/ansible
