@@ -6,8 +6,8 @@ on:
         required: true
 
 jobs:
-  terraform:
-    name: Provision ${{ inputs.environment }} with Terraform
+  provision:
+    name: Provision ${{ inputs.environment }} Infrastructure with Terraform
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-24.02
     permissions:
