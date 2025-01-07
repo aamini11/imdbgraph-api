@@ -1,0 +1,43 @@
+name: imdbgraph-api
+
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  test-and-publish-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      CI_REGISTRY: ${{ env.REGISTRY }}
+      CI_REGISTRY_USER: ${{ github.actor }}
+      CI_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout Sources
+        uses: actions/checkout@v4
+      # https://github.com/gradle/actions/tree/main/setup-gradle
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 21
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Build/Test
+        run: ./gradlew check -Pversion=$CI_COMMIT_TAG
+      # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images#publishing-images-to-github-packages
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      - name: Publish Image
+        run: ./gradlew bootBuildImage --publishImage --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$CI_COMMIT_REF_NAME

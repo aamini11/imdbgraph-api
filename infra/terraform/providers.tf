@@ -1,22 +1,28 @@
 terraform {
-  required_version = ">=0.12"
-
   required_providers {
     azapi = {
-      source  = "azure/azapi"
-      version = "~>1.5"
+      source  = "Azure/azapi"
+      version = "2.2.0"
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~>3.0"
+      version = "4.14.0"
     }
-    random = {
-      source  = "hashicorp/random"
-      version = "~>3.0"
+  }
+
+  // Also requires manually setting up credentials for Azure:
+  // https://developer.hashicorp.com/terraform/tutorials/azure-get-started/azure-remote#update-the-hcp-terraform-environment-variables
+  cloud {
+    organization = "imdbgraph"
+    hostname = "app.terraform.io" # Optional; defaults to app.terraform.io
+
+    workspaces {
+      name = "imdbgraph-api"
+      project = "imdbgraph-api"
     }
   }
 }
 
-provider "azurerm" {
+provider azurerm {
   features {}
 }
