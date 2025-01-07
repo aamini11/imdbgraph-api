@@ -60,7 +60,7 @@ jobs:
           chmod 400 ~/.ssh/id_rsa
           echo -e "${{secrets.SSH_PRIVATE_KEY}}" > ~/.ssh/id_rsa
           
-          ssh-keyscan -t rsa,dsa,ecdsa,ed25519 ${{secrets.$SSH_KNOWN_HOSTS}} >> ~/.ssh/known_hosts
+          ssh-keyscan -t rsa,dsa,ecdsa,ed25519 ${{secrets.SSH_KNOWN_HOSTS}} >> ~/.ssh/known_hosts
       - name: Run ansible script
         run: |
           cd infra/ansible
