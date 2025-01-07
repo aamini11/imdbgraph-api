@@ -33,4 +33,4 @@ jobs:
         run: ./gradlew check -Pversion=$CI_COMMIT_TAG
       # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images#publishing-images-to-github-packages
       - name: Publish Image
-        run: ./gradlew bootBuildImage --publishImage --imageName ${{ env.CI_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ BRANCH_NAME }}
+        run: ./gradlew bootBuildImage --publishImage --imageName ${{ env.CI_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BRANCH_NAME }}
