@@ -11,6 +11,7 @@ env:
 
 jobs:
   test-and-publish-image:
+    needs: [terraform]
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -41,7 +42,7 @@ jobs:
         run: ./gradlew bootBuildImage --publishImage --imageName ${{ env.CI_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
 
   deploy-staging:
-#    needs: [test-and-publish-image]
+    needs: [test-and-publish-image]
     runs-on: ubuntu-24.04
     environment: staging
     # How to run Ansible (https://stackoverflow.com/a/74169157/6310030)

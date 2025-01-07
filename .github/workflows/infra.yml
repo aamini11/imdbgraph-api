@@ -1,9 +1,9 @@
-name: Infrastructure Pipeline
+name: infra
 
 on: workflow_dispatch
 
 jobs:
-  digger-job:
+  terraform:
     environment: staging
     runs-on: ubuntu-24.02
     permissions:
