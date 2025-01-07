@@ -12,7 +12,6 @@ env:
 
 jobs:
   build:
-    name: "Build/Publish"
     runs-on: ubuntu-24.04
     permissions:
       packages: write
@@ -42,7 +41,6 @@ jobs:
         run: ./gradlew bootBuildImage --publishImage --imageName ${{ env.CI_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
 
   deploy:
-    name: "Deploy App Image"
     needs: [build]
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-24.04

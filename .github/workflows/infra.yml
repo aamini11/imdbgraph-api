@@ -9,7 +9,7 @@ on:
 
 jobs:
   provision:
-    name: Provision ${{ inputs.environment }} Infrastructure with Terraform
+    name: digger
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-24.04
     steps:
