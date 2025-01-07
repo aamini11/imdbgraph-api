@@ -45,6 +45,8 @@ jobs:
     runs-on: ubuntu-24.04
     environment: staging
     # How to run Ansible (https://stackoverflow.com/a/74169157/6310030)
+    env:
+      SSH_PRIVATE_KEY : ${{secrets.SSH_PRIVATE_KEY}}
     steps:
       - name: Checkout Sources
         uses: actions/checkout@v4
@@ -52,7 +54,7 @@ jobs:
         run: |
           install -m 600 -D /dev/null ~/.ssh/id_rsa
           ssh-keyscan api.staging.imdbgraph.org >> ~/.ssh/known_hosts
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
       - name: Run ansible script
         run: |
           cd infra/ansible
