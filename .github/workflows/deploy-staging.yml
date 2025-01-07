@@ -1,0 +1,14 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [Provision Infrastructure]
+    types: [completed]
+    branches: [staging]
+
+jobs:
+  deploy-staging:
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: staging
+

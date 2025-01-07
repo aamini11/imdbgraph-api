@@ -1,0 +1,13 @@
+name: Provision Infrastructure
+
+on:
+  workflow_run:
+    workflows: [Application CI]
+    types: [completed]
+    branches: [staging]
+
+jobs:
+  terraform-staging:
+    uses: ./.github/workflows/infra.yml
+    with:
+      environment: staging
