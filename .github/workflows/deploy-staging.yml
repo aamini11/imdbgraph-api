@@ -1,12 +1,14 @@
+name: Deploy Staging
+
 on:
   workflow_run:
-    workflows: [Provision Infrastructure]
+    workflows: ["Provision Staging Infrastructure"]
     types: [completed]
     branches: [staging]
 
 jobs:
   deploy-staging:
-    uses: ./.github/workflows/deploy.yml
+    uses: ./.github/templates/deploy.yml
     with:
       environment: staging
 

@@ -1,11 +1,13 @@
+name: Provision Production Infrastructure
+
 on:
   workflow_run:
-    workflows: [Application CI]
+    workflows: ["Application CI"]
     types: [completed]
     branches: [$default-branch]
 
 jobs:
   terraform-prod:
-    uses: ./.github/workflows/infra.yml
+    uses: ./.github/templates/infra.yml
     with:
       environment: prod

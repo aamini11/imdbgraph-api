@@ -1,11 +1,14 @@
+name: Provision Staging Infrastructure
+
 on:
   workflow_run:
-    workflows: [Application CI]
+    workflows: ["Application CI"]
     types: [completed]
     branches: [staging]
 
 jobs:
   terraform-staging:
-    uses: ./.github/workflows/infra.yml
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    uses: ./.github/templates/infra.yml
     with:
       environment: staging
