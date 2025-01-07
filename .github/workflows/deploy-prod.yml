@@ -8,6 +8,6 @@ on:
 
 jobs:
   deploy-prod:
-    uses: ./.github/templates/deploy.yml
+    uses: ./.github/workflows/deploy.yml
     with:
       environment: prod

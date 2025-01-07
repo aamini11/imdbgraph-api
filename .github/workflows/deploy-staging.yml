@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy-staging:
-    uses: ./.github/templates/deploy.yml
+    uses: ./.github/workflows/deploy.yml
     with:
       environment: staging
 
