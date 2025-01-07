@@ -41,7 +41,7 @@ jobs:
         run: ./gradlew bootBuildImage --publishImage --imageName ${{ env.CI_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
 
   deploy-staging:
-    needs: [test-and-publish-image]
+#    needs: [test-and-publish-image]
     runs-on: ubuntu-24.04
     environment: staging
     # How to run Ansible (https://stackoverflow.com/a/74169157/6310030)
@@ -51,7 +51,7 @@ jobs:
       - name: Setup SSH
         run: |
           install -m 600 -D /dev/null ~/.ssh/id_rsa
-          ssh-keyscan api.staging.imdbgraph.org >> /.ssh/known_hosts
+          ssh-keyscan api.staging.imdbgraph.org >> ~/.ssh/known_hosts
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
       - name: Run ansible script
         run: |
