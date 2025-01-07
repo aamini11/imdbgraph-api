@@ -12,6 +12,7 @@ jobs:
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-24.04
     steps:
+      - run: echo "Running ${{ inputs.environment }}"
       - uses: actions/checkout@v4
       - uses: diggerhq/digger@vLatest
         with:
