@@ -16,6 +16,7 @@ jobs:
     uses: ./.github/workflows/infra.yml
     with:
       environment: staging
+      upload-plan-destination: github
 
   deploy:
     needs: provision
