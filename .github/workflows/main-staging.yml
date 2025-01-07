@@ -1,4 +1,4 @@
-name: "Workflow for Staging Environment"
+name: Workflow for Staging Environment
 
 on:
   pull_request:
@@ -6,7 +6,6 @@ on:
 
 jobs:
   provision:
-    uses: ./.github/workflows/infra.yml
     permissions:
       contents: write      # required to merge PRs
       actions: write       # required for plan persistence
@@ -14,15 +13,16 @@ jobs:
       pull-requests: write # required to post PR comments
       issues: read         # required to check if PR number is an issue or not
       statuses: write      # required to validate combined PR status
+    uses: ./.github/workflows/infra.yml
     with:
       environment: staging
 
   deploy:
     needs: provision
-    uses: ./.github/workflows/app.yml
     permissions:
       checks: write
       packages: write
+    uses: ./.github/workflows/app.yml
     with:
       environment: staging
 
