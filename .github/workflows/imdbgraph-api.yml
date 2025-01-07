@@ -43,6 +43,7 @@ jobs:
         run: ./gradlew bootBuildImage --publishImage --imageName ${{ env.CI_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
 
   deploy-staging:
+    needs: [test-and-publish-image]
     runs-on: ubuntu-24.04
     environment: staging
     # How to run Ansible (https://stackoverflow.com/a/74169157/6310030)
@@ -51,16 +52,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup SSH
         run: |
-          eval $(ssh-agent -s)
-          
-          mkdir ~/.ssh
-          chmod 700 ~/.ssh
-          
-          touch ~/.ssh/id_rsa
-          chmod 400 ~/.ssh/id_rsa
-          echo -e "${{secrets.SSH_PRIVATE_KEY}}" > ~/.ssh/id_rsa
-          
-          ssh-keyscan -t rsa,dsa,ecdsa,ed25519 ${{secrets.SSH_KNOWN_HOSTS}} >> ~/.ssh/known_hosts
+          install -m 600 -D /dev/null ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
       - name: Run ansible script
         run: |
           cd infra/ansible
