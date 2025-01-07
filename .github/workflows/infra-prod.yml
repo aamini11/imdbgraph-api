@@ -1,3 +1,4 @@
+name: Provision
 on:
   workflow_run:
     workflows: [Application CI]
