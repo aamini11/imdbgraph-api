@@ -78,10 +78,12 @@ dependencies {
 // Build final app image (OCI).
 // https://docs.spring.io/spring-boot/gradle-plugin/packaging-oci-image.html#build-image.examples.publish
 tasks.named<BootBuildImage>("bootBuildImage") {
-    val registry = "registry.gitlab.com"
+    val registry = getEnv("CI_REGISTRY")
     docker {
         publishRegistry {
-            imageName = "${registry}/imdbgraph/${project.name}:main"
+            // Default name. Should be overridden by CLI args.
+            imageName = "${registry}/${project.name}:0.0.1-SNAPSHOT"
+
             url= "https://${registry}"
             username=getEnv("CI_REGISTRY_USER")
             password=getEnv("CI_REGISTRY_PASSWORD")
