@@ -1,0 +1,11 @@
+on:
+  workflow_run:
+    workflows: [Application CI]
+    types: [completed]
+    branches: [$default-branch]
+
+jobs:
+  terraform-prod:
+    uses: ./.github/workflows/infra.yml
+    with:
+      environment: prod

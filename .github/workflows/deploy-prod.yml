@@ -1,0 +1,11 @@
+on:
+  workflow_run:
+    workflows: [Provision Infrastructure]
+    types: [completed]
+    branches: [$default-branch]
+
+jobs:
+  deploy-prod:
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: prod

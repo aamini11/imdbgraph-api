@@ -1,0 +1,41 @@
+name: Application CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+
+env:
+  VERSION: ${{ github.head_ref || github.ref_name }}
+
+jobs:
+  test-and-publish-image:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+      checks: write
+    env:
+      IMAGE_NAME: ${{ github.repository }}
+      CI_REGISTRY: ghcr.io
+      CI_REGISTRY_USER: ${{ github.actor }}
+      CI_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      # https://github.com/gradle/actions/tree/main/setup-gradle
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 22
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Test
+        run: ./gradlew check
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v5
+        if: success() || failure() # always run even if the previous step fails
+        with:
+          report_paths: '**/build/test-results/test/TEST-*.xml'
+      # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images#publishing-images-to-github-packages
+      - name: Publish Image
+        run: ./gradlew bootBuildImage --publishImage --imageName ${{ env.CI_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
