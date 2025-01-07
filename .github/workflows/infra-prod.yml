@@ -1,7 +1,8 @@
-name: Provision
+name: Provision Production Infrastructure
+
 on:
   workflow_run:
-    workflows: [Application CI]
+    workflows: ["Application CI"]
     types: [completed]
     branches: [$default-branch]
 

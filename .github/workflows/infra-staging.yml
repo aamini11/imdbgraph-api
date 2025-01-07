@@ -1,4 +1,5 @@
-name: Provision
+name: Provision Staging Infrastructure
+
 on:
   workflow_run:
     workflows: ["Application CI"]

@@ -1,6 +1,8 @@
+name: Deploy Production
+
 on:
   workflow_run:
-    workflows: [Provision Infrastructure]
+    workflows: ["Provision Production Infrastructure"]
     types: [completed]
     branches: [$default-branch]
 
