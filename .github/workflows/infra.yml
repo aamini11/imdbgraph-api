@@ -12,8 +12,9 @@ jobs:
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-24.04
     steps:
-      - run: echo "Running ${{ secrets.ARM_SUBSCRIPTION_ID }}"
       - uses: actions/checkout@v4
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
       - uses: diggerhq/digger@vLatest
         with:
           setup-azure: true
