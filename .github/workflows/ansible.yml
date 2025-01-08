@@ -1,5 +1,11 @@
+name: Ansible Template
+
 on:
   workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
 
 jobs:
   deploy:

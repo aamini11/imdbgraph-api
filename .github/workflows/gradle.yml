@@ -1,11 +1,7 @@
-name: CI Template
+name: Gradle Template
 
 on:
   workflow_call:
-    inputs:
-      environment:
-        type: string
-        required: true
 
 env:
   VERSION: ${{ github.head_ref || github.ref_name }}
