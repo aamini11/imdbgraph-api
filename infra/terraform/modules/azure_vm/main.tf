@@ -34,10 +34,10 @@ resource "azurerm_linux_virtual_machine" "vm" {
 }
 
 resource "azurerm_ssh_public_key" "ssh_public_key" {
-  name      = "${var.name}-key"
-  location  = var.location
+  name                = "${var.name}-key"
+  location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
-  public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOQJHnOQnaa5ZWuJHgOJvaQQ8DuePqVvpsgfRwuC78Vs amini5454@gmail.com"
+  public_key          = var.public_key
 }
 // =============================================================================
 
