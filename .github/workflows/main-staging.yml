@@ -5,6 +5,15 @@ on:
     branches: ["main"]
 
 jobs:
+  build:
+    permissions:
+      checks: write
+      packages: write
+    uses: ./.github/workflows/gradle.yml
+    with:
+      environment: staging
+    secrets: inherit
+
   provision:
     permissions:
       contents: write      # required to merge PRs
@@ -13,17 +22,14 @@ jobs:
       pull-requests: write # required to post PR comments
       issues: read         # required to check if PR number is an issue or not
       statuses: write      # required to validate combined PR status
-    uses: ./.github/workflows/infra.yml
+    uses: ./.github/workflows/terraform.yml
     with:
       environment: staging
     secrets: inherit
 
   deploy:
-    needs: provision
-    permissions:
-      checks: write
-      packages: write
-    uses: ./.github/workflows/app.yml
+    uses: ./.github/workflows/ansible.yml
+    needs: [build, provision]
     with:
       environment: staging
     secrets: inherit

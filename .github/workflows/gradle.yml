@@ -13,9 +13,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-24.04
-    permissions:
-      packages: write
-      checks: write
     env:
       IMAGE_NAME: ${{ github.repository }}
       CI_REGISTRY: ghcr.io
@@ -39,25 +36,3 @@ jobs:
       # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images#publishing-images-to-github-packages
       - name: Publish Image
         run: ./gradlew bootBuildImage --publishImage --imageName ${{ env.CI_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
-
-  deploy:
-    needs: [build]
-    environment: ${{ inputs.environment }}
-    runs-on: ubuntu-24.04
-    env:
-      SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
-      SSH_KNOWN_HOSTS: ${{secrets.SSH_KNOWN_HOSTS}}
-    steps:
-      - name: Checkout Sources
-        uses: actions/checkout@v4
-      - name: Setup SSH
-        shell: bash
-        run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-      - name: Run ansible script
-        run: |
-          cd infra/ansible
-          ansible-playbook -i staging site.yml

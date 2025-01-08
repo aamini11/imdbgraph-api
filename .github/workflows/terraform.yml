@@ -1,0 +1,52 @@
+name: CD template
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+
+jobs:
+  provision:
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+      - name: Terraform Init
+        run: terraform init
+      - name: Terraform Format
+        run: terraform fmt -check
+      - name: Terraform Plan
+        run: terraform plan -input=false
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
+        run: terraform apply -auto-approve -input=false
+
+#jobs:
+#  provision:
+#    environment: ${{ inputs.environment }}
+#    runs-on: ubuntu-24.04
+#    steps:
+#      - uses: actions/checkout@v4
+#      - name: Setup Terraform
+#        uses: hashicorp/setup-terraform@v1
+#      - uses: diggerhq/digger@vLatest
+#        with:
+#          setup-azure: true
+#          upload-plan-destination: github
+#          azure-client-id: ${{ secrets.ARM_CLIENT_ID }}
+#          azure-tenant-id: ${{ secrets.ARM_TENANT_ID }}
+#          azure-subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+#          no-backend: true
+#        env:
+#          GITHUB_CONTEXT: ${{ toJson(github) }}
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          LOCK_PROVIDER: azure
+#          DIGGER_AZURE_AUTH_METHOD: CONNECTION_STRING
+#          DIGGER_AZURE_CONNECTION_STRING: ${{ secrets.DIGGER_AZURE_CONNECTION_STRING }}
+#          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+#          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+#          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+#          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
