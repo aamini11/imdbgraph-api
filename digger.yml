@@ -1,7 +1,0 @@
-projects:
-  - name: prod
-    dir: ./infra/terraform/live/prod
-    include_patterns: ["./infra/terraform/modules/**"]
-  - name: staging
-    dir: ./infra/terraform/live/staging
-    include_patterns: ["./infra/terraform/modules/**"]

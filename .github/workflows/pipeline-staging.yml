@@ -11,6 +11,7 @@ jobs:
   provision:
     permissions:
       id-token: write
+      contents: read
     uses: ./.github/workflows/template-terraform.yml
     with:
       environment: staging
