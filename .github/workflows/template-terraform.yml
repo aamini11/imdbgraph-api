@@ -10,14 +10,13 @@ on:
 env:
   WORKING_DIR: infra/terraform/live/${{ inputs.environment }}
 
-defaults:
-  run:
-    working-directory: ${{ env.WORKING_DIR }}
-
 jobs:
   terraform:
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: infra/terraform/live/${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup Terraform
