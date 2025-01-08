@@ -7,9 +7,12 @@ on:
         type: string
         required: true
 
+env:
+  WORKING_DIR: infra/terraform/live/${{ inputs.environment }}
+
 defaults:
   run:
-    working-directory: infra/terraform/live/${{ inputs.environment }}
+    working-directory: ${{ env.WORKING_DIR }}
 
 jobs:
   terraform:
