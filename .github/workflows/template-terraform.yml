@@ -7,6 +7,10 @@ on:
         type: string
         required: true
 
+defaults:
+  run:
+    working-directory: infra/terraform
+
 jobs:
   terraform:
     environment: ${{ inputs.environment }}
