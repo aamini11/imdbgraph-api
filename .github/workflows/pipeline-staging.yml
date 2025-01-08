@@ -1,0 +1,22 @@
+name: Staging Pipeline
+
+on:
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    uses: ./.github/workflows/template-application.yml
+
+  provision:
+    uses: ./.github/workflows/template-terraform.yml
+    with:
+      environment: staging
+    secrets: inherit
+
+  deploy:
+    uses: ./.github/workflows/template-ansible.yml
+    needs: [ build, provision ]
+    with:
+      environment: staging
+    secrets: inherit

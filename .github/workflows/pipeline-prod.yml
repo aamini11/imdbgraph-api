@@ -1,0 +1,22 @@
+name: Production Pipeline
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    uses: ./.github/workflows/template-application.yml
+
+  provision:
+    uses: ./.github/workflows/template-terraform.yml
+    with:
+      environment: prod
+    secrets: inherit
+
+  deploy:
+    uses: ./.github/workflows/template-ansible.yml
+    needs: [ build, provision ]
+    with:
+      environment: prod
+    secrets: inherit
