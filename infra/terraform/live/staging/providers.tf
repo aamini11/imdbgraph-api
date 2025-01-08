@@ -1,3 +1,8 @@
+variable client_id {}
+variable client_secret {}
+variable subscription_id {}
+variable tenant_id {}
+
 terraform {
   required_providers {
     azapi = {
@@ -20,7 +25,4 @@ terraform {
 
 provider azurerm {
   features {}
-  use_oidc = true
-
-  subscription_id = "331269d5-143f-4246-b389-9c1f41bb5882"
 }
