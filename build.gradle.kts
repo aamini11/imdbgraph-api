@@ -1,4 +1,5 @@
 import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
+import org.springframework.boot.gradle.tasks.run.BootRun
 import java.io.FileInputStream
 import java.util.*
 
@@ -48,6 +49,10 @@ dependencies {
         }
     }
 
+    // Azure
+    implementation("com.azure:azure-security-keyvault-secrets:4.9.1")
+    implementation("com.azure:azure-identity:1.14.2")
+
     // Database
     implementation("org.postgresql:postgresql")
     implementation("org.flywaydb:flyway-database-postgresql:11.1.0")
@@ -73,6 +78,31 @@ dependencies {
     integrationTestImplementation("org.testcontainers:junit-jupiter")
     integrationTestImplementation("org.testcontainers:postgresql")
     integrationTestImplementation("org.flywaydb:flyway-database-postgresql:11.1.0")
+}
+
+tasks.register<BootRun>("runDev") {
+    args("--spring.profiles.active=dev")
+}
+
+tasks.register<BootRun>("runStaging") {
+    args("--spring.profiles.active=staging")
+}
+
+tasks.register<BootRun>("configureStaging") {
+    group = "infra"
+    exec {
+        workingDir = file("./infra/ansible")
+        commandLine("ansible-playbook", "site.yml", "-i", "staging")
+    }
+}
+
+tasks.register<BootRun>("planStaging") {
+    group = "infra"
+    exec {
+        workingDir = file("./infra/terraform/live/staging")
+        commandLine("terraform", "init")
+        commandLine("terraform", "plan")
+    }
 }
 
 // Build final app image (OCI).
