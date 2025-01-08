@@ -7,8 +7,8 @@ env:
   VERSION: ${{ github.head_ref || github.ref_name }}
 
 jobs:
-  build:
-    runs-on: ubuntu-24.04
+  gradle:
+    runs-on: ubuntu-22.04
     env:
       IMAGE_NAME: ${{ github.repository }}
       CI_REGISTRY: ghcr.io

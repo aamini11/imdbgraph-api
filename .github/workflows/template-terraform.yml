@@ -8,10 +8,14 @@ on:
         required: true
 
 jobs:
-  provision:
+  terraform:
     environment: ${{ inputs.environment }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: infra/terraform/live/${{ inputs.environment }}
     steps:
+      - uses: actions/checkout@v4
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
       - name: Terraform Init

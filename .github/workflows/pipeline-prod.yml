@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    uses: ./.github/workflows/template-application.yml
+    uses: ./.github/workflows/template-gradle.yml
 
   provision:
     uses: ./.github/workflows/template-terraform.yml

@@ -8,9 +8,9 @@ on:
         required: true
 
 jobs:
-  deploy:
+  ansible:
     environment: ${{ inputs.environment }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     env:
       SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
       SSH_KNOWN_HOSTS: ${{secrets.SSH_KNOWN_HOSTS}}
