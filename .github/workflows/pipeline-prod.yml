@@ -6,9 +6,14 @@ on:
 
 jobs:
   build:
+    permissions:
+      packages: write
     uses: ./.github/workflows/template-gradle.yml
 
   provision:
+    permissions:
+      id-token: write
+      contents: read
     uses: ./.github/workflows/template-terraform.yml
     with:
       environment: prod
