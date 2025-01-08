@@ -1,7 +1,7 @@
-name: Staging Pipeline
+name: Production Pipeline
 
 on:
-  pull_request:
+  push:
     branches: ["main"]
 
 jobs:
@@ -11,12 +11,12 @@ jobs:
   provision:
     uses: ./.github/workflows/template-terraform.yml
     with:
-      environment: staging
+      environment: prod
     secrets: inherit
 
   deploy:
     uses: ./.github/workflows/template-ansible.yml
     needs: [ build, provision ]
     with:
-      environment: staging
+      environment: prod
     secrets: inherit
