@@ -7,6 +7,6 @@ output "public_key" {
 }
 
 output "private_key" {
-  value = azapi_resource_action.ssh_public_key_gen.output.privateKey
+  value     = azapi_resource_action.ssh_public_key_gen.output.privateKey
   sensitive = true
 }

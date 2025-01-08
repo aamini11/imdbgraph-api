@@ -14,12 +14,12 @@ resource "azurerm_resource_group" "rg" {
 
 // ======================= Virtual Machine + SSH ===============================
 resource "azurerm_linux_virtual_machine" "vm" {
-  name                  = var.name
-  admin_username        = var.name
-  location              = var.location
-  resource_group_name   = azurerm_resource_group.rg.name
+  name                = var.name
+  admin_username      = var.name
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
   network_interface_ids = [azurerm_network_interface.nic.id]
-  size                  = "Standard_B2s"
+  size                = "Standard_B2s"
 
   source_image_reference {
     offer     = "0001-com-ubuntu-server-focal"
@@ -86,7 +86,7 @@ resource "azurerm_subnet" "subnet" {
   resource_group_name = azurerm_resource_group.rg.name
 
   virtual_network_name = azurerm_virtual_network.virtual_network.name
-  address_prefixes     = ["10.0.1.0/24"]
+  address_prefixes = ["10.0.1.0/24"]
 }
 
 resource "azurerm_public_ip" "public_ip" {
@@ -122,27 +122,27 @@ resource "azurerm_network_security_group" "nsg" {
   }
 
   security_rule {
-    access                      = "Allow"
-    destination_address_prefix  = "*"
-    destination_port_range      = "80"
-    direction                   = "Inbound"
-    name                        = "AllowAnyHTTPInbound"
-    priority                    = 320
-    protocol                    = "Tcp"
-    source_address_prefix       = "*"
-    source_port_range           = "*"
+    access                     = "Allow"
+    destination_address_prefix = "*"
+    destination_port_range     = "80"
+    direction                  = "Inbound"
+    name                       = "AllowAnyHTTPInbound"
+    priority                   = 320
+    protocol                   = "Tcp"
+    source_address_prefix      = "*"
+    source_port_range          = "*"
   }
 
   security_rule {
-    access                      = "Allow"
-    destination_address_prefix  = "*"
-    destination_port_range      = "443"
-    direction                   = "Inbound"
-    name                        = "AllowAnyHTTPSInbound"
-    priority                    = 310
-    protocol                    = "Tcp"
-    source_address_prefix       = "*"
-    source_port_range           = "*"
+    access                     = "Allow"
+    destination_address_prefix = "*"
+    destination_port_range     = "443"
+    direction                  = "Inbound"
+    name                       = "AllowAnyHTTPSInbound"
+    priority                   = 310
+    protocol                   = "Tcp"
+    source_address_prefix      = "*"
+    source_port_range          = "*"
   }
 }
 // =============================================================================
