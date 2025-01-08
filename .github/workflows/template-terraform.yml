@@ -7,9 +7,6 @@ on:
         type: string
         required: true
 
-env:
-  WORKING_DIR: infra/terraform/live/${{ inputs.environment }}
-
 jobs:
   terraform:
     environment: ${{ inputs.environment }}
