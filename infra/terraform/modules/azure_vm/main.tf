@@ -1,12 +1,3 @@
-terraform {
-  required_providers {
-    azapi = {
-      source  = "Azure/azapi"
-      version = "2.2.0"
-    }
-  }
-}
-
 resource "azurerm_resource_group" "rg" {
   name     = var.resource_group_name
   location = var.location
@@ -35,27 +26,18 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   admin_ssh_key {
     username   = var.name
-    public_key = azapi_resource_action.ssh_public_key_gen.output.publicKey
+    public_key = azurerm_ssh_public_key.ssh_public_key.public_key
   }
 
   boot_diagnostics {
   }
 }
 
-resource "azapi_resource" "ssh_public_key" {
-  type      = "Microsoft.Compute/sshPublicKeys@2022-11-01"
+resource "azurerm_ssh_public_key" "ssh_public_key" {
   name      = "${var.name}-key"
   location  = var.location
-  parent_id = azurerm_resource_group.rg.id
-}
-
-resource "azapi_resource_action" "ssh_public_key_gen" {
-  type        = "Microsoft.Compute/sshPublicKeys@2022-11-01"
-  resource_id = azapi_resource.ssh_public_key.id
-  action      = "generateKeyPair"
-  method      = "POST"
-
-  response_export_values = ["publicKey", "privateKey"]
+  resource_group_name = azurerm_resource_group.rg.name
+  public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOQJHnOQnaa5ZWuJHgOJvaQQ8DuePqVvpsgfRwuC78Vs amini5454@gmail.com"
 }
 // =============================================================================
 
@@ -122,27 +104,27 @@ resource "azurerm_network_security_group" "nsg" {
   }
 
   security_rule {
-    access                      = "Allow"
-    destination_address_prefix  = "*"
-    destination_port_range      = "80"
-    direction                   = "Inbound"
-    name                        = "AllowAnyHTTPInbound"
-    priority                    = 320
-    protocol                    = "Tcp"
-    source_address_prefix       = "*"
-    source_port_range           = "*"
+    access                     = "Allow"
+    destination_address_prefix = "*"
+    destination_port_range     = "80"
+    direction                  = "Inbound"
+    name                       = "AllowAnyHTTPInbound"
+    priority                   = 320
+    protocol                   = "Tcp"
+    source_address_prefix      = "*"
+    source_port_range          = "*"
   }
 
   security_rule {
-    access                      = "Allow"
-    destination_address_prefix  = "*"
-    destination_port_range      = "443"
-    direction                   = "Inbound"
-    name                        = "AllowAnyHTTPSInbound"
-    priority                    = 310
-    protocol                    = "Tcp"
-    source_address_prefix       = "*"
-    source_port_range           = "*"
+    access                     = "Allow"
+    destination_address_prefix = "*"
+    destination_port_range     = "443"
+    direction                  = "Inbound"
+    name                       = "AllowAnyHTTPSInbound"
+    priority                   = 310
+    protocol                   = "Tcp"
+    source_address_prefix      = "*"
+    source_port_range          = "*"
   }
 }
 // =============================================================================

@@ -9,15 +9,25 @@ on:
 
 jobs:
   terraform:
-    environment: ${{ inputs.environment }}
     runs-on: ubuntu-22.04
+    environment: ${{ inputs.environment }}
+    permissions:
+      id-token: write
+      contents: read
     defaults:
       run:
         working-directory: infra/terraform/live/${{ inputs.environment }}
+    env:
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.10.3"
       - name: Terraform Init
         run: terraform init
       - name: Terraform Format
