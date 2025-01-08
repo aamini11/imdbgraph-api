@@ -9,7 +9,7 @@ on:
 
 defaults:
   run:
-    working-directory: infra/terraform
+    working-directory: infra/terraform/live/${{ inputs.environment }}
 
 jobs:
   terraform:
