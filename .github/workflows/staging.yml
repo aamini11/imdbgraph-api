@@ -9,7 +9,7 @@ jobs:
     permissions:
       checks: write
       packages: write
-    uses: ./.github/workflows/gradle.yml
+    uses: ./.github/workflow-templates/gradle.yml
     secrets: inherit
 
   provision:
@@ -20,13 +20,13 @@ jobs:
       pull-requests: write # required to post PR comments
       issues: read         # required to check if PR number is an issue or not
       statuses: write      # required to validate combined PR status
-    uses: ./.github/workflows/terraform.yml
+    uses: ./.github/workflow-templates/terraform.yml
     with:
       environment: staging
     secrets: inherit
 
   deploy:
-    uses: ./.github/workflows/ansible.yml
+    uses: ./.github/workflow-templates/ansible.yml
     needs: [build, provision]
     with:
       environment: staging
