@@ -9,6 +9,8 @@ env:
 jobs:
   gradle:
     runs-on: ubuntu-22.04
+    permissions:
+      packages: write
     env:
       IMAGE_NAME: ${{ github.repository }}
       CI_REGISTRY: ghcr.io
