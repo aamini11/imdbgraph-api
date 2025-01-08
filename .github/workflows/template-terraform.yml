@@ -16,6 +16,7 @@ jobs:
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-24.04
     steps:
+      - uses: actions/checkout@v4
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
       - name: Terraform Init
