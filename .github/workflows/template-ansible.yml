@@ -1,4 +1,4 @@
-name: Ansible Template
+name: "Template: Ansible"
 
 on:
   workflow_call:

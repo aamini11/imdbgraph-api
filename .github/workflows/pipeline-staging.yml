@@ -1,0 +1,10 @@
+on:
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  staging:
+    uses: ./.github/workflows/pipeline.yml
+    with:
+      environment: staging
+

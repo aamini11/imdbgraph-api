@@ -1,16 +1,16 @@
-name: Workflow for Staging Environment
-
 on:
-  pull_request:
-    branches: ["main"]
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
 
 jobs:
   build:
     permissions:
       checks: write
       packages: write
-    uses: ./.github/workflow-templates/gradle.yml
-    secrets: inherit
+    uses: ./.github/workflows/template-gradle.yml
 
   provision:
     permissions:
@@ -20,15 +20,15 @@ jobs:
       pull-requests: write # required to post PR comments
       issues: read         # required to check if PR number is an issue or not
       statuses: write      # required to validate combined PR status
-    uses: ./.github/workflow-templates/terraform.yml
+    uses: ./.github/workflows/template-terraform.yml
     with:
-      environment: staging
+      environment: ${{ inputs.environment }}
     secrets: inherit
 
   deploy:
-    uses: ./.github/workflow-templates/ansible.yml
+    uses: ./.github/workflows/template-ansible.yml
     needs: [build, provision]
     with:
-      environment: staging
+      environment: ${{ inputs.environment }}
     secrets: inherit
 

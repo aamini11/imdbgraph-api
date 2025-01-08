@@ -1,4 +1,4 @@
-name: Gradle Template
+name: "Template: Gradle"
 
 on:
   workflow_call:
