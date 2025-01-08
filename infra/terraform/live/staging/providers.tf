@@ -20,5 +20,7 @@ terraform {
 
 provider azurerm {
   features {}
+  use_oidc = true
+
   subscription_id = "331269d5-143f-4246-b389-9c1f41bb5882"
 }
