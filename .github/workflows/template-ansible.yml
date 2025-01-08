@@ -42,4 +42,4 @@ jobs:
       - name: Run ansible script
         run: |
           cd infra/ansible
-          ansible-playbook -i staging site.yml
+          ansible-playbook -i ${{inputs.environment}} site.yml
