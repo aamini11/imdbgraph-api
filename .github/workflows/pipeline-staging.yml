@@ -8,6 +8,7 @@ jobs:
   build:
     permissions:
       packages: write
+      checks: write
     uses: ./.github/workflows/template-gradle.yml
 
   provision:
