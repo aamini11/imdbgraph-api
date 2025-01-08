@@ -3,4 +3,4 @@ set -a
 source ../../.env
 set +a
 
-ansible-playbook site.yml -i production
+ansible-playbook site.yml -i staging
