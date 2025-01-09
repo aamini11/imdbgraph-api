@@ -16,7 +16,7 @@ val envFile = loadEnvFile()
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(23)
     }
 }
 
@@ -75,6 +75,10 @@ tasks.named<BootBuildImage>("bootBuildImage") {
             password=getEnv("CI_REGISTRY_PASSWORD")
         }
     }
+}
+
+tasks.bootRun {
+    args("--spring.profiles.active=dev")
 }
 
 // Used to set up Flyway commands that developers can run through gradle. CLI
