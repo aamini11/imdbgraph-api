@@ -34,4 +34,4 @@ jobs:
           report_paths: '**/build/test-results/test/TEST-*.xml'
       # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images#publishing-images-to-github-packages
       - name: Publish Image
-        run: ./gradlew bootBuildImage --publishImage --imageName ${{ env.IMAGE_NAME }} --username ${{ CI_REGISTRY_USER }} --password ${{ CI_REGISTRY_PASSWORD }}
+        run: ./gradlew bootBuildImage --publishImage --imageName ${{ env.IMAGE_NAME }} --username ${{ env.CI_REGISTRY_USER }} --password ${{ env.CI_REGISTRY_PASSWORD }}
