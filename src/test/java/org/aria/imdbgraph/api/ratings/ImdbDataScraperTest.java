@@ -1,8 +1,10 @@
 package org.aria.imdbgraph.api.ratings;
 
 import org.aria.imdbgraph.api.ratings.ImdbDataScraper.ImdbFileParsingException;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,10 +21,13 @@ import static java.nio.file.Files.copy;
 import static org.aria.imdbgraph.api.ratings.ImdbFileDownloader.ImdbFile.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.jdbc.JdbcTestUtils.countRowsInTable;
+import static org.springframework.test.jdbc.JdbcTestUtils.deleteFromTables;
 
 @SpringBootTest
+@TestInstance(PER_CLASS) // So @AfterAll can be non-static.
 class ImdbDataScraperTest {
 
     @Autowired
@@ -60,6 +65,13 @@ class ImdbDataScraperTest {
         // Override mock to point to bad file.
         when(fileDownloader.download(EPISODES_FILE)).thenReturn(inputDir.resolve("bad-episodes.tsv"));
         assertThrows(ImdbFileParsingException.class, () -> scraper.updateDatabase());
+    }
+
+
+    @AfterAll
+    void wipeDb() {
+        deleteFromTables(jdbc, "imdb.episode");
+        deleteFromTables(jdbc, "imdb.show");
     }
 
     private static void copyDirectory(Path in, Path out) throws IOException {

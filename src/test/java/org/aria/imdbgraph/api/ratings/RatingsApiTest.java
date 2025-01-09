@@ -16,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestInstance(PER_CLASS)
+@TestInstance(PER_CLASS) // So @BeforeAll can be non-static.
 class RatingsApiTest {
 
     @Autowired
