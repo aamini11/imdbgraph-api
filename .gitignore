@@ -2,7 +2,6 @@
 **/password.txt
 **/secrets.pass
 **/secrets.dec
-**/application-prod.properties
 config/**/*
 .env
 
