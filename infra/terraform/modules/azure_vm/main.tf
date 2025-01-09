@@ -4,24 +4,25 @@ resource "azurerm_resource_group" "this" {
 }
 
 // ======================= Virtual Machine + SSH ===============================
-resource "azurerm_linux_virtual_machine" "vm" {
+resource "azurerm_linux_virtual_machine" "app" {
+  resource_group_name   = azurerm_resource_group.this.name
   name                  = var.name
   admin_username        = var.name
   location              = var.location
-  resource_group_name   = azurerm_resource_group.this.name
-  network_interface_ids = [azurerm_network_interface.this.id]
   size                  = "Standard_B2s"
+
+  network_interface_ids = [azurerm_network_interface.this.id]
 
   source_image_reference {
     offer     = "0001-com-ubuntu-server-focal"
     publisher = "canonical"
-    sku       = "20_04-lts-gen2"
+    sku       = "22_04-lts-gen2"
     version   = "latest"
   }
 
   os_disk {
     caching              = "ReadWrite"
-    storage_account_type = "Premium_LRS"
+    storage_account_type = "Standard_LRS"
   }
 
   admin_ssh_key {
@@ -39,6 +40,19 @@ resource "azurerm_ssh_public_key" "this" {
 // =============================================================================
 
 // ============================= Networking ====================================
+resource "azurerm_network_interface" "this" {
+  name                = "${var.name}-nic"
+  resource_group_name = azurerm_resource_group.this.name
+  location            = var.location
+
+  ip_configuration {
+    name                          = "ipconfig1"
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.this.id
+    subnet_id                     = azurerm_subnet.this.id
+  }
+}
+
 resource "azurerm_virtual_network" "this" {
   name                = "${var.name}-vnet"
   resource_group_name = azurerm_resource_group.this.name
@@ -59,19 +73,6 @@ resource "azurerm_public_ip" "this" {
   resource_group_name = azurerm_resource_group.this.name
   location            = var.location
   allocation_method = "Static"
-}
-
-resource "azurerm_network_interface" "this" {
-  name                = "${var.name}-nic"
-  resource_group_name = azurerm_resource_group.this.name
-  location            = var.location
-
-  ip_configuration {
-    name                          = "ipconfig1"
-    private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.this.id
-    subnet_id                     = azurerm_subnet.this.id
-  }
 }
 // =============================================================================
 
