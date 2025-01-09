@@ -3,10 +3,6 @@ name: "Template: Gradle"
 on:
   workflow_call:
 
-env:
-  CI_REGISTRY: ghcr.io
-  VERSION: ${{ github.head_ref || github.ref_name }}
-
 jobs:
   gradle:
     runs-on: ubuntu-22.04
@@ -14,7 +10,8 @@ jobs:
       packages: write
       checks: write
     env:
-      IMAGE_NAME: ${{ env.CI_REGISTRY }}/${{ github.repository }}:${{ env.VERSION }}
+      VERSION: ${{ github.head_ref || github.ref_name }}
+      IMAGE_NAME: ghcr.io/${{ github.repository }}:${{ env.VERSION }}
       CI_REGISTRY_USER: ${{ github.actor }}
       CI_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -34,4 +31,5 @@ jobs:
           report_paths: '**/build/test-results/test/TEST-*.xml'
       # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images#publishing-images-to-github-packages
       - name: Publish Image
-        run: ./gradlew bootBuildImage --publishImage --imageName ${{ env.IMAGE_NAME }} --username ${{ env.CI_REGISTRY_USER }} --password ${{ env.CI_REGISTRY_PASSWORD }}
+        run: |
+          ./gradlew bootBuildImage --publishImage --imageName $IMAGE_NAME

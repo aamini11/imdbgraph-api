@@ -1,3 +1,4 @@
+import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
 import org.springframework.boot.gradle.tasks.run.BootRun
 import java.io.FileInputStream
 import java.util.*
@@ -101,6 +102,18 @@ tasks.register<BootRun>("planStaging") {
         workingDir = file("./infra/terraform/live/staging")
         commandLine("terraform", "init")
         commandLine("terraform", "plan")
+    }
+}
+
+// Build final app image (OCI).
+// https://docs.spring.io/spring-boot/gradle-plugin/packaging-oci-image.html#build-image.examples.publish
+tasks.named<BootBuildImage>("bootBuildImage") {
+    docker {
+        publishRegistry {
+            url= "https://ghcr.io"
+            username=getEnv("CI_REGISTRY_USER")
+            password=getEnv("CI_REGISTRY_PASSWORD")
+        }
     }
 }
 
