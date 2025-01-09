@@ -11,7 +11,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -61,7 +60,6 @@ class RatingsApiTest {
                 ]
                 """;
         mockMvc.perform(get("/search?q=Avatar"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(expected));
     }
@@ -115,7 +113,6 @@ class RatingsApiTest {
                 }
                 """;
         mockMvc.perform(get("/ratings/tt0417299"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(expected));
     }
@@ -123,7 +120,6 @@ class RatingsApiTest {
     @Test
     void testGettingRatingsWithInvalidId() throws Exception {
         mockMvc.perform(get("/ratings/123"))
-                .andDo(print())
                 .andExpect(status().is4xxClientError());
     }
 }
