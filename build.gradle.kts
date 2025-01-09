@@ -12,6 +12,8 @@ plugins {
 group = "org.aamini"
 version = "0.0.1-SNAPSHOT" // Default value if no version passed
 
+val envFile = loadEnvFile()
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
@@ -41,13 +43,10 @@ dependencies {
 
     // Database
     implementation("org.postgresql:postgresql")
-    implementation("org.flywaydb:flyway-database-postgresql:11.1.0")
 
-    // Unit Testing Libraries
+    // Testing Libraries
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
-    // Integration Testing Libraries
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
@@ -88,6 +87,34 @@ flyway {
     locations = arrayOf("classpath:db/migration")
 }
 
+task<Exec>("runAnsible") {
+    group = "infrastructure"
+
+    workingDir = File("infra/ansible")
+
+    environment("DATABASE_HOST", getEnv("DATABASE_HOST"))
+    environment("DATABASE_NAME", getEnv("DATABASE_NAME"))
+    environment("DATABASE_USER", getEnv("DATABASE_USER"))
+    environment("DATABASE_PASSWORD", getEnv("DATABASE_PASSWORD"))
+
+    environment("OMDB_KEY", getEnv("OMDB_KEY"))
+
+    commandLine("ansible", "-i", "staging", "main.yml")
+}
+
+task<Exec>("runTerraform") {
+    group = "infrastructure"
+
+    workingDir = File("infra/terraform/live/staging")
+
+    environment("ARM_CLIENT_ID", getEnv("ARM_CLIENT_ID"))
+    environment("ARM_CLIENT_SECRET", getEnv("ARM_CLIENT_SECRET"))
+    environment("ARM_SUBSCRIPTION_ID", getEnv("ARM_SUBSCRIPTION_ID"))
+    environment("ARM_TENANT_ID", getEnv("ARM_TENANT_ID"))
+
+    commandLine("terraform", "apply")
+}
+
 // ================================ HELPERS ====================================
 fun loadEnvFile(): Properties? {
     val properties = Properties()
@@ -100,8 +127,6 @@ fun loadEnvFile(): Properties? {
     }
     return properties
 }
-
-val envFile = loadEnvFile()
 
 fun getEnv(envName: String): String {
     return envFile?.getProperty(envName) ?: System.getenv(envName) ?: ""
