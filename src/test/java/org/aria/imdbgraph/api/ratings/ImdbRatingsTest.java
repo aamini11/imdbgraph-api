@@ -30,14 +30,14 @@ import static org.springframework.test.jdbc.JdbcTestUtils.countRowsInTable;
 @TestMethodOrder(OrderAnnotation.class)
 class ImdbRatingsTest {
 
-    private static final Path TEST_FILES_FOLDER = Paths.get("src/integrationTest/resources/samples-files");
+    private static final Path TEST_FILES_FOLDER = Paths.get("src/test/resources/samples-files");
 
     @TempDir
     Path workingDir;
 
     @BeforeEach
     void setUp() throws IOException {
-        copyTestFiles(workingDir);
+        loadTestFiles(workingDir);
 
         // Set up mocks.
         when(fileDownloader.download(TITLES_FILE)).thenReturn(workingDir.resolve("title_sample.tsv"));
@@ -89,6 +89,7 @@ class ImdbRatingsTest {
         Ratings ratings = ratingsMaybe.get();
         Assertions.assertEquals("Avatar: The Last Airbender", ratings.show().title());
         Assertions.assertEquals(3, ratings.allEpisodeRatings().size());
+
         Assertions.assertEquals(21, ratings.allEpisodeRatings().get(1).size());
         Assertions.assertEquals(20, ratings.allEpisodeRatings().get(2).size());
         Assertions.assertEquals(21, ratings.allEpisodeRatings().get(3).size());
@@ -100,7 +101,7 @@ class ImdbRatingsTest {
         Assertions.assertTrue(ratingsMaybe.isEmpty());
     }
 
-    private static void copyTestFiles(Path dir) throws IOException {
+    private static void loadTestFiles(Path dir) throws IOException {
         File[] sampleFiles = TEST_FILES_FOLDER.toFile().listFiles();
         if (sampleFiles == null) {
             throw new FileNotFoundException(TEST_FILES_FOLDER.toString());
