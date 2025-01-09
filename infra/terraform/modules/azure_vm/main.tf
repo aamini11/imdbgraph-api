@@ -1,4 +1,4 @@
-resource "azurerm_resource_group" "rg" {
+resource "azurerm_resource_group" "this" {
   name     = var.resource_group_name
   location = var.location
 }
@@ -8,8 +8,8 @@ resource "azurerm_linux_virtual_machine" "vm" {
   name                  = var.name
   admin_username        = var.name
   location              = var.location
-  resource_group_name   = azurerm_resource_group.rg.name
-  network_interface_ids = [azurerm_network_interface.nic.id]
+  resource_group_name   = azurerm_resource_group.this.name
+  network_interface_ids = [azurerm_network_interface.this.id]
   size                  = "Standard_B2s"
 
   source_image_reference {
@@ -26,69 +26,64 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   admin_ssh_key {
     username   = var.name
-    public_key = azurerm_ssh_public_key.ssh_public_key.public_key
-  }
-
-  boot_diagnostics {
+    public_key = azurerm_ssh_public_key.this.public_key
   }
 }
 
-resource "azurerm_ssh_public_key" "ssh_public_key" {
+resource "azurerm_ssh_public_key" "this" {
   name                = "${var.name}-key"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.this.name
   public_key          = var.public_key
 }
 // =============================================================================
 
 // ============================= Networking ====================================
-resource "azurerm_virtual_network" "virtual_network" {
+resource "azurerm_virtual_network" "this" {
   name                = "${var.name}-vnet"
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.this.name
   location            = var.location
 
   address_space = ["10.0.0.0/16"]
 }
 
-resource "azurerm_network_interface" "nic" {
+resource "azurerm_subnet" "this" {
+  name                = "default"
+  resource_group_name = azurerm_resource_group.this.name
+  virtual_network_name = azurerm_virtual_network.this.name
+  address_prefixes     = ["10.0.1.0/24"]
+}
+
+resource "azurerm_public_ip" "this" {
+  name                = "${var.name}-public-ip"
+  resource_group_name = azurerm_resource_group.this.name
+  location            = var.location
+  allocation_method = "Static"
+}
+
+resource "azurerm_network_interface" "this" {
   name                = "${var.name}-nic"
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.this.name
   location            = var.location
 
   ip_configuration {
     name                          = "ipconfig1"
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.public_ip.id
-    subnet_id                     = azurerm_subnet.subnet.id
+    public_ip_address_id          = azurerm_public_ip.this.id
+    subnet_id                     = azurerm_subnet.this.id
   }
-}
-
-resource "azurerm_subnet" "subnet" {
-  name                = "default"
-  resource_group_name = azurerm_resource_group.rg.name
-
-  virtual_network_name = azurerm_virtual_network.virtual_network.name
-  address_prefixes     = ["10.0.1.0/24"]
-}
-
-resource "azurerm_public_ip" "public_ip" {
-  name                = "${var.name}-ip"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = var.location
-
-  allocation_method = "Static"
 }
 // =============================================================================
 
 // ============================== Firewall =====================================
 resource "azurerm_network_interface_security_group_association" "nic_sg" {
-  network_interface_id      = azurerm_network_interface.nic.id
-  network_security_group_id = azurerm_network_security_group.nsg.id
+  network_interface_id      = azurerm_network_interface.this.id
+  network_security_group_id = azurerm_network_security_group.this.id
 }
 
-resource "azurerm_network_security_group" "nsg" {
+resource "azurerm_network_security_group" "this" {
   name                = "${var.name}-nsg"
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.this.name
   location            = var.location
 
   security_rule {
