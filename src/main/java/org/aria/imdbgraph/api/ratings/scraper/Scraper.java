@@ -1,6 +1,5 @@
 package org.aria.imdbgraph.api.ratings.scraper;
 
-import org.aria.imdbgraph.api.ratings.scraper.auditing.FileArchiver;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.jdbc.PgConnection;
 import org.slf4j.Logger;
@@ -43,17 +42,14 @@ public class Scraper {
     private final JdbcTemplate jdbcTemplate;
     private final DataSource dataSource;
     private final ImdbFileDownloader imdbFileDownloader;
-    private final FileArchiver fileArchiver;
 
     @Autowired
     public Scraper(
             JdbcTemplate jdbcTemplate,
-            ImdbFileDownloader imdbFileDownloader,
-            FileArchiver fileArchiver
+            ImdbFileDownloader imdbFileDownloader
     ) {
         this.imdbFileDownloader = imdbFileDownloader;
         this.jdbcTemplate = jdbcTemplate;
-        this.fileArchiver = fileArchiver;
         this.dataSource = jdbcTemplate.getDataSource();
     }
 
@@ -64,11 +60,7 @@ public class Scraper {
      * Runs daily at 8:00 AM UTC.
      *
      * @throws ImdbFileParsingException If any error occurs when trying to load
-     *                                  the IMDB files into the database, an
-     *                                  error message will be logged and all
-     *                                  files from that session will be
-     *                                  archived. See {@link FileArchiver} for
-     *                                  more info.
+     *                                  the IMDB files into the database.
      */
     @Transactional
     @Scheduled(cron = "0 0 8 * * *")
@@ -156,7 +148,6 @@ public class Scraper {
 
                 logger.info("{} successfully transferred to table {}", filePath, tableName);
             } catch (SQLException | IOException exception) {
-                fileArchiver.archive(filePath);
                 throw new ImdbFileParsingException(exception, filePath);
             }
         }

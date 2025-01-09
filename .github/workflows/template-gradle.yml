@@ -4,6 +4,7 @@ on:
   workflow_call:
 
 env:
+  CI_REGISTRY: ghcr.io
   VERSION: ${{ github.head_ref || github.ref_name }}
 
 jobs:
@@ -13,8 +14,7 @@ jobs:
       packages: write
       checks: write
     env:
-      IMAGE_NAME: ${{ github.repository }}
-      CI_REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ env.REGISTRY }}/${{ github.repository }}:${{ env.VERSION }}
       CI_REGISTRY_USER: ${{ github.actor }}
       CI_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -34,4 +34,4 @@ jobs:
           report_paths: '**/build/test-results/test/TEST-*.xml'
       # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images#publishing-images-to-github-packages
       - name: Publish Image
-        run: ./gradlew bootBuildImage --publishImage --imageName ${{ env.CI_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+        run: ./gradlew bootBuildImage --publishImage --imageName ${{ env.IMAGE_NAME }} --username ${{ CI_REGISTRY_USER }} --password ${{ CI_REGISTRY_PASSWORD }}
