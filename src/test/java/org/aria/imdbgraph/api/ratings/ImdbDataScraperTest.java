@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.jdbc.JdbcTestUtils.countRowsInTable;
 
 @SpringBootTest
-class RatingsTest {
+class ImdbDataScraperTest {
 
     @Autowired
     private ImdbDataScraper scraper;
