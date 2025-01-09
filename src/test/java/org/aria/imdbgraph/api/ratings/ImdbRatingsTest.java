@@ -21,8 +21,7 @@ import java.util.Optional;
 
 import static java.nio.file.Files.copy;
 import static org.aria.imdbgraph.api.ratings.ImdbFileDownloader.ImdbFile.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.jdbc.JdbcTestUtils.countRowsInTable;
 
@@ -84,21 +83,21 @@ class ImdbRatingsTest {
     @Test
     void testGettingAvatarRatings() {
         Optional<Ratings> ratingsMaybe = db.getAllShowRatings("tt0417299");
-        Assertions.assertTrue(ratingsMaybe.isPresent());
+        assertTrue(ratingsMaybe.isPresent());
 
         Ratings ratings = ratingsMaybe.get();
-        Assertions.assertEquals("Avatar: The Last Airbender", ratings.show().title());
-        Assertions.assertEquals(3, ratings.allEpisodeRatings().size());
+        assertEquals("Avatar: The Last Airbender", ratings.show().title());
+        assertEquals(3, ratings.allEpisodeRatings().size());
 
-        Assertions.assertEquals(21, ratings.allEpisodeRatings().get(1).size());
-        Assertions.assertEquals(20, ratings.allEpisodeRatings().get(2).size());
-        Assertions.assertEquals(21, ratings.allEpisodeRatings().get(3).size());
+        assertEquals(21, ratings.allEpisodeRatings().get(1).size());
+        assertEquals(20, ratings.allEpisodeRatings().get(2).size());
+        assertEquals(21, ratings.allEpisodeRatings().get(3).size());
     }
 
     @Test
     void testGettingRatingsWithInvalidId() {
         Optional<Ratings> ratingsMaybe = db.getAllShowRatings("");
-        Assertions.assertTrue(ratingsMaybe.isEmpty());
+        assertTrue(ratingsMaybe.isEmpty());
     }
 
     private static void loadTestFiles(Path dir) throws IOException {
