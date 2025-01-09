@@ -28,9 +28,9 @@ public final class ImdbFileDownloader {
     private static final String BASE_DOWNLOAD_URL = "https://datasets.imdbws.com";
 
     public enum ImdbFile {
-        TITLES_FILE("title.basics.tsv.gz"),
-        EPISODES_FILE("title.episode.tsv.gz"),
-        RATINGS_FILE("title.ratings.tsv.gz");
+        TITLES("title.basics.tsv.gz"),
+        EPISODES("title.episode.tsv.gz"),
+        RATINGS("title.ratings.tsv.gz");
 
         private final String fileName;
 

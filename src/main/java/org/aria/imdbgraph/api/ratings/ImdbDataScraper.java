@@ -110,9 +110,9 @@ public class ImdbDataScraper {
                 """);
 
         Map<ImdbFile, String> fileToTableMapping = Map.ofEntries(
-                entry(TITLES_FILE, "temp_title"),
-                entry(EPISODES_FILE, "temp_episode"),
-                entry(RATINGS_FILE, "temp_ratings")
+                entry(TITLES, "temp_title"),
+                entry(EPISODES, "temp_episode"),
+                entry(RATINGS, "temp_ratings")
         );
 
         Set<ImdbFile> filesToDownload = fileToTableMapping.keySet();

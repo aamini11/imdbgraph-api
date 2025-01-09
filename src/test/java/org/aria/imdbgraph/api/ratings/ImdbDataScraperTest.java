@@ -48,9 +48,9 @@ class ImdbDataScraperTest {
         copyDirectory(sampleFiles, inputDir);
 
         // Set up mocks.
-        when(fileDownloader.download(TITLES_FILE)).thenReturn(inputDir.resolve("titles.tsv"));
-        when(fileDownloader.download(RATINGS_FILE)).thenReturn(inputDir.resolve("ratings.tsv"));
-        when(fileDownloader.download(EPISODES_FILE)).thenReturn(inputDir.resolve("episodes.tsv"));
+        when(fileDownloader.download(TITLES)).thenReturn(inputDir.resolve("titles.tsv"));
+        when(fileDownloader.download(EPISODES)).thenReturn(inputDir.resolve("ratings.tsv"));
+        when(fileDownloader.download(RATINGS)).thenReturn(inputDir.resolve("episodes.tsv"));
     }
 
     @Test
@@ -63,7 +63,7 @@ class ImdbDataScraperTest {
     @Test
     void testLoadingBadFiles() {
         // Override mock to point to bad file.
-        when(fileDownloader.download(EPISODES_FILE)).thenReturn(inputDir.resolve("bad-episodes.tsv"));
+        when(fileDownloader.download(EPISODES)).thenReturn(inputDir.resolve("bad-episodes.tsv"));
         assertThrows(ImdbFileParsingException.class, () -> scraper.updateDatabase());
     }
 
