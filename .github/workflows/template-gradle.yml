@@ -14,7 +14,7 @@ jobs:
       packages: write
       checks: write
     env:
-      IMAGE_NAME: ${{ env.REGISTRY }}/${{ github.repository }}:${{ env.VERSION }}
+      IMAGE_NAME: ${{ env.CI_REGISTRY }}/${{ github.repository }}:${{ env.VERSION }}
       CI_REGISTRY_USER: ${{ github.actor }}
       CI_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
     steps:
