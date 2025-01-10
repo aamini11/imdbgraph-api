@@ -9,9 +9,11 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.zip.GZIPInputStream;
 
 import static java.nio.file.Files.copy;
 import static java.nio.file.Files.createTempFile;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * Utility class used by {@link ImdbDataScraper} to download the latest data
@@ -31,12 +33,13 @@ public final class ImdbFileDownloader {
      * succesful.
      */
     public Path download(ImdbFile file) {
-        try (InputStream in = file.uri().toURL().openStream()) {
-            Path out = createTempFile(file.name, ".tmp");
-            copy(in, out);
+        URI uri = file.getUri();
+        try (InputStream remote = new GZIPInputStream(uri.toURL().openStream())) {
+            Path local = createTempFile(file.name, ".tmp");
+            copy(remote, local, REPLACE_EXISTING);
 
-            log.info("Downloaded file: {} to {}", file.uri(), out);
-            return out;
+            log.info("Downloaded file: {} to {}", uri, local);
+            return local;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -53,7 +56,11 @@ public final class ImdbFileDownloader {
             this.name = name;
         }
 
-        public URI uri() {
+        public String getName() {
+            return name;
+        }
+
+        public URI getUri() {
             return URI.create(DOWNLOAD_URL + "/" + name);
         }
     }
