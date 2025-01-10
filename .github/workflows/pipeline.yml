@@ -70,7 +70,7 @@ jobs:
   deploy:
     runs-on: ubuntu-22.04
     environment: ${{ inputs.environment }}
-    needs: [terraform, gradle]
+    needs: [build, provision]
     env:
       SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
       SSH_KNOWN_HOSTS: ${{secrets.SSH_KNOWN_HOSTS}}
