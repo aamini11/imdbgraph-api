@@ -8,7 +8,7 @@ on:
         required: true
 
 jobs:
-  terraform:
+  provision:
     runs-on: ubuntu-22.04
     environment: ${{ inputs.environment }}
     permissions:
@@ -38,7 +38,7 @@ jobs:
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
 
-  gradle:
+  build:
     runs-on: ubuntu-22.04
     permissions:
       packages: write
@@ -67,7 +67,7 @@ jobs:
         run: |
           ./gradlew bootBuildImage --publishImage --imageName $IMAGE_NAME
 
-  ansible:
+  deploy:
     runs-on: ubuntu-22.04
     environment: ${{ inputs.environment }}
     needs: [terraform, gradle]
