@@ -44,8 +44,7 @@ jobs:
       packages: write
       checks: write
     env:
-      VERSION: ${{ github.head_ref || github.ref_name }}
-      IMAGE_NAME: ghcr.io/${{ github.repository }}:${{ env.VERSION }}
+      IMAGE_NAME: ghcr.io/${{ github.repository }}:${{ github.head_ref || github.ref_name }}
       CI_REGISTRY_USER: ${{ github.actor }}
       CI_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
     steps:
