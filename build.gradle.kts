@@ -7,6 +7,7 @@ plugins {
     id("org.springframework.boot") version "3.4.1"
     id("io.spring.dependency-management") version "1.1.6"
     id("org.flywaydb.flyway") version "11.1.0"
+    jacoco
 }
 
 group = "org.aamini"
@@ -63,6 +64,14 @@ tasks.withType<Test> {
     useJUnitPlatform()
     // Hide warning (https://stackoverflow.com/a/78188896)
     jvmArgs("-XX:+EnableDynamicAgentLoading", "-Xshare:off")
+}
+
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test) // tests are required to run before generating the report
 }
 
 // Build final app image (OCI).
