@@ -1,7 +1,6 @@
 package org.aria.imdbgraph;
 
-import org.aria.imdbgraph.api.ratings.scraper.Scraper;
-import org.aria.imdbgraph.api.ratings.scraper.Scraper.ImdbFileParsingException;
+import org.aria.imdbgraph.api.ratings.ImdbDataScraper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -11,15 +10,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class Main implements ApplicationRunner {
 
-    private final Scraper scraper;
+    private final ImdbDataScraper scraper;
 
     @Autowired
-    public Main(Scraper scraper) {
+    public Main(ImdbDataScraper scraper) {
         this.scraper = scraper;
     }
 
     @Override
-    public void run(ApplicationArguments args) throws ImdbFileParsingException {
+    public void run(ApplicationArguments args) {
         if (args.getOptionNames().contains("run-scraper")) {
             scraper.updateDatabase();
         }

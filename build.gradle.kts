@@ -4,35 +4,24 @@ import java.util.*
 
 plugins {
     java
-    // https://docs.spring.io/spring-boot/gradle-plugin/managing-dependencies.html
     id("org.springframework.boot") version "3.4.1"
     id("io.spring.dependency-management") version "1.1.6"
-
     id("org.flywaydb.flyway") version "11.1.0"
-
-    idea // helper IntelliJ IDE plugin used on last line.
 }
 
 group = "org.aamini"
-version = getVersionToUse()
+version = "0.0.1-SNAPSHOT" // Default value if no version passed
 
-// Load Credentials from .env file.
 val envFile = loadEnvFile()
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(23)
     }
 }
 
 repositories {
     mavenCentral()
-}
-
-buildscript {
-    dependencies {
-        classpath("org.flywaydb:flyway-database-postgresql:11.1.0")
-    }
 }
 
 dependencies {
@@ -48,52 +37,53 @@ dependencies {
         }
     }
 
+    // Azure
+    implementation("com.azure:azure-security-keyvault-secrets:4.9.1")
+    implementation("com.azure:azure-identity:1.14.2")
+
     // Database
     implementation("org.postgresql:postgresql")
-    implementation("org.flywaydb:flyway-database-postgresql:11.1.0")
 
-    // Unit Testing Libraries
+    // Testing Libraries
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.flywaydb:flyway-database-postgresql:11.1.0")
+}
 
-    // Integration Testing Libraries
-    sourceSets {
-        create("integrationTest") {
-            compileClasspath += sourceSets.main.get().output
-            runtimeClasspath += sourceSets.main.get().output
-        }
+buildscript {
+    dependencies {
+        classpath("org.flywaydb:flyway-database-postgresql:11.1.0")
     }
-    val integrationTestImplementation: Configuration by configurations.getting {
-        extendsFrom(configurations.testImplementation.get())
-    }
-    val integrationTestRuntimeOnly: Configuration by configurations.getting {
-        extendsFrom(configurations.testRuntimeOnly.get())
-    }
-    integrationTestImplementation("org.springframework.boot:spring-boot-starter-test")
-    integrationTestImplementation("org.testcontainers:junit-jupiter")
-    integrationTestImplementation("org.testcontainers:postgresql")
-    integrationTestImplementation("org.flywaydb:flyway-database-postgresql:11.1.0")
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+    // Hide warning (https://stackoverflow.com/a/78188896)
+    jvmArgs("-XX:+EnableDynamicAgentLoading", "-Xshare:off")
 }
 
 // Build final app image (OCI).
 // https://docs.spring.io/spring-boot/gradle-plugin/packaging-oci-image.html#build-image.examples.publish
 tasks.named<BootBuildImage>("bootBuildImage") {
-    val registry = getEnv("CI_REGISTRY")
     docker {
         publishRegistry {
-            // Default name. Should be overridden by CLI args.
-            imageName = "${registry}/${project.name}:0.0.1-SNAPSHOT"
-
-            url= "https://${registry}"
+            url= "https://ghcr.io"
             username=getEnv("CI_REGISTRY_USER")
             password=getEnv("CI_REGISTRY_PASSWORD")
         }
     }
 }
 
-// Used to set up Flyway commands that developers can run through gradle. These
-// CLI commands let you use commands like migrate, clean, info, etc. to test any
-// new Flyway scripts being worked on with a local database.
+tasks.bootRun {
+    args("--spring.profiles.active=dev")
+}
+
+// Used to set up Flyway commands that developers can run through gradle. CLI
+// commands like migrate, clean, info, etc. to test any new Flyway scripts on
+// a local database.
 flyway {
     url = "jdbc:postgresql://${getEnv("DATABASE_HOST")}:5432/${getEnv("DATABASE_NAME")}"
     user = getEnv("DATABASE_USER")
@@ -101,45 +91,35 @@ flyway {
     locations = arrayOf("classpath:db/migration")
 }
 
-// ============================= Testing Setup =================================
-tasks.withType<Test> {
-    useJUnitPlatform()
-    // Hide warning (https://stackoverflow.com/a/78188896)
-    jvmArgs("-XX:+EnableDynamicAgentLoading", "-Xshare:off")
+task<Exec>("runAnsible") {
+    group = "infrastructure"
+
+    workingDir = File("infra/ansible")
+
+    environment("DATABASE_HOST", getEnv("DATABASE_HOST"))
+    environment("DATABASE_NAME", getEnv("DATABASE_NAME"))
+    environment("DATABASE_USER", getEnv("DATABASE_USER"))
+    environment("DATABASE_PASSWORD", getEnv("DATABASE_PASSWORD"))
+
+    environment("OMDB_KEY", getEnv("OMDB_KEY"))
+
+    commandLine("ansible", "-i", "staging", "main.yml")
 }
 
-val integrationTest = tasks.register<Test>("integrationTest") {
-    description = "Runs integration tests."
-    group = "verification"
-    useJUnitPlatform()
+task<Exec>("runTerraform") {
+    group = "infrastructure"
 
-    testClassesDirs = sourceSets["integrationTest"].output.classesDirs
-    classpath = sourceSets["integrationTest"].runtimeClasspath
+    workingDir = File("infra/terraform/live/staging")
 
-    shouldRunAfter(tasks.test)
+    environment("ARM_CLIENT_ID", getEnv("ARM_CLIENT_ID"))
+    environment("ARM_CLIENT_SECRET", getEnv("ARM_CLIENT_SECRET"))
+    environment("ARM_SUBSCRIPTION_ID", getEnv("ARM_SUBSCRIPTION_ID"))
+    environment("ARM_TENANT_ID", getEnv("ARM_TENANT_ID"))
+
+    commandLine("terraform", "apply")
 }
-
-tasks.check { dependsOn(integrationTest) }
-
-idea {
-    module {
-        // Fixes bug in IntelliJ where integrationTest library isn't green.
-        // https://docs.gradle.org/userguide/idea_plugin.html#sec:idea_identify_additional_source_sets
-        testSources.from(sourceSets["integrationTest"].java.srcDirs)
-    }
-}
-// =============================================================================
 
 // ================================ HELPERS ====================================
-fun getVersionToUse(): String {
-    // Hardcode version if not specified.
-    return if (project.version == "unspecified" || project.version.toString().isBlank()) {
-        "0.0.1-SNAPSHOT"
-    } else {
-        project.version.toString()
-    }
-}
-
 fun loadEnvFile(): Properties? {
     val properties = Properties()
     val envFile = File(".env")

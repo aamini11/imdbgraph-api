@@ -9,7 +9,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
-import org.aria.imdbgraph.api.ratings.scraper.Scraper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,7 +17,7 @@ import java.util.Optional;
 
 /**
  * Database class that supports search/query operations involving IMDB ratings
- * from our internal database. See {@link Scraper} for how this internal
+ * from our internal database. See {@link ImdbDataScraper} for how this internal
  * database is updated with the latest data from IMDB.
  */
 @Repository

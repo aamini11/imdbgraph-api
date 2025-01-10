@@ -1,94 +1,91 @@
-resource "azurerm_resource_group" "rg" {
+resource "azurerm_resource_group" "root" {
   name     = var.resource_group_name
   location = var.location
 }
 
 // ======================= Virtual Machine + SSH ===============================
-resource "azurerm_linux_virtual_machine" "vm" {
+resource "azurerm_linux_virtual_machine" "app" {
+  resource_group_name   = azurerm_resource_group.root.name
   name                  = var.name
   admin_username        = var.name
   location              = var.location
-  resource_group_name   = azurerm_resource_group.rg.name
-  network_interface_ids = [azurerm_network_interface.nic.id]
-  size                  = "Standard_B2s"
+  size                  = "Standard_B1s"
+
+  network_interface_ids = [azurerm_network_interface.this.id]
 
   source_image_reference {
     offer     = "0001-com-ubuntu-server-focal"
     publisher = "canonical"
-    sku       = "20_04-lts-gen2"
+    sku       = "22_04-lts-gen2"
     version   = "latest"
   }
 
   os_disk {
     caching              = "ReadWrite"
-    storage_account_type = "Premium_LRS"
+    storage_account_type = "Standard_LRS"
   }
 
   admin_ssh_key {
     username   = var.name
-    public_key = azurerm_ssh_public_key.ssh_public_key.public_key
-  }
-
-  boot_diagnostics {
+    public_key = azurerm_ssh_public_key.this.public_key
   }
 }
 
-resource "azurerm_ssh_public_key" "ssh_public_key" {
+resource "azurerm_ssh_public_key" "this" {
   name                = "${var.name}-key"
   location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.root.name
   public_key          = var.public_key
 }
 // =============================================================================
 
 // ============================= Networking ====================================
-resource "azurerm_virtual_network" "virtual_network" {
+resource "azurerm_virtual_network" "this" {
   name                = "${var.name}-vnet"
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.root.name
   location            = var.location
 
   address_space = ["10.0.0.0/16"]
 }
 
-resource "azurerm_network_interface" "nic" {
-  name                = "${var.name}-nic"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = var.location
-
-  ip_configuration {
-    name                          = "ipconfig1"
-    private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.public_ip.id
-    subnet_id                     = azurerm_subnet.subnet.id
-  }
-}
-
-resource "azurerm_subnet" "subnet" {
+resource "azurerm_subnet" "this" {
   name                = "default"
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.root.name
+  virtual_network_name = azurerm_virtual_network.this.name
 
-  virtual_network_name = azurerm_virtual_network.virtual_network.name
   address_prefixes     = ["10.0.1.0/24"]
 }
 
-resource "azurerm_public_ip" "public_ip" {
-  name                = "${var.name}-ip"
-  resource_group_name = azurerm_resource_group.rg.name
+resource "azurerm_public_ip" "this" {
+  name                = "${var.name}-public-ip"
+  resource_group_name = azurerm_resource_group.root.name
+  location            = var.location
+  allocation_method = "Static"
+}
+
+resource "azurerm_network_interface" "this" {
+  name                = "${var.name}-nic"
+  resource_group_name = azurerm_resource_group.root.name
   location            = var.location
 
-  allocation_method = "Static"
+  ip_configuration {
+    name                          = "ipconfig"
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.this.id
+    subnet_id                     = azurerm_subnet.this.id
+  }
 }
 // =============================================================================
 
 // ============================== Firewall =====================================
-resource "azurerm_network_interface_security_group_association" "nic_sg" {
-  network_interface_id      = azurerm_network_interface.nic.id
-  network_security_group_id = azurerm_network_security_group.nsg.id
+resource "azurerm_network_interface_security_group_association" "this" {
+  network_interface_id      = azurerm_network_interface.this.id
+  network_security_group_id = azurerm_network_security_group.this.id
 }
 
-resource "azurerm_network_security_group" "nsg" {
+resource "azurerm_network_security_group" "this" {
   name                = "${var.name}-nsg"
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.root.name
   location            = var.location
 
   security_rule {

@@ -10,10 +10,10 @@ Instead of an API, IMDb publishes all their data as text files, and they update
 those files once a day. The code responsible for scraping that data from IMDB is
 available in this [folder](src/main/java/org/aria/imdbgraph/api/ratings/scraper).
 
-- [Scraper.java](src/main/java/org/aria/imdbgraph/api/ratings/scraper/Scraper.java) 
+- [ImdbDataScraper.java](src/main/java/org/aria/imdbgraph/api/ratings/ImdbDataScraper.java)
 is the code that's run once a day to download the latest files and updates the
 database with the data
-- [ImdbFileDownloader.java](src/main/java/org/aria/imdbgraph/api/ratings/scraper/ImdbFileDownloader.java)
+- [ImdbFileDownloader.java](src/main/java/org/aria/imdbgraph/api/ratings/ImdbFileDownloader.java)
 is the helper class used to download the files.
 
 ## Endpoints

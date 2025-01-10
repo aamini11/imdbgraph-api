@@ -1,0 +1,100 @@
+name: "Pipeline Template"
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+
+jobs:
+  provision:
+    runs-on: ubuntu-22.04
+    environment: ${{ inputs.environment }}
+    permissions:
+      id-token: write
+      contents: read
+    defaults:
+      run:
+        working-directory: infra/terraform/live/${{ inputs.environment }}
+    env:
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.10.3"
+      - name: Terraform Init
+        run: terraform init
+      - name: Terraform Format
+        run: terraform fmt -check
+      - name: Terraform Plan
+        run: terraform plan -input=false
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve -input=false
+
+  build:
+    runs-on: ubuntu-22.04
+    permissions:
+      packages: write
+      checks: write
+    env:
+      IMAGE_NAME: ghcr.io/${{ github.repository }}:${{ github.head_ref || github.ref_name }}
+      CI_REGISTRY_USER: ${{ github.actor }}
+      CI_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      # https://github.com/gradle/actions/tree/main/setup-gradle
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 23
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Test
+        run: ./gradlew check
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v5
+        if: success() || failure() # always run even if the previous step fails
+        with:
+          report_paths: '**/build/test-results/test/TEST-*.xml'
+      # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images#publishing-images-to-github-packages
+      - name: Publish Image
+        run: |
+          ./gradlew bootBuildImage --publishImage --imageName $IMAGE_NAME
+
+  deploy:
+    runs-on: ubuntu-22.04
+    environment: ${{ inputs.environment }}
+    needs: [build, provision]
+    env:
+      SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+      SSH_KNOWN_HOSTS: ${{secrets.SSH_KNOWN_HOSTS}}
+
+      DATABASE_HOST: ${{vars.DATABASE_HOST}}
+      DATABASE_NAME: ${{vars.DATABASE_NAME}}
+      DATABASE_USER: ${{vars.DATABASE_USER}}
+      DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
+
+      OMDB_KEY: ${{secrets.OMDB_KEY}}
+    steps:
+      - name: Checkout Sources
+        uses: actions/checkout@v4
+      - name: Setup SSH
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 400 ~/.ssh/id_rsa 
+
+          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+      - name: Run ansible script
+        run: |
+          cd infra/ansible
+          ansible-playbook -i ${{inputs.environment}} site.yml

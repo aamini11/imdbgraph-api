@@ -5,23 +5,14 @@ on:
     branches: ["main"]
 
 jobs:
-  build:
+  staging:
     permissions:
       packages: write
-    uses: ./.github/workflows/template-gradle.yml
-
-  provision:
-    permissions:
+      checks: write
       id-token: write
       contents: read
-    uses: ./.github/workflows/template-terraform.yml
-    with:
-      environment: staging
-    secrets: inherit
 
-  deploy:
-    uses: ./.github/workflows/template-ansible.yml
-    needs: [ build, provision ]
+    uses: ./.github/workflows/pipeline.yml
     with:
       environment: staging
     secrets: inherit

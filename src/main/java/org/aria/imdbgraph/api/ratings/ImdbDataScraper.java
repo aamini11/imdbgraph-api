@@ -1,6 +1,5 @@
-package org.aria.imdbgraph.api.ratings.scraper;
+package org.aria.imdbgraph.api.ratings;
 
-import org.aria.imdbgraph.api.ratings.scraper.auditing.FileArchiver;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.jdbc.PgConnection;
 import org.slf4j.Logger;
@@ -26,8 +25,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static java.util.Map.entry;
-import static org.aria.imdbgraph.api.ratings.scraper.ImdbFileDownloader.ImdbFile;
-import static org.aria.imdbgraph.api.ratings.scraper.ImdbFileDownloader.ImdbFile.*;
+import static org.aria.imdbgraph.api.ratings.ImdbFileDownloader.ImdbFile;
+import static org.aria.imdbgraph.api.ratings.ImdbFileDownloader.ImdbFile.*;
 
 /**
  * IMDB has no free API to use to fetch their ratings data directly. Instead,
@@ -36,24 +35,21 @@ import static org.aria.imdbgraph.api.ratings.scraper.ImdbFileDownloader.ImdbFile
  */
 @Repository
 @EnableScheduling
-public class Scraper {
+public class ImdbDataScraper {
 
-    private static final Logger logger = LoggerFactory.getLogger(Scraper.class);
+    private static final Logger logger = LoggerFactory.getLogger(ImdbDataScraper.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final DataSource dataSource;
     private final ImdbFileDownloader imdbFileDownloader;
-    private final FileArchiver fileArchiver;
 
     @Autowired
-    public Scraper(
+    public ImdbDataScraper(
             JdbcTemplate jdbcTemplate,
-            ImdbFileDownloader imdbFileDownloader,
-            FileArchiver fileArchiver
+            ImdbFileDownloader imdbFileDownloader
     ) {
         this.imdbFileDownloader = imdbFileDownloader;
         this.jdbcTemplate = jdbcTemplate;
-        this.fileArchiver = fileArchiver;
         this.dataSource = jdbcTemplate.getDataSource();
     }
 
@@ -64,11 +60,7 @@ public class Scraper {
      * Runs daily at 8:00 AM UTC.
      *
      * @throws ImdbFileParsingException If any error occurs when trying to load
-     *                                  the IMDB files into the database, an
-     *                                  error message will be logged and all
-     *                                  files from that session will be
-     *                                  archived. See {@link FileArchiver} for
-     *                                  more info.
+     *                                  the IMDB files into the database.
      */
     @Transactional
     @Scheduled(cron = "0 0 8 * * *")
@@ -86,7 +78,7 @@ public class Scraper {
      * https://www.postgresql.org/docs/current/populate.html
      * https://dba.stackexchange.com/questions/41059/optimizing-bulk-update-performance-in-postgresql
      */
-    public void update() throws ImdbFileParsingException {
+    public void update() {
         jdbcTemplate.execute("""
                 CREATE TEMPORARY TABLE temp_title
                 (
@@ -156,7 +148,6 @@ public class Scraper {
 
                 logger.info("{} successfully transferred to table {}", filePath, tableName);
             } catch (SQLException | IOException exception) {
-                fileArchiver.archive(filePath);
                 throw new ImdbFileParsingException(exception, filePath);
             }
         }
@@ -234,7 +225,7 @@ public class Scraper {
         logger.info("Episodes successfully updated");
     }
 
-    public static class ImdbFileParsingException extends Exception {
+    public static class ImdbFileParsingException extends RuntimeException {
         public ImdbFileParsingException(Throwable cause, Path failedFile) {
             super("Failed to load file from: " + failedFile, cause);
         }
