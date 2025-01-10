@@ -5,7 +5,7 @@ on:
     branches: ["main"]
 
 jobs:
-  staging-pipeline:
+  staging:
     permissions:
       packages: write
       checks: write
