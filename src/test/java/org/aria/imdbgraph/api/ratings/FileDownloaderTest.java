@@ -12,17 +12,17 @@ class FileDownloaderTest {
 
     @Test
     void testDownloadingTitleFile() {
-        testDownload(TITLES_FILE);
+        testDownload(TITLES);
     }
 
     @Test
     void testDownloadingRatingsFile() {
-        testDownload(RATINGS_FILE);
+        testDownload(RATINGS);
     }
 
     @Test
     void testDownloadingEpisodeFile() {
-        testDownload(EPISODES_FILE);
+        testDownload(EPISODES);
     }
 
     private void testDownload(ImdbFile imdbFile) {

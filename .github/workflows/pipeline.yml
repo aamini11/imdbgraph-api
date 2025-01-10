@@ -97,4 +97,4 @@ jobs:
       - name: Run ansible script
         run: |
           cd infra/ansible
-          ansible-playbook -i ${{inputs.environment}} site.yml
+          ansible-playbook -i ${{inputs.environment}} main.yml

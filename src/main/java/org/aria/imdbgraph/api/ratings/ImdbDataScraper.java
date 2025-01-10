@@ -16,15 +16,13 @@ import javax.sql.DataSource;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
-import java.util.EnumMap;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 
-import static java.util.Map.entry;
+import static java.lang.String.format;
 import static org.aria.imdbgraph.api.ratings.ImdbFileDownloader.ImdbFile;
 import static org.aria.imdbgraph.api.ratings.ImdbFileDownloader.ImdbFile.*;
 
@@ -109,56 +107,18 @@ public class ImdbDataScraper {
                 ) ON COMMIT DROP;
                 """);
 
-        Map<ImdbFile, String> fileToTableMapping = Map.ofEntries(
-                entry(TITLES_FILE, "temp_title"),
-                entry(EPISODES_FILE, "temp_episode"),
-                entry(RATINGS_FILE, "temp_ratings")
+        // Copy from files to temp tables
+        Map<ImdbFile, String> tables = Map.of(
+                TITLES, "temp_title",
+                EPISODES, "temp_episode",
+                RATINGS, "temp_ratings"
         );
+        for (Entry<ImdbFile, String> e : tables.entrySet()) {
+            ImdbFile file = e.getKey();
+            String table = e.getValue();
 
-        Set<ImdbFile> filesToDownload = fileToTableMapping.keySet();
-        Map<ImdbFile, Path> allDownloadedFiles = new EnumMap<>(ImdbFile.class);
-        for (ImdbFile file : filesToDownload) {
-            Path downloadLocation = imdbFileDownloader.download(file);
-            allDownloadedFiles.put(file, downloadLocation);
-        }
-
-        // use Postgres' COPY command to copy data from a file into a table
-        for (Map.Entry<ImdbFile, Path> entry : allDownloadedFiles.entrySet()) {
-            ImdbFile imdbFile = entry.getKey();
-            Path filePath = entry.getValue();
-
-            String tableName = fileToTableMapping.get(imdbFile);
-
-            try (BufferedReader br = Files.newBufferedReader(filePath)) {
-                PgConnection postgresConnection = DataSourceUtils.getConnection(dataSource)
-                        .unwrap(PgConnection.class);
-
-                CopyManager copier = new CopyManager(postgresConnection);
-                //language=SQL
-                String command = """
-                        COPY %s
-                        FROM STDIN
-                        WITH (DELIMITER '\t');
-                        """;
-
-                String header = br.readLine();
-                if (header == null)
-                    throw new FileNotFoundException(filePath.toString());
-                copier.copyIn(String.format(command, tableName), br);
-
-                logger.info("{} successfully transferred to table {}", filePath, tableName);
-            } catch (SQLException | IOException exception) {
-                throw new ImdbFileParsingException(exception, filePath);
-            }
-        }
-
-        // Delete all files.
-        for (Path filePath : allDownloadedFiles.values()) {
-            try {
-                Files.delete(filePath);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+            Path downloadedFile = imdbFileDownloader.download(file);
+            copy(downloadedFile, table);
         }
 
         // Updates show table using new data from temp tables.
@@ -223,6 +183,31 @@ public class ImdbDataScraper {
                 ALTER TABLE imdb.episode_new RENAME TO episode;
                 """);
         logger.info("Episodes successfully updated");
+    }
+
+    /**
+     * Use Postgres COPY command to copy data from a file into a table.
+     */
+    private void copy(Path path, String table) {
+        try (BufferedReader f = Files.newBufferedReader(path)) {
+            PgConnection connection = DataSourceUtils.getConnection(dataSource)
+                    .unwrap(PgConnection.class);
+
+            String header = f.readLine();
+            if (header == null) {
+                throw new FileNotFoundException(path.toString());
+            }
+            CopyManager copier = new CopyManager(connection);
+            //language=SQL
+            String cmd = format("COPY %s FROM STDIN WITH (DELIMITER '\t');", table);
+            copier.copyIn(cmd, f);
+
+            // Clean up
+            logger.info("Successfully transferred {} to table {}", path, table);
+            Files.delete(path);
+        } catch (SQLException | IOException exception) {
+            throw new ImdbFileParsingException(exception, path);
+        }
     }
 
     public static class ImdbFileParsingException extends RuntimeException {
