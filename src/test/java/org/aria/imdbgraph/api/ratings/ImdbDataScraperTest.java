@@ -49,8 +49,8 @@ class ImdbDataScraperTest {
 
         // Set up mocks.
         when(fileDownloader.download(TITLES)).thenReturn(inputDir.resolve("titles.tsv"));
-        when(fileDownloader.download(EPISODES)).thenReturn(inputDir.resolve("ratings.tsv"));
-        when(fileDownloader.download(RATINGS)).thenReturn(inputDir.resolve("episodes.tsv"));
+        when(fileDownloader.download(RATINGS)).thenReturn(inputDir.resolve("ratings.tsv"));
+        when(fileDownloader.download(EPISODES)).thenReturn(inputDir.resolve("episodes.tsv"));
     }
 
     @Test
