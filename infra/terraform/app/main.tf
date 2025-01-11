@@ -16,7 +16,7 @@ resource "azurerm_ssh_public_key" "this" {
 resource "azurerm_linux_virtual_machine" "app" {
   resource_group_name = azurerm_resource_group.this.name
   name                = "${var.name}-vm"
-  admin_username      = "admin"
+  admin_username      = var.name
   location            = var.location
   size                = "Standard_B1s"
 
