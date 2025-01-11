@@ -1,5 +1,5 @@
 module "app" {
-  source = "../../modules/app"
+  source = "../../app/app"
 
   location            = "eastus"
   name                = "imdbgraph-staging-api"
