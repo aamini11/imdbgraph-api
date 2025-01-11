@@ -35,7 +35,7 @@ resource "azurerm_linux_virtual_machine" "app" {
   }
 
   admin_ssh_key {
-    username   = "admin"
+    username   = var.name
     public_key = azurerm_ssh_public_key.this.public_key
   }
 }
@@ -46,7 +46,7 @@ resource "azurerm_linux_virtual_machine" "app" {
 resource "azurerm_linux_virtual_machine" "db" {
   resource_group_name = azurerm_resource_group.this.name
   name                = "${var.name}-db"
-  admin_username      = "admin"
+  admin_username      = var.name
   location            = var.location
   size                = "Standard_B1s"
 
@@ -65,7 +65,7 @@ resource "azurerm_linux_virtual_machine" "db" {
   }
 
   admin_ssh_key {
-    username   = "admin"
+    username   = var.name
     public_key = azurerm_ssh_public_key.this.public_key
   }
 
