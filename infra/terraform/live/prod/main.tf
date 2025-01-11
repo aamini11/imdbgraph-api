@@ -1,5 +1,5 @@
 module "azure_vm" {
-  source = "../../modules/azure_vm"
+  source = "../../modules/app"
 
   location            = "eastus"
   name                = "imdbgraph-api"
