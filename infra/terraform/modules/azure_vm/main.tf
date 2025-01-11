@@ -1,11 +1,11 @@
-resource "azurerm_resource_group" "root" {
+resource "azurerm_resource_group" "this" {
   name     = var.resource_group_name
   location = var.location
 }
 
 // ======================= Virtual Machine + SSH ===============================
 resource "azurerm_linux_virtual_machine" "app" {
-  resource_group_name   = azurerm_resource_group.root.name
+  resource_group_name   = azurerm_resource_group.this.name
   name                  = var.name
   admin_username        = var.name
   location              = var.location
@@ -34,7 +34,7 @@ resource "azurerm_linux_virtual_machine" "app" {
 resource "azurerm_ssh_public_key" "this" {
   name                = "${var.name}-key"
   location            = var.location
-  resource_group_name = azurerm_resource_group.root.name
+  resource_group_name = azurerm_resource_group.this.name
   public_key          = var.public_key
 }
 // =============================================================================
@@ -42,7 +42,7 @@ resource "azurerm_ssh_public_key" "this" {
 // ============================= Networking ====================================
 resource "azurerm_virtual_network" "this" {
   name                = "${var.name}-vnet"
-  resource_group_name = azurerm_resource_group.root.name
+  resource_group_name = azurerm_resource_group.this.name
   location            = var.location
 
   address_space = ["10.0.0.0/16"]
@@ -50,7 +50,7 @@ resource "azurerm_virtual_network" "this" {
 
 resource "azurerm_subnet" "this" {
   name                = "default"
-  resource_group_name = azurerm_resource_group.root.name
+  resource_group_name = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.this.name
 
   address_prefixes     = ["10.0.1.0/24"]
@@ -58,14 +58,14 @@ resource "azurerm_subnet" "this" {
 
 resource "azurerm_public_ip" "this" {
   name                = "${var.name}-public-ip"
-  resource_group_name = azurerm_resource_group.root.name
+  resource_group_name = azurerm_resource_group.this.name
   location            = var.location
   allocation_method = "Static"
 }
 
 resource "azurerm_network_interface" "this" {
   name                = "${var.name}-nic"
-  resource_group_name = azurerm_resource_group.root.name
+  resource_group_name = azurerm_resource_group.this.name
   location            = var.location
 
   ip_configuration {
@@ -85,7 +85,7 @@ resource "azurerm_network_interface_security_group_association" "this" {
 
 resource "azurerm_network_security_group" "this" {
   name                = "${var.name}-nsg"
-  resource_group_name = azurerm_resource_group.root.name
+  resource_group_name = azurerm_resource_group.this.name
   location            = var.location
 
   security_rule {
