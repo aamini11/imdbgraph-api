@@ -5,9 +5,6 @@
 config/**/*
 **/.env
 
-**/run-prod.sh
-**/run-staging.sh
-
 # IntelliJ
 .idea
 

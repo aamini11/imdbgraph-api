@@ -11,12 +11,12 @@ resource "azurerm_ssh_public_key" "this" {
 }
 
 ################################################################################
-# Application Virtual Machine
+# Application
 ################################################################################
 resource "azurerm_linux_virtual_machine" "app" {
   resource_group_name   = azurerm_resource_group.this.name
-  name                  = var.name
-  admin_username        = var.name
+  name                  = "${var.name}-vm"
+  admin_username        = "admin"
   location              = var.location
   size                  = "Standard_B1s"
 
@@ -25,7 +25,7 @@ resource "azurerm_linux_virtual_machine" "app" {
   source_image_reference {
     offer     = "0001-com-ubuntu-server-focal"
     publisher = "canonical"
-    sku       = "22_04-lts-gen2"
+    sku       = "20_04-lts-gen2"
     version   = "latest"
   }
 
@@ -35,18 +35,18 @@ resource "azurerm_linux_virtual_machine" "app" {
   }
 
   admin_ssh_key {
-    username   = var.name
+    username   = "admin"
     public_key = azurerm_ssh_public_key.this.public_key
   }
 }
 
 ################################################################################
-# Database Virtual Machine
+# Database
 ################################################################################
 resource "azurerm_linux_virtual_machine" "db" {
   resource_group_name   = azurerm_resource_group.this.name
   name                  = "${var.name}-db"
-  admin_username        = "${var.name}-db"
+  admin_username        = "admin"
   location              = var.location
   size                  = "Standard_B1s"
 
@@ -55,7 +55,7 @@ resource "azurerm_linux_virtual_machine" "db" {
   source_image_reference {
     offer     = "0001-com-ubuntu-server-focal"
     publisher = "canonical"
-    sku       = "22_04-lts-gen2"
+    sku       = "20_04-lts-gen2"
     version   = "latest"
   }
 
@@ -65,7 +65,7 @@ resource "azurerm_linux_virtual_machine" "db" {
   }
 
   admin_ssh_key {
-    username   = var.name
+    username   = "admin"
     public_key = azurerm_ssh_public_key.this.public_key
   }
 
