@@ -14,11 +14,11 @@ resource "azurerm_ssh_public_key" "this" {
 # Application
 ################################################################################
 resource "azurerm_linux_virtual_machine" "app" {
-  resource_group_name   = azurerm_resource_group.this.name
-  name                  = "${var.name}-vm"
-  admin_username        = "admin"
-  location              = var.location
-  size                  = "Standard_B1s"
+  resource_group_name = azurerm_resource_group.this.name
+  name                = "${var.name}-vm"
+  admin_username      = "admin"
+  location            = var.location
+  size                = "Standard_B1s"
 
   network_interface_ids = [azurerm_network_interface.public.id]
 
@@ -44,11 +44,11 @@ resource "azurerm_linux_virtual_machine" "app" {
 # Database
 ################################################################################
 resource "azurerm_linux_virtual_machine" "db" {
-  resource_group_name   = azurerm_resource_group.this.name
-  name                  = "${var.name}-db"
-  admin_username        = "admin"
-  location              = var.location
-  size                  = "Standard_B1s"
+  resource_group_name = azurerm_resource_group.this.name
+  name                = "${var.name}-db"
+  admin_username      = "admin"
+  location            = var.location
+  size                = "Standard_B1s"
 
   network_interface_ids = [azurerm_network_interface.private.id]
 
@@ -79,31 +79,32 @@ resource "azurerm_linux_virtual_machine" "db" {
 ################################################################################
 resource "azurerm_virtual_network" "this" {
   name                = "${var.name}-vnet"
-  resource_group_name = azurerm_resource_group.this.name
   location            = var.location
+  resource_group_name = azurerm_resource_group.this.name
 
   address_space = ["10.0.0.0/16"]
 }
 
 resource "azurerm_subnet" "this" {
-  name                = "default"
-  resource_group_name = azurerm_resource_group.this.name
+  name                 = "default"
+  resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.this.name
 
-  address_prefixes     = ["10.0.1.0/24"]
+  address_prefixes = ["10.0.1.0/24"]
 }
 
 resource "azurerm_public_ip" "public" {
   name                = "${var.name}-public-ip"
-  resource_group_name = azurerm_resource_group.this.name
   location            = var.location
+  resource_group_name = azurerm_resource_group.this.name
+
   allocation_method = "Static"
 }
 
 resource "azurerm_network_interface" "public" {
   name                = "${var.name}-nic"
-  resource_group_name = azurerm_resource_group.this.name
   location            = var.location
+  resource_group_name = azurerm_resource_group.this.name
 
   ip_configuration {
     name                          = "public-ipconfig"
@@ -115,8 +116,8 @@ resource "azurerm_network_interface" "public" {
 
 resource "azurerm_network_interface" "private" {
   name                = "${var.name}-db-nic"
-  resource_group_name = azurerm_resource_group.this.name
   location            = var.location
+  resource_group_name = azurerm_resource_group.this.name
 
   ip_configuration {
     name                          = "private-ipconfig"
@@ -140,8 +141,8 @@ resource "azurerm_network_interface_security_group_association" "private" {
 ################################################################################
 resource "azurerm_network_security_group" "public_firewall" {
   name                = "${var.name}-nsg"
-  resource_group_name = azurerm_resource_group.this.name
   location            = var.location
+  resource_group_name = azurerm_resource_group.this.name
 
   security_rule {
     access                     = "Allow"
@@ -182,8 +183,8 @@ resource "azurerm_network_security_group" "public_firewall" {
 
 resource "azurerm_network_security_group" "private_firewall" {
   name                = "${var.name}-private-nsg"
-  resource_group_name = azurerm_resource_group.this.name
   location            = var.location
+  resource_group_name = azurerm_resource_group.this.name
 
   # Allow SSH only from the internal subnet 10.0.1.0/24
   security_rule {
