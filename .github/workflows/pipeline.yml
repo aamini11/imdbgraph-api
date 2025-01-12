@@ -14,20 +14,23 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    defaults:
-      run:
-        working-directory: infra/terraform/env/${{ inputs.environment }}
     env:
       ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
       ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+    defaults:
+      run:
+        working-directory: infra/terraform/env/${{ inputs.environment }}
     steps:
-      - uses: actions/checkout@v4
+      # Setup Terraform
+      - name: Checkout source code
+        uses: actions/checkout@v4
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.10.3"
+      # Run Terraform
       - name: Terraform Init
         run: terraform init
       - name: Terraform Format
@@ -48,21 +51,20 @@ jobs:
       CI_REGISTRY_USER: ${{ github.actor }}
       CI_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
-      # https://github.com/gradle/actions/tree/main/setup-gradle
-      - uses: actions/setup-java@v4
+      # Setup Gradle (https://github.com/gradle/actions/tree/main/setup-gradle)
+      - name: Checkout source code
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: 23
-      - uses: gradle/actions/setup-gradle@v4
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      # Build + Test
       - name: Test
         run: ./gradlew check
-      - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v5
-        if: success() || failure() # always run even if the previous step fails
-        with:
-          report_paths: '**/build/test-results/test/TEST-*.xml'
-      # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images#publishing-images-to-github-packages
+      # Publish (https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images#publishing-images-to-github-packages)
       - name: Publish Image
         run: |
           ./gradlew bootBuildImage --publishImage --imageName $IMAGE_NAME
@@ -82,18 +84,19 @@ jobs:
 
       OMDB_KEY: ${{secrets.OMDB_KEY}}
     steps:
-      - name: Checkout Sources
+      # Setup SSH for Ansible https://stackoverflow.com/a/60479844/6310030
+      - name: Checkout source code
         uses: actions/checkout@v4
       - name: Setup SSH
         shell: bash
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 400 ~/.ssh/id_rsa 
-
           echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      # Run Ansible
       - name: Run ansible script
         run: |
           cd infra/ansible
