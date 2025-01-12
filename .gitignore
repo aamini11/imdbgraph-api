@@ -3,7 +3,7 @@
 **/secrets.pass
 **/secrets.dec
 config/**/*
-.env
+**/.env
 
 # IntelliJ
 .idea

@@ -7,6 +7,7 @@ plugins {
     id("org.springframework.boot") version "3.4.1"
     id("io.spring.dependency-management") version "1.1.6"
     id("org.flywaydb.flyway") version "11.1.0"
+    jacoco
 }
 
 group = "org.aamini"
@@ -65,6 +66,14 @@ tasks.withType<Test> {
     jvmArgs("-XX:+EnableDynamicAgentLoading", "-Xshare:off")
 }
 
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test) // tests are required to run before generating the report
+}
+
 // Build final app image (OCI).
 // https://docs.spring.io/spring-boot/gradle-plugin/packaging-oci-image.html#build-image.examples.publish
 tasks.named<BootBuildImage>("bootBuildImage") {
@@ -89,34 +98,6 @@ flyway {
     user = getEnv("DATABASE_USER")
     password = getEnv("DATABASE_PASSWORD")
     locations = arrayOf("classpath:db/migration")
-}
-
-task<Exec>("runAnsible") {
-    group = "infrastructure"
-
-    workingDir = File("infra/ansible")
-
-    environment("DATABASE_HOST", getEnv("DATABASE_HOST"))
-    environment("DATABASE_NAME", getEnv("DATABASE_NAME"))
-    environment("DATABASE_USER", getEnv("DATABASE_USER"))
-    environment("DATABASE_PASSWORD", getEnv("DATABASE_PASSWORD"))
-
-    environment("OMDB_KEY", getEnv("OMDB_KEY"))
-
-    commandLine("ansible", "-i", "staging", "main.yml")
-}
-
-task<Exec>("runTerraform") {
-    group = "infrastructure"
-
-    workingDir = File("infra/terraform/live/staging")
-
-    environment("ARM_CLIENT_ID", getEnv("ARM_CLIENT_ID"))
-    environment("ARM_CLIENT_SECRET", getEnv("ARM_CLIENT_SECRET"))
-    environment("ARM_SUBSCRIPTION_ID", getEnv("ARM_SUBSCRIPTION_ID"))
-    environment("ARM_TENANT_ID", getEnv("ARM_TENANT_ID"))
-
-    commandLine("terraform", "apply")
 }
 
 // ================================ HELPERS ====================================

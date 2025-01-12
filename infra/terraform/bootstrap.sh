@@ -3,10 +3,14 @@
 LOCATION=eastus
 
 # REPLACE WITH YOUR SUB ID!
-SUBSCRIPTION_ID="YOUR_ID"
+ARM_SUBSCRIPTION_ID="YOUR_ID"
 
 # Set up credentials
-az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/$SUBSCRIPTION_ID"
+az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/$ARM_SUBSCRIPTION_ID"
+# Copy the results returned from this command into the following env vars:
+# ARM_CLIENT_ID
+# ARM_CLIENT_SECRET
+# ARM_TENANT_ID
 
 # Set up storage account for storing terraform state files.
 RANDOM=$(openssl rand -hex 8)
