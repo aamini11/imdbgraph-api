@@ -13,41 +13,61 @@ resource "azurerm_ssh_public_key" "this" {
 ################################################################################
 # Application
 ################################################################################
-resource "azurerm_kubernetes_cluster" "this" {
-  name                = "imdbgraph-api-cluster"
-  location            = azurerm_resource_group.this.location
+resource "azurerm_linux_virtual_machine" "app" {
   resource_group_name = azurerm_resource_group.this.name
-  dns_prefix          = "imdbgraph-aks"
+  name                = "${var.name}-vm"
+  admin_username      = var.name
+  location            = var.location
+  size                = "Standard_B1s"
 
-  default_node_pool {
-    name       = "default"
-    node_count = 1
-    vm_size    = "Standard_B1s"
-    os_sku     = "Ubuntu"
+  network_interface_ids = [azurerm_network_interface.public.id]
+
+  source_image_reference {
+    offer     = "0001-com-ubuntu-server-focal"
+    publisher = "canonical"
+    sku       = "20_04-lts-gen2"
+    version   = "latest"
   }
 
-  linux_profile {
-    admin_username = "admin"
-    ssh_key {
-      key_data = var.public_key
-    }
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  admin_ssh_key {
+    username   = var.name
+    public_key = azurerm_ssh_public_key.this.public_key
   }
 }
 
 ################################################################################
 # Database
 ################################################################################
-resource "azurerm_postgresql_server" "this" {
-  name                = "${var.name}-db"
-  location            = var.location
+resource "azurerm_linux_virtual_machine" "db" {
   resource_group_name = azurerm_resource_group.this.name
+  name                = "${var.name}-db"
+  admin_username      = var.name
+  location            = var.location
+  size                = "Standard_B1s"
 
-  administrator_login          = var.name
-  administrator_login_password = "H@Sh1CoR3!"
-  sku_name           = "Standard_B1s"
+  network_interface_ids = [azurerm_network_interface.private.id]
 
-  ssl_enforcement_enabled = false
-  version                 = ""
+  source_image_reference {
+    offer     = "0001-com-ubuntu-server-focal"
+    publisher = "canonical"
+    sku       = "20_04-lts-gen2"
+    version   = "latest"
+  }
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  admin_ssh_key {
+    username   = var.name
+    public_key = azurerm_ssh_public_key.this.public_key
+  }
 
   lifecycle {
     prevent_destroy = true
