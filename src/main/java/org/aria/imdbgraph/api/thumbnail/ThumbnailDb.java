@@ -1,10 +1,10 @@
 package org.aria.imdbgraph.api.thumbnail;
 
+import org.aria.imdbgraph.modules.OmdbClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -20,38 +20,27 @@ public class ThumbnailDb {
     }
 
     public Optional<String> getThumbnailUrl(String showId) {
-        var thumbnailUrl = checkDatabase(showId);
-        if (thumbnailUrl.isPresent()) {
-            return thumbnailUrl;
-        }
-
-        // Image doesn't exist in database. Fetch new thumbnail from OMDB and save to db.
-        var newThumbnailUrl = omdbClient.getThumbnailUrl(showId);
-        if (newThumbnailUrl.isPresent()) {
-            insertNewThumbnail(showId, newThumbnailUrl.get());
-            return newThumbnailUrl;
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    private Optional<String> checkDatabase(String showId) {
-        List<String> results = jdbcTemplate.query(
+        // Check cache
+        String cachedUrl = jdbcTemplate.queryForObject(
                 "SELECT thumbnail_url FROM imdb.thumbnails WHERE imdb_id = ?",
-                (rs, rowNum) -> rs.getString(1),
+                (rs, _) -> rs.getString(1),
                 showId
         );
-        if (results.size() != 1) {
-            return Optional.empty();
-        } else {
-            return Optional.of(results.getFirst());
+        if (cachedUrl != null) {
+            return Optional.of(cachedUrl);
         }
-    }
 
-    private void insertNewThumbnail(String showId, String thumbnailUrl) {
-        jdbcTemplate.update(
-                "INSERT INTO imdb.thumbnails(imdb_id, thumbnail_url) VALUES(?, ?)",
-                showId, thumbnailUrl
-        );
+        // If image doesn't exist in database, fetch new thumbnail from OMDB and
+        // save to db.
+        var url = omdbClient.getThumbnailUrl(showId); // Fetch
+        if (url.isPresent()) {
+            jdbcTemplate.update(
+                    "INSERT INTO imdb.thumbnails(imdb_id, thumbnail_url) VALUES(?, ?)",
+                    showId, url
+            );
+            return url;
+        } else {
+            return Optional.empty();
+        }
     }
 }

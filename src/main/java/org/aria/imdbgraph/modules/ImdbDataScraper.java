@@ -1,4 +1,4 @@
-package org.aria.imdbgraph.api.ratings;
+package org.aria.imdbgraph.modules;
 
 import org.postgresql.copy.CopyManager;
 import org.postgresql.jdbc.PgConnection;
@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import static java.lang.String.format;
-import static org.aria.imdbgraph.api.ratings.ImdbFileDownloader.ImdbFile;
-import static org.aria.imdbgraph.api.ratings.ImdbFileDownloader.ImdbFile.*;
+import static org.aria.imdbgraph.modules.ImdbFileDownloader.ImdbFile;
+import static org.aria.imdbgraph.modules.ImdbFileDownloader.ImdbFile.*;
 
 /**
  * IMDB has no free API to use to fetch their ratings data directly. Instead,

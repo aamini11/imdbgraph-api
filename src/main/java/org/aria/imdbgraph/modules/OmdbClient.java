@@ -1,5 +1,6 @@
-package org.aria.imdbgraph.api.thumbnail;
+package org.aria.imdbgraph.modules;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,35 +56,38 @@ public class OmdbClient {
         }
     }
 
-    record Rating(
-            String source,
-            String value
+    // #########################################################################
+    // # JSON Data Types from OMDB API.
+    // #########################################################################
+    private record OmdbApiResponse(
+            @JsonProperty("Title") String title,
+            @JsonProperty("Year") String year,
+            @JsonProperty("Rated") String rated,
+            @JsonProperty("Released") String released,
+            @JsonProperty("Runtime") String runtime,
+            @JsonProperty("Genre") String genre,
+            @JsonProperty("Director") String director,
+            @JsonProperty("Writer") String writer,
+            @JsonProperty("Actors") String actors,
+            @JsonProperty("Plot") String plot,
+            @JsonProperty("Language") String language,
+            @JsonProperty("Country") String country,
+            @JsonProperty("Awards") String awards,
+            @JsonProperty("Poster") String poster,
+            @JsonProperty("Ratings") List<Rating> ratings,
+            @JsonProperty("Metascore") String metascore,
+            @JsonProperty("imdbRating") String imdbRating,
+            @JsonProperty("imdbVotes") String imdbVotes,
+            @JsonProperty("imdbID") String imdbID,
+            @JsonProperty("Type") String type,
+            @JsonProperty("totalSeasons") String totalSeasons,
+            @JsonProperty("Response") String response
     ) {
     }
 
-    record OmdbApiResponse(
-            String title,
-            String year,
-            String rated,
-            String released,
-            String runtime,
-            String genre,
-            String director,
-            String writer,
-            String actors,
-            String plot,
-            String language,
-            String country,
-            String awards,
-            String poster,
-            List<Rating> ratings,
-            String metascore,
-            String imdbRating,
-            String imdbVotes,
-            String imdbID,
-            String type,
-            String totalSeasons,
-            String response
+    private record Rating(
+            @JsonProperty("Source") String source,
+            @JsonProperty("Value") String value
     ) {
     }
 }

@@ -1,10 +1,11 @@
 package org.aria.imdbgraph.api.ratings;
 
-import org.aria.imdbgraph.api.ratings.ImdbFileDownloader.ImdbFile;
+import org.aria.imdbgraph.modules.ImdbFileDownloader;
+import org.aria.imdbgraph.modules.ImdbFileDownloader.ImdbFile;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.aria.imdbgraph.api.ratings.ImdbFileDownloader.ImdbFile.*;
+import static org.aria.imdbgraph.modules.ImdbFileDownloader.ImdbFile.*;
 
 class FileDownloaderTest {
 

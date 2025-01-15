@@ -3,6 +3,7 @@ package org.aria.imdbgraph.api.ratings;
 import org.aria.imdbgraph.api.ratings.json.Episode;
 import org.aria.imdbgraph.api.ratings.json.Ratings;
 import org.aria.imdbgraph.api.ratings.json.Show;
+import org.aria.imdbgraph.modules.ImdbDataScraper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;

@@ -1,6 +1,8 @@
 package org.aria.imdbgraph.api.ratings;
 
-import org.aria.imdbgraph.api.ratings.ImdbDataScraper.ImdbFileParsingException;
+import org.aria.imdbgraph.modules.ImdbDataScraper;
+import org.aria.imdbgraph.modules.ImdbDataScraper.ImdbFileParsingException;
+import org.aria.imdbgraph.modules.ImdbFileDownloader;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static java.nio.file.Files.copy;
-import static org.aria.imdbgraph.api.ratings.ImdbFileDownloader.ImdbFile.*;
+import static org.aria.imdbgraph.modules.ImdbFileDownloader.ImdbFile.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
