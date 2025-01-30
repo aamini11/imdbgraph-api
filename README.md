@@ -3,7 +3,7 @@
 www.imdbgraph.org is a website for visualizing the episode ratings of TV shows
 using user data from imdb.com. Because IMDb doesn't provide an API for accessing 
 their ratings data directly, this project scrapes data from IMDb and provides a copy of
-their data as a REST API. The frontend code for imdbgraph that uses this API is available [here](https://gitlab.com/aamini11/imdbgraph-client).
+their data as a REST API. The frontend code for imdbgraph that uses this API is available [here](https://github.com/aamini11/imdbgraph-client).
 
 ## Scraping 
 Instead of an API, IMDb publishes all their data as text files, and they update
