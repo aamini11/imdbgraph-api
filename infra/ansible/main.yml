@@ -1,6 +1,9 @@
-- hosts: dbservers
-  roles:
-    - postgres
+# Uncomment if you want to run the postgres playbook to manually set up db.
+# No longer necessary since switching from vm to hosted azure db service.
+#
+#- hosts: dbservers
+#  roles:
+#    - postgres
 
 - hosts: webservers
   roles:

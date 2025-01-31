@@ -46,6 +46,11 @@
     - name: Reset ssh connection to allow user changes to affect 'current login user'
       ansible.builtin.meta: reset_connection
 
+- name: Copy Env File
+  template:
+    src: templates/.env-template
+    dest: ~/.env
+
 - name: Run app container
   docker_container:
     image: "ghcr.io/aamini11/imdbgraph-api:main"
@@ -53,10 +58,4 @@
     pull: true
     state: started
     network_mode: host # only needed if db and server on same machine.
-    restart_policy: always
-    env:
-      DATABASE_HOST: "{{ db_host }}"
-      DATABASE_NAME: "{{ db_name }}"
-      DATABASE_USER: "{{ db_user }}"
-      DATABASE_PASSWORD: "{{ db_password }}"
-      OMDB_KEY: "{{ lookup('env', 'OMDB_KEY') }}"
+    env_file: .env
