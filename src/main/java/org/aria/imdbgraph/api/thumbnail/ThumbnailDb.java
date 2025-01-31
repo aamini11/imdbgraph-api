@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -21,19 +22,18 @@ public class ThumbnailDb {
 
     public Optional<String> getThumbnailUrl(String showId) {
         // Check cache
-        String cachedUrl = jdbcTemplate.queryForObject(
+        List<String> results = jdbcTemplate.query(
                 "SELECT thumbnail_url FROM imdb.thumbnails WHERE imdb_id = ?",
                 (rs, _) -> rs.getString(1),
                 showId
         );
-        if (cachedUrl != null) {
-            return Optional.of(cachedUrl);
+        if (results.size() == 1) { // Return cached
+            return Optional.of(results.getFirst());
         }
 
-        // If image doesn't exist in database, fetch new thumbnail from OMDB and
-        // save to db.
+        // Check db + update cache.
         var url = omdbClient.getThumbnailUrl(showId); // Fetch
-        if (url.isPresent()) {
+        if (url.isPresent()) { // Update cache
             jdbcTemplate.update(
                     "INSERT INTO imdb.thumbnails(imdb_id, thumbnail_url) VALUES(?, ?)",
                     showId, url
