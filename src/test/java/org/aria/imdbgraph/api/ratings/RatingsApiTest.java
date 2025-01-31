@@ -1,5 +1,6 @@
 package org.aria.imdbgraph.api.ratings;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -43,6 +44,11 @@ class RatingsApiTest {
                 INSERT INTO imdb.episode VALUES ('tt0944947', 'tt2069318', 'The Night Lands', 2, 2, 8.6, 22413);
                 """;
         db.execute(data);
+    }
+
+    @AfterAll
+    void wipeDb() {
+        db.execute("DELETE FROM imdb.show");
     }
 
     @Test
