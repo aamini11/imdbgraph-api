@@ -1,4 +1,0 @@
-db_host: "{{ lookup('env', 'DATABASE_HOST') }}"
-db_name: "{{ lookup('env', 'DATABASE_NAME') }}"
-db_user: "{{ lookup('env', 'DATABASE_USER') }}"
-db_password: "{{ lookup('env', 'DATABASE_PASSWORD') }}"
