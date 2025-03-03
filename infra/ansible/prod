@@ -1,5 +1,0 @@
-[webservers]
-api.imdbgraph.org ansible_user=imdbgraph-api
-
-[dbservers]
-api.imdbgraph.org

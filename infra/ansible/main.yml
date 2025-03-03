@@ -1,5 +1,0 @@
-- hosts: webservers
-  roles:
-    - nginx
-    - certbot
-    - app
