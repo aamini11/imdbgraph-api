@@ -10,6 +10,11 @@ variable "location" {
   type = string
 }
 
-variable "public_key" {
+variable "db_user" {
   type = string
+}
+
+variable "db_password" {
+  type      = string
+  sensitive = true
 }
