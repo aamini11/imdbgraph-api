@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: imdbgraph-api
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: imdbgraph
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: imdbgraph-api
+data:
+  DATABASE_HOST: "$DATABASE_HOST"
+  DATABASE_NAME: "$DATABASE_NAME"
+  DATABASE_USER: "$DATABASE_USER"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: imdbgraph-api
+data:
+  DATABASE_PASSWORD: "$DATABASE_PASSWORD"
+  OMDB_KEY: "$OMDB_KEY"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: imdbgraph-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: imdbgraph
+  template:
+    metadata:
+      labels:
+        app: imdbgraph-api
+    spec:
+      nodeSelector:
+        app.kubernetes.io/name: imdbgraph
+      containers:
+        - name: imdbgraph-api
+          image: ghcr.io/aamini11/imdbgraph-api:main
+          ports:
+            - containerPort: 8080
+              name: imdbgraph-api
+          envFrom:
+          - configMapRef:
+              name: imdbgraph-api
