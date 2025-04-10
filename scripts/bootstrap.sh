@@ -21,3 +21,14 @@ az storage account create --resource-group "$RESOURCE_GROUP_NAME" --name "$STORA
 # Create Blob Containers
 az storage container create --name "tfstate-staging" --account-name "$STORAGE_ACCOUNT_NAME"
 az storage container create --name "tfstate-prod" --account-name "$STORAGE_ACCOUNT_NAME"
+
+# Bootstrap FluxCD
+az aks get-credentials --resource-group rg-imdbgraph-staging --name aks-imdbgraph
+export GITHUB_TOKEN=""
+flux bootstrap github \
+  --token-auth \
+  --owner=aamini11 \
+  --repository=https://github.com/aamini11/imdbgraph-api \
+  --branch=main \
+  --path=infra/clusters/quick-deploy.yaml \
+  --personal
