@@ -4,7 +4,7 @@ resource "azurerm_resource_group" "main" {
 }
 
 resource "azurerm_kubernetes_cluster" "default" {
-  name                = "aks"
+  name                = "aks-imdbgraph"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
   dns_prefix          = "imdbgraph-api"
@@ -21,7 +21,7 @@ resource "azurerm_kubernetes_cluster" "default" {
 }
 
 resource "azurerm_postgresql_flexible_server" "default" {
-  name                = "db"
+  name                = "db-imdbgraph"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
 
@@ -31,11 +31,16 @@ resource "azurerm_postgresql_flexible_server" "default" {
   zone       = "1"
 
   public_network_access_enabled = false
-  administrator_login           = var.db_user
-  administrator_password        = var.db_password
+  administrator_login           = "postgres"
+  administrator_password        = random_password.db.result
 
   # prevent the possibility of accidental data loss
   lifecycle {
     prevent_destroy = true
   }
+}
+
+resource "random_password" "db" {
+  length           = 16
+  special          = true
 }
