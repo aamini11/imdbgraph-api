@@ -1,7 +1,6 @@
 package org.aria.imdbgraph.api.thumbnail;
 
 import org.aria.imdbgraph.modules.OmdbClient;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -14,7 +13,6 @@ public class ThumbnailDb {
     private final JdbcTemplate jdbcTemplate;
     private final OmdbClient omdbClient;
 
-    @Autowired
     public ThumbnailDb(JdbcTemplate jdbcTemplate, OmdbClient omdbClient) {
         this.jdbcTemplate = jdbcTemplate;
         this.omdbClient = omdbClient;

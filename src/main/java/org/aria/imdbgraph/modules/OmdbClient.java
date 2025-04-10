@@ -3,7 +3,6 @@ package org.aria.imdbgraph.modules;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -27,7 +26,6 @@ public class OmdbClient {
     private final String apiKey;
     private final AtomicInteger counter = new AtomicInteger(1);
 
-    @Autowired
     public OmdbClient(@Value("${omdb.api.key}") String apiKey) {
         this.apiKey = apiKey;
     }

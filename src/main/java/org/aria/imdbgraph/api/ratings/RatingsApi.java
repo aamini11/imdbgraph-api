@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.aria.imdbgraph.api.ratings.json.Ratings;
 import org.aria.imdbgraph.api.ratings.json.Show;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,7 +21,6 @@ public class RatingsApi {
 
     private final RatingsDb ratingsDb;
 
-    @Autowired
     public RatingsApi(RatingsDb ratingsDb) {
         this.ratingsDb = ratingsDb;
     }

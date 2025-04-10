@@ -4,7 +4,6 @@ import org.postgresql.copy.CopyManager;
 import org.postgresql.jdbc.PgConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -41,7 +40,6 @@ public class ImdbDataScraper {
     private final DataSource dataSource;
     private final ImdbFileDownloader imdbFileDownloader;
 
-    @Autowired
     public ImdbDataScraper(
             JdbcTemplate jdbcTemplate,
             ImdbFileDownloader imdbFileDownloader

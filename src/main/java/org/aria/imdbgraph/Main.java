@@ -1,7 +1,6 @@
 package org.aria.imdbgraph;
 
 import org.aria.imdbgraph.modules.ImdbDataScraper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -12,7 +11,6 @@ public class Main implements ApplicationRunner {
 
     private final ImdbDataScraper scraper;
 
-    @Autowired
     public Main(ImdbDataScraper scraper) {
         this.scraper = scraper;
     }
