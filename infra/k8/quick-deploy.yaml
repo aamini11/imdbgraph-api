@@ -10,23 +10,6 @@ spec:
     - port: 80
       targetPort: 8080
 ---
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: imdbgraph-api
-data:
-  DATABASE_HOST: "$DATABASE_HOST"
-  DATABASE_NAME: "$DATABASE_NAME"
-  DATABASE_USER: "$DATABASE_USER"
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: imdbgraph-api
-data:
-  DATABASE_PASSWORD: "$DATABASE_PASSWORD"
-  OMDB_KEY: "$OMDB_KEY"
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:

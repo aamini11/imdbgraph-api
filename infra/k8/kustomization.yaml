@@ -1,4 +1,0 @@
-secretGenerator:
-  - name: token
-    files:
-      - token=token.encrypted
