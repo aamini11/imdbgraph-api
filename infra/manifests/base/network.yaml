@@ -1,38 +1,59 @@
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: v1
+kind: Service
 metadata:
-  name: imdbgraph-ingress
+  name: imdbgraph-api
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: imdbgraph-api
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: imdbgraph-gateway
   annotations:
     cert-manager.io/issuer: letsencrypt
 spec:
-  ingressClassName: nginx
-  tls:
+  gatewayClassName: nginx
+  listeners:
+  - name: http
+    hostname: api.imdbgraph.org
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: All
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - name: tls-secret
   - hosts:
-    - $HOSTNAME
+    - api.imdbgraph.org
     secretName: tls-secret
   rules:
-  - host: $HOSTNAME
+  - host: api.imdbgraph.org
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: magic8ball
+            name: imdbgraph-api
             port:
               number: 80
 ---
 apiVersion: cert-manager.io/v1
-kind: Issuer
+kind: Certificate
 metadata:
-  name: letsencrypt
+  name: imdbgraph-tls
 spec:
-  acme:
-    server: https://acme-v02.api.letsencrypt.org/directory
-    email: $EMAIL
-    privateKeySecretRef:
-      name: tls-secret
-    solvers:
-    - http01:
-        ingress:
-          ingressClassName: nginx
+  issuerRef:
+    name: letsencrypt
+    kind: Issuer
+    group: cert-manager.io
+  dnsNames:
+    - api.imdbgraph.org  # Copied from the `hostname` field.
+  secretName: tls-secret

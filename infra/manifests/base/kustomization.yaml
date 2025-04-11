@@ -4,3 +4,4 @@ namespace: imdbgraph
 resources:
   - deployment.yaml
   - secret-store.yaml
+  - network.yaml
