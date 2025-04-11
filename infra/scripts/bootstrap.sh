@@ -13,12 +13,27 @@ az storage container create --name "tfstate-prod" --account-name "$STORAGE_ACCOU
 az aks get-credentials --resource-group rg-imdbgraph-staging --name aks-imdbgraph
 # Setup
 kubectl create namespace imdbgraph
+
 # ArgoCD
 kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
 # External Secrets Operator
 helm repo add external-secrets https://charts.external-secrets.io
 helm install external-secrets \
    external-secrets/external-secrets \
     -n external-secrets \
     --create-namespace
+
+STATIC_IP=""
+DNS_LABEL="imdbgraph.org"
+helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
+  --set controller.replicaCount=2 \
+  --set controller.nodeSelector."kubernetes\.io/os"=linux \
+  --set defaultBackend.nodeSelector."kubernetes\.io/os"=linux \
+  --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$DNS_LABEL \
+  --set controller.service.loadBalancerIP=$STATIC_IP \
+  --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz
+helm upgrade --install cert-manager jetstack/cert-manager \
+  --set crds.enabled=true \
+  --set nodeSelector."kubernetes\.io/os"=linux
