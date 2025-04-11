@@ -4,7 +4,6 @@ import org.aria.imdbgraph.api.ratings.json.Episode;
 import org.aria.imdbgraph.api.ratings.json.Ratings;
 import org.aria.imdbgraph.api.ratings.json.Show;
 import org.aria.imdbgraph.modules.ImdbDataScraper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -26,7 +25,6 @@ public class RatingsDb {
 
     private final NamedParameterJdbcOperations jdbc;
 
-    @Autowired
     public RatingsDb(NamedParameterJdbcOperations jdbc) {
         this.jdbc = jdbc;
     }
@@ -52,7 +50,7 @@ public class RatingsDb {
                 WHERE show_id = :showId
                 ORDER BY season_num, episode_num;
                 """;
-        List<Episode> allEpisodeRatings = jdbc.query(getEpisodesSQL, params, (rs, rowNum) -> {
+        List<Episode> allEpisodeRatings = jdbc.query(getEpisodesSQL, params, (rs, _) -> {
             String title = rs.getString("episode_title");
             int season = rs.getInt("season_num");
             int episode = rs.getInt("episode_num");
@@ -82,7 +80,7 @@ public class RatingsDb {
                 ORDER BY num_votes DESC
                 LIMIT 5;
                 """;
-        return jdbc.query(sql, params, (rs, rowNum) -> mapToShow(rs));
+        return jdbc.query(sql, params, (rs, _) -> mapToShow(rs));
     }
 
     private Optional<Show> getShow(String showId) {
@@ -100,7 +98,7 @@ public class RatingsDb {
                 WHERE imdb_id = :showId;
                 """;
         try {
-            Show show = jdbc.queryForObject(sql, params, (rs, rowNum) -> mapToShow(rs));
+            Show show = jdbc.queryForObject(sql, params, (rs, _) -> mapToShow(rs));
             return Optional.ofNullable(show);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();

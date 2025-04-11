@@ -26,7 +26,7 @@ public class RatingsApi {
     }
 
     @GetMapping(value = "/ratings/{showId}")
-    public Ratings getRatings(@PathVariable(value = "showId") String showId) {
+    public Ratings getRatings(@PathVariable String showId) {
         Optional<Ratings> ratings = ratingsDb.getAllShowRatings(showId);
         if (ratings.isEmpty()) {
             logger.info("Show not found: {}", showId);
