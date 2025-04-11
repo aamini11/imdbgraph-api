@@ -15,14 +15,14 @@ kind: Deployment
 metadata:
   name: imdbgraph-api
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
-      app.kubernetes.io/name: imdbgraph
+      app.kubernetes.io/name: imdbgraph-api
   template:
     metadata:
       labels:
-        app: imdbgraph-api
+        app.kubernetes.io/name: imdbgraph-api
     spec:
       nodeSelector:
         app.kubernetes.io/name: imdbgraph
@@ -31,7 +31,6 @@ spec:
           image: ghcr.io/aamini11/imdbgraph-api:main
           ports:
             - containerPort: 8080
-              name: imdbgraph-api
           resources:
             requests:
               memory: "128Mi"
