@@ -11,3 +11,14 @@ az storage container create --name "tfstate-prod" --account-name "$STORAGE_ACCOU
 
 # Allow login for kubectl
 az aks get-credentials --resource-group rg-imdbgraph-staging --name aks-imdbgraph
+# Setup
+kubectl create namespace imdbgraph
+# ArgoCD
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+# External Secrets Operator
+helm repo add external-secrets https://charts.external-secrets.io
+helm install external-secrets \
+   external-secrets/external-secrets \
+    -n external-secrets \
+    --create-namespace
