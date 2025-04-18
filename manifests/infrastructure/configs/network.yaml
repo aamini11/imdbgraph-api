@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: imdbgraph-api
+  name: imdbgraph-service
 spec:
   type: LoadBalancer
   selector:
@@ -17,7 +17,7 @@ metadata:
   annotations:
     cert-manager.io/issuer: letsencrypt
 spec:
-  gatewayClassName: nginx
+  gatewayClassName: azure-alb-external
   listeners:
   - name: http
     hostname: api.imdbgraph.org
@@ -30,20 +30,6 @@ spec:
       mode: Terminate
       certificateRefs:
       - name: tls-secret
-  - hosts:
-    - api.imdbgraph.org
-    secretName: tls-secret
-  rules:
-  - host: api.imdbgraph.org
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: imdbgraph-api
-            port:
-              number: 80
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate

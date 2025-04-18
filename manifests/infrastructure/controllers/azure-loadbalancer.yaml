@@ -1,0 +1,31 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: mcr-alb-controller
+  namespace: flux-system
+spec:
+  type: oci
+  url: oci://mcr.microsoft.com/application-lb/charts
+  interval: 10m0s
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: alb-controller
+  namespace: imdbgraph
+spec:
+  interval: 5m0s
+  chart:
+    spec:
+      chart: alb-controller
+      version: 1.5.2
+      sourceRef:
+        kind: HelmRepository
+        name: mcr-alb-controller
+        namespace: flux-system
+  targetNamespace: imdbgraph
+  values:
+    albController:
+      namespace: azure-alb-system
+      podIdentity:
+        clientID: fc12067d-a639-4226-8725-6f675f941157

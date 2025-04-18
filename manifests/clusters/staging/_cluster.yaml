@@ -1,0 +1,48 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: apps
+  namespace: flux-system
+spec:
+  path: ./apps/staging
+  dependsOn:
+    - name: infra-configs
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  interval: 10m
+  retryInterval: 1m
+  timeout: 5m
+  prune: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infra-configs
+  namespace: flux-system
+spec:
+  path: ./manifests/infrastructure/configs
+  dependsOn:
+    - name: infra-controllers
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  interval: 1h0m
+  retryInterval: 1m
+  timeout: 5m
+  prune: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infra-controllers
+  namespace: flux-system
+spec:
+  path: ./manifests/infrastructure/controllers
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  interval: 1h0m
+  retryInterval: 1m
+  timeout: 5m
+  prune: true
