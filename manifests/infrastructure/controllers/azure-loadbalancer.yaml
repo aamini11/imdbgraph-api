@@ -2,34 +2,32 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: azure-alb-system
+  name: azure-load-balancer
 ---
 apiVersion: source.toolkit.fluxcd.io/v1
-kind: HelmRepository
+kind: OCIRepository
 metadata:
-  name: mcr-alb-controller
-  namespace: flux-system
+  name: azure-load-balancer
+  namespace: azure-load-balancer
 spec:
-  type: oci
-  url: oci://mcr.microsoft.com/application-lb/charts
   interval: 10m0s
+  url: oci://mcr.microsoft.com/application-lb/charts
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: alb-controller
-  namespace: azure-alb-system
+  name: azure-load-balancer
+  namespace: azure-load-balancer
 spec:
-  targetNamespace: azure-alb-system  # same as .metadata.namespace
   interval: 5m0s
   chart:
     spec:
       chart: alb-controller
       version: 1.5.2
       sourceRef:
-        kind: HelmRepository
-        name: mcr-alb-controller
-        namespace: flux-system
+        kind: OCIRepository
+        name: azure-load-balancer
+        namespace: azure-load-balancer
   values:
     albController:
       namespace: azure-alb-system
