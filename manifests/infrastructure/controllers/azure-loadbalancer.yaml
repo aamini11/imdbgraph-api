@@ -12,8 +12,7 @@ metadata:
 spec:
   interval: 10m0s
   url: oci://mcr.microsoft.com/application-lb/charts/alb-controller
-  ref:
-    tag: latest
+  # provider: azure
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
