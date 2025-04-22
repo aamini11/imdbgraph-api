@@ -22,6 +22,7 @@ metadata:
   namespace: azure-load-balancer
 spec:
   interval: 5m0s
+  timeout: 2m0s
   chartRef:
     kind: OCIRepository
     name: azure-load-balancer
