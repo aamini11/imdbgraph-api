@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: imdbgraph-tls
+spec:
+  issuerRef:
+    name: letsencrypt
+    kind: Issuer
+    group: cert-manager.io
+  dnsNames:
+    - api.imdbgraph.org
+  secretName: tls-secret

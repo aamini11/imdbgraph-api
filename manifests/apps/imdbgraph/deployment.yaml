@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: imdbgraph-api
 spec:
-  replicas: 4
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: imdbgraph-api
@@ -20,10 +20,10 @@ spec:
           resources:
             requests:
               memory: "1Gi"
-              cpu: "125m"
+              cpu: "500"
             limits:
               memory: "2Gi"
-              cpu: "250m"
+              cpu: "1000m"
           envFrom:
           - configMapRef:
               name: imdbgraph-config
