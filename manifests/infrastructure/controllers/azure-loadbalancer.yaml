@@ -11,6 +11,7 @@ metadata:
   namespace: azure-alb-system
 spec:
   interval: 10m0s
+  timeout: 2m0s
   url: oci://mcr.microsoft.com/application-lb/charts/alb-controller
   ref:
     tag: "1.5.2"
