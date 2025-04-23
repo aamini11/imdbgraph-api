@@ -22,8 +22,11 @@ metadata:
   name: azure-load-balancer
   namespace: azure-alb-system
 spec:
+  install:
+    disableWait: true
+  upgrade:
+   disableWait: true
   interval: 10m0s
-  timeout: 2m0s
   chartRef:
     kind: OCIRepository
     name: azure-load-balancer
