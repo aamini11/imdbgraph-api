@@ -22,10 +22,6 @@ metadata:
   name: azure-load-balancer
   namespace: azure-load-balancer
 spec:
-  install:
-    disableWait: true
-  upgrade:
-   disableWait: true
   interval: 10m0s
   chartRef:
     kind: OCIRepository
