@@ -17,7 +17,8 @@ resource "azurerm_kubernetes_cluster" "this" {
   default_node_pool {
     name       = "agentpool"
     node_count = 1
-    vm_size    = "Standard_D2d_v5	"
+    vm_size    = "Standard_D2d_v5"
+    temporary_name_for_rotation = "agentpool2"
 
     upgrade_settings {
       drain_timeout_in_minutes      = 0
@@ -39,6 +40,30 @@ resource "azurerm_kubernetes_cluster" "this" {
 
   oidc_issuer_enabled       = true
   workload_identity_enabled = true
+}
+
+###############################################################################
+# Security
+###############################################################################
+resource "azurerm_user_assigned_identity" "workload_id" {
+  name                = "azure-alb-identity"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+}
+
+resource "azurerm_federated_identity_credential" "this" {
+  name                = azurerm_user_assigned_identity.workload_id.name
+  resource_group_name = azurerm_user_assigned_identity.workload_id.resource_group_name
+  parent_id           = azurerm_user_assigned_identity.workload_id.id
+  audience            = ["api://AzureADTokenExchange"]
+  issuer              = azurerm_kubernetes_cluster.this.oidc_issuer_url
+  subject             = "system:serviceaccount:azure-alb-system:alb-controller-sa"
+}
+
+resource "azurerm_role_assignment" "reader" {
+  role_definition_name = "Reader"
+  scope                = azurerm_kubernetes_cluster.this.node_resource_group_id
+  principal_id         = azurerm_user_assigned_identity.workload_id.principal_id
 }
 
 ###############################################################################
@@ -68,27 +93,3 @@ resource "azurerm_kubernetes_cluster" "this" {
 #   length           = 16
 #   special          = true
 # }
-
-###############################################################################
-# Security
-###############################################################################
-resource "azurerm_user_assigned_identity" "workload_id" {
-  name                = "azure-alb-identity"
-  location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
-}
-
-resource "azurerm_federated_identity_credential" "this" {
-  name                = azurerm_user_assigned_identity.workload_id.name
-  resource_group_name = azurerm_user_assigned_identity.workload_id.resource_group_name
-  parent_id           = azurerm_user_assigned_identity.workload_id.id
-  audience            = ["api://AzureADTokenExchange"]
-  issuer              = azurerm_kubernetes_cluster.this.oidc_issuer_url
-  subject             = "system:serviceaccount:azure-alb-system:alb-controller-sa"
-}
-
-resource "azurerm_role_assignment" "reader" {
-  role_definition_name = "Reader"
-  scope                = azurerm_kubernetes_cluster.this.node_resource_group_id
-  principal_id         = azurerm_user_assigned_identity.workload_id.principal_id
-}
