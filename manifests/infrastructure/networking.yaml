@@ -29,7 +29,7 @@ spec:
   interval: 10m0s
   chartRef:
     kind: OCIRepository
-    name: eq
+    name: eg
     namespace: envoy-gateway-system
 ---
 apiVersion: gateway.networking.k8s.io/v1
