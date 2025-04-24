@@ -17,7 +17,8 @@ metadata:
   name: imdbgraph-httproute
 spec:
   parentRefs:
-  - name: imdbgraph-gateway
+  - name: gateway
+    namespace: networking
   hostnames:
   - api.imdbgraph.org
   rules:
