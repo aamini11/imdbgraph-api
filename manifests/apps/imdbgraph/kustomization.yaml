@@ -7,7 +7,7 @@ configMapGenerator:
   - name: imdbgraph-config
     files:
       - .env
-secretGenerator:
-  - name: secrets
-    envs:
-      - .env.secret
+# secretGenerator:
+#   - name: secrets
+#     envs:
+#       - .env.secret
