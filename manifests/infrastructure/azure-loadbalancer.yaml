@@ -31,3 +31,24 @@ spec:
       namespace: azure-alb-system
       podIdentity:
         clientID: fc12067d-a639-4226-8725-6f675f941157
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: imdbgraph-gateway
+  annotations:
+    cert-manager.io/issuer: letsencrypt
+spec:
+  gatewayClassName: azure-alb-external
+  listeners:
+  - name: http
+    hostname: api.imdbgraph.org
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: All
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - name: imdbgraph-tls

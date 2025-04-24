@@ -1,12 +1,12 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: apps
+  name: imdbgraph
   namespace: flux-system
 spec:
-  path: ./manifests/apps/imdbgraph
   dependsOn:
-    - name: infra-configs
+    - name: infrastructure
+  path: ./manifests/apps/imdbgraph
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -18,27 +18,10 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: infra-configs
+  name: infrastructure
   namespace: flux-system
 spec:
-  path: ./manifests/infrastructure/configs
-  dependsOn:
-    - name: infra-controllers
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  interval: 1h0m
-  retryInterval: 1m
-  timeout: 5m
-  prune: true
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: infra-controllers
-  namespace: flux-system
-spec:
-  path: ./manifests/infrastructure/controllers
+  path: ./manifests/infrastructure
   sourceRef:
     kind: GitRepository
     name: flux-system
