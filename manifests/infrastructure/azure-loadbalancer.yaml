@@ -3,7 +3,7 @@ apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: OCIRepository
 metadata:
   name: azure-alb-controller
-  namespace: default
+  namespace: flux-system
 spec:
   interval: 10m0s
   url: oci://mcr.microsoft.com/application-lb/charts/alb-controller
@@ -14,7 +14,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: azure-alb-controller
-  namespace: flux-system
+  namespace: default
 spec:
   interval: 10m0s
   chartRef:
