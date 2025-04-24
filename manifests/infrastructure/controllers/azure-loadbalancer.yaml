@@ -8,7 +8,7 @@ apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: OCIRepository
 metadata:
   name: azure-load-balancer
-  namespace: azure-alb-system
+  namespace: azure-load-balancer
 spec:
   interval: 10m0s
   timeout: 2m0s
@@ -20,7 +20,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: azure-load-balancer
-  namespace: azure-alb-system
+  namespace: azure-load-balancer
 spec:
   install:
     disableWait: true
