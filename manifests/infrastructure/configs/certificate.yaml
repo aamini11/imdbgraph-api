@@ -10,4 +10,4 @@ spec:
     group: cert-manager.io
   dnsNames:
     - api.imdbgraph.org
-  secretName: tls-secret
+  secretName: imdbgraph-tls
