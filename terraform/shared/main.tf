@@ -73,7 +73,7 @@ resource "azurerm_kubernetes_cluster" "this" {
 # Security
 ###############################################################################
 resource "azurerm_user_assigned_identity" "workload_id" {
-  name                = "id-workload"
+  name                = "azure-alb-identity"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
 }
