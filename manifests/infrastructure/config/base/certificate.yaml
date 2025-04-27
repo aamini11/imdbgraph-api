@@ -4,10 +4,12 @@ metadata:
   name: imdbgraph-tls
   namespace: cert-manager
 spec:
+  secretName: imdbgraph-tls
+  privateKey:
+    rotationPolicy: Always
   issuerRef:
     name: letsencrypt
     kind: Issuer
     group: cert-manager.io
   dnsNames:
-    - api.imdbgraph.org
-  secretName: imdbgraph-tls
+    - imdbgraph.org

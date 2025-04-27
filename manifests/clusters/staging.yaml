@@ -39,7 +39,7 @@ metadata:
   name: infrastructure-config
   namespace: flux-system
 spec:
-  path: ./manifests/infrastructure/config
+  path: ./manifests/infrastructure/config/overlays/staging
   sourceRef:
     kind: GitRepository
     name: flux-system
