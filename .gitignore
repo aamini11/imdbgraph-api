@@ -7,8 +7,6 @@ config/**/*
 # IntelliJ
 .idea
 
-.vscode
-
 # Gradle
 .gradle
 build/
