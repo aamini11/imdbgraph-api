@@ -36,10 +36,10 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: infrastructure-controllers
+  name: infrastructure-helm-releases
   namespace: flux-system
 spec:
-  path: ./manifests/infrastructure/controllers
+  path: ./manifests/infrastructure/helm
   sourceRef:
     kind: GitRepository
     name: flux-system
