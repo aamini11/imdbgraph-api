@@ -37,4 +37,4 @@ spec:
     backendRefs:
     - name: imdbgraph-service
       namespace: default
-      port: 80
+      port: 8080
