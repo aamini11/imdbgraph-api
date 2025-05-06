@@ -26,8 +26,3 @@ spec:
     providers:
       kubernetesGateway:
         enabled: true
-    entryPoints:
-      web:
-        address: ":80"
-      websecure:
-        address: ":443"
