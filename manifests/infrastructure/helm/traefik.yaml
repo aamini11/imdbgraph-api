@@ -23,5 +23,5 @@ spec:
         name: traefik
         namespace: flux-system
   values:
-    kubernetesGateway:
-      enabled: true
+    providers:
+      kubernetesGateway: {}
