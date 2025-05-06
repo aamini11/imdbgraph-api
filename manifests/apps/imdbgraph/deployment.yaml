@@ -42,3 +42,4 @@ spec:
           envFrom:
           - configMapRef:
               name: imdbgraph-config
+              namespace: default
