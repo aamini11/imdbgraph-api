@@ -6,7 +6,7 @@ metadata:
   namespace: flux-system
 spec:
   dependsOn:
-    - name: infrastructure-controllers
+    - name: infrastructure-config
   path: ./manifests/apps/imdbgraph
   sourceRef:
     kind: GitRepository
