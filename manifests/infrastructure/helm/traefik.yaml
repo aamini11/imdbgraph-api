@@ -22,3 +22,6 @@ spec:
         kind: HelmRepository
         name: traefik
         namespace: flux-system
+  values:
+    kubernetesGateway:
+      enabled: true
