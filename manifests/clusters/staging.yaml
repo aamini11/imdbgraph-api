@@ -23,7 +23,7 @@ metadata:
   namespace: flux-system
 spec:
   dependsOn:
-    - name: infrastructure-controllers
+    - name: infrastructure-helm-releases
   path: ./manifests/infrastructure/config/overlays/staging
   sourceRef:
     kind: GitRepository
