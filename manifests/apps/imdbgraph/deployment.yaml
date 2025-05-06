@@ -42,3 +42,5 @@ spec:
           envFrom:
           - configMapRef:
               name: imdbgraph-config
+          - secretRef:
+              name: imdbgraph-secrets
