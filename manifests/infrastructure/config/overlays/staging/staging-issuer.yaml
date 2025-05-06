@@ -5,16 +5,10 @@ metadata:
   namespace: default
 spec:
   acme:
-    server: https://acme-staging-v02.api.letsencrypt.org/directory
-    email: amini5454@gmail.com
-    privateKeySecretRef:
-      name: letsencrypt-staging
     solvers:
-    - dns01:
-        azureDNS:
-          resourceGroupName: rg-imdbgraph-staging
-          subscriptionID: 331269d5-143f-4246-b389-9c1f41bb5882
-          hostedZoneName: api.staging.imdbgraph.org
-          environment: AzurePublicCloud
-          managedIdentity:
-            clientID: 0a4b4224-2ee1-4eb7-b930-1e95e95a0289
+      - http01:
+          gatewayHTTPRoute:
+            parentRefs:
+              - name: traefik
+                namespace: default
+                kind: Gateway
