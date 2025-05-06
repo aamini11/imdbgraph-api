@@ -2,7 +2,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: imdbgraph-tls
-  namespace: cert-manager
+  namespace: default
 spec:
   secretName: imdbgraph-tls
   privateKey:
@@ -12,4 +12,4 @@ spec:
     kind: Issuer
     group: cert-manager.io
   dnsNames:
-    - imdbgraph.org
+    - api.staging.imdbgraph.org

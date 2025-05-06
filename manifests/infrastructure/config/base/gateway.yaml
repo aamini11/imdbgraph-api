@@ -3,6 +3,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass
 metadata:
   name: traefik
+  namespace: default
 spec:
   controllerName: traefik.io/gateway-controller
 ---
@@ -11,9 +12,10 @@ kind: Gateway
 metadata:
   name: traefik
   namespace: default
+  annotations:
+    cert-manager.io/issuer: foo
 spec:
   gatewayClassName: traefik
-  # Only Routes from the same namespace are allowed.
   listeners:
     - name: http
       protocol: HTTP
