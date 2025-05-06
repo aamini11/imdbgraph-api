@@ -8,7 +8,7 @@ spec:
     server: https://acme-v02.api.letsencrypt.org/directory
     email: amini5454@gmail.com
     privateKeySecretRef:
-      name: letsencrypt-prod
+      name: acme-prod
     solvers:
     - dns01:
         azureDNS:
