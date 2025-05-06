@@ -20,7 +20,7 @@ spec:
     namespace: networking
     kind: Gateway
   hostnames:
-  - api.imdbgraph.org
+  - api.staging.imdbgraph.org
   rules:
     - filters:
         - type: RequestRedirect
@@ -37,7 +37,7 @@ spec:
     namespace: networking
     kind: Gateway
   hostnames:
-  - api.imdbgraph.org
+  - api.staging.imdbgraph.org
   rules:
   - matches:
     - path:
@@ -45,4 +45,5 @@ spec:
         value: /
     backendRefs:
     - name: imdbgraph-service
+      namespace: imdbgraph
       port: 80
