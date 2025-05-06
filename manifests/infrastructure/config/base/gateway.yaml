@@ -13,7 +13,7 @@ metadata:
   name: traefik
   namespace: default
   annotations:
-    cert-manager.io/issuer: foo
+    cert-manager.io/issuer: letsencrypt
 spec:
   gatewayClassName: traefik
   listeners:
