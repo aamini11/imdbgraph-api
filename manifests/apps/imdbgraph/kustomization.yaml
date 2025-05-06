@@ -4,11 +4,8 @@ namespace: default
 resources:
   - deployment.yaml
   - routes.yaml
+  - secret.enc.yaml
 configMapGenerator:
   - name: imdbgraph-config
     files:
       - .env
-secretGenerator:
-  - name: imdbgraph-secrets
-    envs:
-      - .env.secret.encrypted
