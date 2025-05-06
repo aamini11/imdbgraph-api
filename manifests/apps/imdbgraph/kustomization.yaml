@@ -11,4 +11,4 @@ configMapGenerator:
 secretGenerator:
   - name: imdbgraph-secrets
     envs:
-    - .env.secret
+      - .env.secret.encrypted
