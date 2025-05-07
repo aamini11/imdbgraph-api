@@ -47,8 +47,8 @@ spec:
   parentRefs:
     - name: traefik-gateway
       namespace: traefik
-  hostnames:
-    - api.staging.imdbgraph.com
+  # hostnames:
+  #   - api.staging.imdbgraph.com
   rules:
     - matches:
         - path:

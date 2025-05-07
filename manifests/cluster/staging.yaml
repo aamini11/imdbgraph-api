@@ -6,7 +6,7 @@ metadata:
   namespace: flux-system
 spec:
   dependsOn:
-    - name: infrastructure-config
+    - name: infrastructure-helm-releases
   path: ./manifests/app
   sourceRef:
     kind: GitRepository
@@ -19,23 +19,6 @@ spec:
     provider: sops
     secretRef:
       name: sops-age
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: infrastructure-config
-  namespace: flux-system
-spec:
-  dependsOn:
-    - name: infrastructure-helm-releases
-  path: ./manifests/infrastructure/config
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  interval: 1h0m
-  retryInterval: 1m
-  timeout: 5m
-  prune: true
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
