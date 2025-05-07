@@ -48,7 +48,7 @@ spec:
         #     - name: imdbgraph-tls
     ports:
       web:
-        port: :80
+        port: 80
       # websecure:
       #   port: :443
       #   tls:
