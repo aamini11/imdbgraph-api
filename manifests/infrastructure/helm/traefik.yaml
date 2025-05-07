@@ -34,7 +34,26 @@ spec:
       kubernetesIngress:
         enabled: false
     gateway:
-      enabled: false
-    additionalArguments:
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
+      enabled: true
+      # annotations:
+      #   cert-manager.io/issuer: selfsigned-issuer
+      listeners:
+        web:
+          port: 80
+          protocol: HTTP
+        # websecure:
+        #   port: 443
+        #   protocol: HTTPS
+        #   certificateRefs:
+        #     - name: imdbgraph-tls
+    ports:
+      web:
+        port: :80
+      # websecure:
+      #   port: :443
+      #   tls:
+      #     enabled: true
+      # additionalArguments:
+      #   - --entryPoints.web.http.redirections.to=websecure
+      #   - --entryPoints.web.http.redirections.scheme=https
+      #   - --entryPoints.web.http.redirections.permanent=true

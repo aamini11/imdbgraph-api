@@ -7,7 +7,7 @@ metadata:
 spec:
   dependsOn:
     - name: infrastructure-config
-  path: ./manifests/apps/imdbgraph
+  path: ./manifests/app
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -28,7 +28,7 @@ metadata:
 spec:
   dependsOn:
     - name: infrastructure-helm-releases
-  path: ./manifests/infrastructure/config/overlays/staging
+  path: ./manifests/infrastructure/config
   sourceRef:
     kind: GitRepository
     name: flux-system
