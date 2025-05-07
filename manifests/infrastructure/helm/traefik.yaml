@@ -29,9 +29,9 @@ spec:
         namespace: flux-system
   values:
     providers:
-      kubernetesIngress:
-        enabled: false
       kubernetesGateway:
         enabled: true
+      kubernetesIngress:
+        enabled: false
     gateway:
-      namespacePolicy: All
+      enabled: false

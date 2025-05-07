@@ -3,15 +3,15 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass
 metadata:
   name: traefik
-  namespace: default
+  namespace: traefik
 spec:
   controllerName: traefik.io/gateway-controller
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: traefik
-  namespace: default
+  name: traefik-gateway
+  namespace: traefik
 spec:
   gatewayClassName: traefik
   listeners:
@@ -20,7 +20,7 @@ spec:
       port: 80
       allowedRoutes:
         namespaces:
-          from: Same 
+          from: All 
     - name: websecure
       protocol: HTTPS
       port: 443
@@ -31,4 +31,4 @@ spec:
             namespace: default
       allowedRoutes:
         namespaces:
-          from: Same
+          from: All
