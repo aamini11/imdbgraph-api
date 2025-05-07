@@ -24,8 +24,7 @@ spec:
         namespace: flux-system
   values:
     providers:
-      kubernetesGateway:
-        enabled: true
+      kubernetesGateway: {}
     entryPoints:
       web:
         address: ":80"
