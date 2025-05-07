@@ -35,6 +35,6 @@ spec:
         enabled: false
     gateway:
       enabled: false
-    extraArgs:
+    additionalArguments:
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
