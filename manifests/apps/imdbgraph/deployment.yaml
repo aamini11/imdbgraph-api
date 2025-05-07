@@ -4,8 +4,6 @@ kind: Service
 metadata:
   name: imdbgraph-service
   namespace: default
-  labels:
-    app.kubernetes.io/name: imdbgraph-api
 spec:
   type: ClusterIP
   selector:
