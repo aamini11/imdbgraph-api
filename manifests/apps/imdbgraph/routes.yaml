@@ -7,7 +7,7 @@ metadata:
 spec:
   parentRefs:
   - name: traefik
-    namespace: default
+    sectionName: http
     kind: Gateway
   hostnames:
   - api.staging.imdbgraph.org
@@ -25,7 +25,7 @@ metadata:
 spec:
   parentRefs:
   - name: traefik
-    namespace: default
+    sectionName: https
     kind: Gateway
   hostnames:
   - api.staging.imdbgraph.org
