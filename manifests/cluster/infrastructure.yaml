@@ -23,7 +23,7 @@ metadata:
   name: infrastructure-helm-releases
   namespace: flux-system
 spec:
-  path: ./manifests/infrastructure/helm
+  path: ./manifests/infrastructure/helm-releases
   sourceRef:
     kind: GitRepository
     name: flux-system
