@@ -27,6 +27,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: cert-manager
+        namespace: flux-system
   values:
     installCRDs: true
     extraArgs: 
