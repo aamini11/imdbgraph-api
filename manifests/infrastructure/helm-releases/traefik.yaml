@@ -1,9 +1,4 @@
 ---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: traefik
----
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
@@ -27,11 +22,13 @@ spec:
         kind: HelmRepository
         name: traefik
         namespace: flux-system
+  install:
+    createNamespace: true
+  upgrade:
+    createNamespace: true
   values:
     providers:
       kubernetesGateway:
         enabled: true
-      kubernetesIngress:
-        enabled: false
     gateway:
       enabled: false
