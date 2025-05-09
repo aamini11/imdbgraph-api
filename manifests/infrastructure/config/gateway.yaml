@@ -28,7 +28,8 @@ spec:
       tls:
         mode: Terminate
         certificateRefs:
-          - name: imdbgraph-org
+          - kind:
+            name: imdbgraph-org-tls
             namespace: cert-manager
       allowedRoutes:
         namespaces:
