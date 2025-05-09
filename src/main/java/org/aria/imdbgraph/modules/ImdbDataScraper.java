@@ -75,6 +75,7 @@ public class ImdbDataScraper {
      * https://dba.stackexchange.com/questions/41059/optimizing-bulk-update-performance-in-postgresql
      */
     public void update() {
+        //language=SQL
         jdbcTemplate.execute("""
                 CREATE TEMPORARY TABLE temp_title
                 (
@@ -121,6 +122,7 @@ public class ImdbDataScraper {
 
         // Updates show table using new data from temp tables.
         //noinspection SqlResolve,SqlCheckUsingColumns
+        //language=SQL
         jdbcTemplate.execute("""
                 INSERT INTO imdb.show(imdb_id,
                                       primary_title,
@@ -148,6 +150,7 @@ public class ImdbDataScraper {
 
         // Updates episode table using new data from temp tables.
         //noinspection SqlResolve,SqlCheckUsingColumns
+        //language=SQL
         jdbcTemplate.execute("""
                 DROP TABLE IF EXISTS imdb.episode_new;
                 
