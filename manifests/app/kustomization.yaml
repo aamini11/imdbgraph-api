@@ -3,7 +3,7 @@ kind: Kustomization
 namespace: imdbgraph
 resources:
   - deployment.yaml
-  - secret.enc.yaml
+  - sealed-secret.yaml
 configMapGenerator:
   - name: imdbgraph-config
     files:
