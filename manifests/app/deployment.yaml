@@ -17,7 +17,7 @@ spec:
       app: imdbgraph-api
   template:
     metadata:
-      labels: 
+      labels:
         app: imdbgraph-api
     spec:
       containers:
@@ -85,4 +85,4 @@ spec:
             value: /
       backendRefs:
         - name: imdbgraph-service
-          port: 443
+          port: 80
