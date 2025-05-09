@@ -58,7 +58,7 @@ metadata:
 spec:
   parentRefs:
     - name: traefik-gateway
-      namespace: imdbgraph
+      namespace: traefik
   # hostnames:
   #   - api.staging.imdbgraph.com
   rules:

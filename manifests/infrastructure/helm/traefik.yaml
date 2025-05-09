@@ -16,8 +16,8 @@ spec:
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: traefik
-  namespace: imdbgraph
+  name: traefik-gateway
+  namespace: traefik
 spec:
   interval: 10m
   chart:
@@ -33,3 +33,5 @@ spec:
         enabled: true
       kubernetesIngress:
         enabled: false
+    gateway:
+      enabled: false
