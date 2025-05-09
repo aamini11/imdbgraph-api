@@ -24,7 +24,7 @@ spec:
     - name: websecure
       port: 8443
       protocol: HTTPS
-      hostname: api.staging.imdbgraph.com
+      hostname: api.staging.imdbgraph.org
       tls:
         mode: Terminate
         certificateRefs:
