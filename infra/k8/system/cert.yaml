@@ -11,14 +11,14 @@ spec:
   privateKey:
     rotationPolicy: Always
   issuerRef:
-    name: letsencrypt-staging
+    name: letsencrypt
     kind: Issuer
     group: cert-manager.io
 ---
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: letsencrypt-staging
+  name: letsencrypt
   namespace: networking
 spec:
   acme:

@@ -4,7 +4,3 @@ namespace: imdbgraph
 resources:
   - deployment.yaml
   - sealed-secret.yaml
-configMapGenerator:
-  - name: imdbgraph-config
-    files:
-      - .env

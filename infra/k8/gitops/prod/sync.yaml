@@ -1,14 +1,33 @@
+# App sources
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: infrastructure-config
+  name: imdbgraph
   namespace: flux-system
 spec:
-  path: ./manifests/infrastructure/config
+  path: ./infra/k8/apps/imdbgraph/prod
   dependsOn:
-    - name: infrastructure-helm-releases
-      namespace: flux-system
+    - name: system
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  interval: 10m
+  retryInterval: 1m
+  timeout: 5m
+  prune: true
+
+# System component
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: system
+  namespace: flux-system
+spec:
+  path: ./infra/k8/system/prod
+  dependsOn:
+    - name: helm
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -20,10 +39,10 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: infrastructure-helm-releases
+  name: helm
   namespace: flux-system
 spec:
-  path: ./manifests/infrastructure/helm-releases
+  path: ./infra/k8/helm
   sourceRef:
     kind: GitRepository
     name: flux-system
