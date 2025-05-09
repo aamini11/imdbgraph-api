@@ -58,7 +58,7 @@ metadata:
 spec:
   parentRefs:
     - name: traefik-gateway
-      namespace: traefik
+      namespace: networking
   rules:
     - matches:
         - path:
@@ -75,7 +75,7 @@ metadata:
 spec:
   parentRefs:
     - name: traefik-gateway
-      namespace: traefik
+      namespace: networking
   hostnames:
     - api.staging.imdbgraph.org
   rules:

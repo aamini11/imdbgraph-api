@@ -3,7 +3,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: imdbgraph-org
-  namespace: cert-manager
+  namespace: networking
 spec:
   secretName: imdbgraph-org-tls
   dnsNames:
@@ -19,7 +19,7 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: letsencrypt-staging
-  namespace: cert-manager
+  namespace: networking
 spec:
   acme:
     server: https://acme-staging-v02.api.letsencrypt.org/directory
@@ -30,5 +30,5 @@ spec:
           gatewayHTTPRoute:
             parentRefs:
               - name: traefik-gateway
-                namespace: traefik
+                namespace: networking
                 kind: Gateway
