@@ -6,7 +6,7 @@ metadata:
 spec:
   path: ./manifests/app
   dependsOn:
-    - name: infrastructure-helm-releases
+    - name: infrastructure-config
       namespace: flux-system
   sourceRef:
     kind: GitRepository
