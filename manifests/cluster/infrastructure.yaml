@@ -5,7 +5,7 @@ metadata:
   name: infrastructure-config
   namespace: flux-system
 spec:
-  path: ./manifests/infrastructure/helm
+  path: ./manifests/infrastructure/config
   dependsOn:
     - name: infrastructure-helm-releases
       namespace: flux-system
