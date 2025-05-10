@@ -7,10 +7,5 @@
         // Java/Spring
         "vscjava.vscode-java-pack",
         "vmware.vscode-boot-dev-pack",
-
-        // Devops
-        "hashicorp.terraform",
-        "ms-kubernetes-tools.vscode-kubernetes-tools",
-        "ms-azuretools.vscode-docker",
     ]
 }
