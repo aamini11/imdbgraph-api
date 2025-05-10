@@ -1,51 +1,15 @@
-name: "Pipeline Template"
-
+name: "Continuous Integration"
 on:
-  workflow_call:
-    inputs:
-      environment:
-        type: string
-        required: true
-
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
 jobs:
-  provision:
-    runs-on: ubuntu-22.04
-    environment: ${{ inputs.environment }}
-    permissions:
-      id-token: write
-      contents: read
-    env:
-      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-    defaults:
-      run:
-        working-directory: infra/terraform/env/${{ inputs.environment }}
-    steps:
-      # Setup Terraform
-      - name: Checkout source code
-        uses: actions/checkout@v4
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.10.3"
-      # Run Terraform
-      - name: Terraform Init
-        run: terraform init
-      - name: Terraform Format
-        run: terraform fmt -check
-      - name: Terraform Plan
-        run: terraform plan -input=false
-      - name: Terraform Apply
-        if: github.ref_name != github.event.repository.default_branch && github.event_name == 'push'
-        run: terraform apply -auto-approve -input=false
-
   build:
     runs-on: ubuntu-22.04
     permissions:
-      packages: write
-      checks: write
+      packages: write # Required to write docker images to the GitHub Container Registry
+      contents: read  # Required to read the source code
     env:
       IMAGE_NAME: ghcr.io/${{ github.repository }}:${{ github.head_ref || github.ref_name }}
       CI_REGISTRY_USER: ${{ github.actor }}
